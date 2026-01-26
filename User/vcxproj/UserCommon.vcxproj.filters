@@ -203,6 +203,9 @@
     <ClInclude Include="..\include\UserCommon\UserCommon.Blowfish.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.VT.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\UserCommon\UserCommon.pch.cpp">
@@ -224,6 +227,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\src\UserCommon\UserCommon.Blowfish.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.VT.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -88,6 +88,7 @@
     <ClInclude Include="..\include\UserCommon\UserCommon.unique_resource.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.string.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.util.h" />
+    <ClInclude Include="..\include\UserCommon\UserCommon.VT.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rd\oxorany\oxorany.cpp" />
@@ -97,6 +98,7 @@
     <ClCompile Include="..\src\UserCommon\UserCommon.string.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.time.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.util.cpp" />
+    <ClCompile Include="..\src\UserCommon\UserCommon.VT.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
