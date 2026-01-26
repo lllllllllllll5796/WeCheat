@@ -1,0 +1,290 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.MSVC.Toolset.Common.props(27,3): warning MSB4011: 无法再次导入“C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.WindowsSDK.props”。可能已在“C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\LLVM.Cpp.Common.props (49,3)”处导入过它。这很可能是生成创作错误。将忽略此后续导入。[D:\WeCheat\3rd\zydis\msvc\dependencies\zycore\Zycore.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.MSVC.Toolset.Common.props(28,3): warning MSB4011: 无法再次导入“C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.Common.props”。可能已在“C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\LLVM.Cpp.Common.props (50,3)”处导入过它。这很可能是生成创作错误。将忽略此后续导入。[D:\WeCheat\3rd\zydis\msvc\dependencies\zycore\Zycore.vcxproj]
+  Building 'Zycore' with toolset 'WindowsKernelModeDriver10.0_LLVM' and the 'Desktop' target platform.
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.062s in ..\..\..\dependencies\zycore\src\Allocator.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.018s in ..\..\..\dependencies\zycore\src\API\Memory.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.016s in ..\..\..\dependencies\zycore\src\API\Process.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.017s in ..\..\..\dependencies\zycore\src\API\Synchronization.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.019s in ..\..\..\dependencies\zycore\src\API\Terminal.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.017s in ..\..\..\dependencies\zycore\src\API\Thread.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.094s in ..\..\..\dependencies\zycore\src\ArgParse.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.105s in ..\..\..\dependencies\zycore\src\Bitset.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.061s in ..\..\..\dependencies\zycore\src\Format.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.084s in ..\..\..\dependencies\zycore\src\List.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.145s in ..\..\..\dependencies\zycore\src\String.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.115s in ..\..\..\dependencies\zycore\src\Vector.c
+  In file included from <built-in>:370:
+<command line>(23,9): warning : '_WIN32_WINNT' macro redefined [-Wmacro-redefined]
+<command line>(23,9): warning :    23 | #define _WIN32_WINNT 0x0601
+<command line>(23,9): warning :       |         ^
+<command line>(6,9): message : previous definition is here
+<command line>(6,9): message :     6 | #define _WIN32_WINNT 0x0502
+<command line>(6,9): message :       |         ^
+<command line>(24,9): warning : 'WINVER' macro redefined [-Wmacro-redefined]
+<command line>(24,9): warning :    24 | #define WINVER 0x0601
+<command line>(24,9): warning :       |         ^
+<command line>(5,9): message : previous definition is here
+<command line>(5,9): message :     5 | #define WINVER 0x0502
+<command line>(5,9): message :       |         ^
+<command line>(26,9): warning : 'NTDDI_VERSION' macro redefined [-Wmacro-redefined]
+<command line>(26,9): warning :    26 | #define NTDDI_VERSION 0x06010000
+<command line>(26,9): warning :       |         ^
+<command line>(7,9): message : previous definition is here
+<command line>(7,9): message :     7 | #define NTDDI_VERSION 0x05020000
+<command line>(7,9): message :       |         ^
+<command line>(7,9): message : 3 warnings generated.
+<command line>(7,9): message : FunctionObfProbPass Prob: 100
+  android-ollvm(v1.0.5) spent 0.020s in ..\..\..\dependencies\zycore\src\Zycore.c
+  Zycore.vcxproj -> D:\WeCheat\Kernel\Lib\Zycore_x64.lib
