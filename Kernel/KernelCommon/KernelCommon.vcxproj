@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Devlepoment|x64">
+      <Configuration>Devlepoment</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{16366A72-8EEB-4607-B879-21C45FC75BFF}</ProjectGuid>
+    <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration>Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>kcpplib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(SolutionDir)Lib\WeCheat\</OutDir>
+    <IncludePath>.\;$(VC_IncludePath);$(ProjectDir)..\kcpplib\eastl\include\;$(ProjectDir)..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\3rd\zlib\;$(ProjectDir)..\3rd\zydis\include\;$(ProjectDir)..\3rd\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeCheat\$(ProjectName)\</IntDir>
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(SolutionDir)Kernel\Lib\</OutDir>
+    <IncludePath>.\;$(VC_IncludePath);$(ProjectDir)..\kcpplib\eastl\include\;$(ProjectDir)..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\3rd\zlib\;$(ProjectDir)..\3rd\zydis\include\;$(ProjectDir)..\3rd\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeCheat\$(ProjectName)\</IntDir>
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
+  <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <ClangClAdditionalOptions>-mllvm -ipobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
+    <UseLldLink>false</UseLldLink>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="LLVM">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference -Wno-deprecated-declarations -Wno-deprecated-builtins</ClangClAdditionalOptions>
+    <UseLldLink>false</UseLldLink>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;CONFIG_DEBUG_PRINT_ON=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.\;Kcpp\eastl\include;Kcpp\eastl\test\packages\EABase\include\Common;..\3rd\;..\3rd\zydis\include;..\3rd\zydis\dependencies\zycore\include;..\3rd\zydis\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>KernelBase_pch.h</PrecompiledHeaderFile>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <Link>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;CONFIG_DEBUG_PRINT_ON=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.\;Kcpp\eastl\include;Kcpp\eastl\test\packages\EABase\include\Common;..\..\3rd\;..\..\3rd\asmjit_xedparse;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\KernelIntrin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>KernelCommon.pch.h</PrecompiledHeaderFile>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\3rd\Lde\Lde.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\oxorany\oxorany.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\adler32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\compress.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\crc32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\deflate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\gzlib.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\infback.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inffast.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inflate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inftrees.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\trees.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\uncompr.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\zutil.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Capstone\KernelCommon.Capstone.cpp" />
+    <ClCompile Include="CrossSystem\KernelCommon.CrossSystem.cpp" />
+    <ClCompile Include="Encrypt\KernelCommon.Encrypt.Blowfish.cpp" />
+    <ClCompile Include="Kcpp\cpp_path\cpp_path.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\allocator_eastl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\assert.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\atomic.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\fixed_pool.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\hashtable.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\intrusive_list.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\numeric_limits.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\red_black_tree.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\string.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\thread_support.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\err.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\fltintrn.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\invargc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\kcrtc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\kcrtfs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\strtod.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\strtoll.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kstl\kernel_stl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\FIntrin.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\Helpers.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\HideImport.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\MapLoad.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\Memory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="KernelCommon.cpp" />
+    <ClCompile Include="KernelCommon.pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.mutexlock.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.rwlock.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.shared_mutexlock.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.spinlock.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Log2File\KernelCommon.Log2File.cpp" />
+    <ClCompile Include="Log\Log.cpp" />
+    <ClCompile Include="SerialPort\SerialPort.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.dll.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.eprocess.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.ethread.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.export.function.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.file.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.memory.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.module.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.objs.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.process.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.ssdt.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.string.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.thread.cpp" />
+    <ClCompile Include="Utils\KernelCommon.Utils.util.cpp" />
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.Cloak.cpp" />
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.EptHook.cpp" />
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\3rd\Lde\Lde.h" />
+    <ClInclude Include="..\..\3rd\oxorany\compiletime_hash.h" />
+    <ClInclude Include="..\..\3rd\oxorany\obfusheader.h" />
+    <ClInclude Include="..\..\3rd\oxorany\oxorany.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntbcd.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntdbg.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntexapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntgdi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntioapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntkeapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntldr.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntlpcapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntmisc.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntmmapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntnls.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntobapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntpebteb.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntpfapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntpnpapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntpoapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntpsapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntregapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntrtl.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntsam.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntseapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntsmss.h" />
+    <ClInclude Include="..\..\3rd\phnt\nttmapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\nttp.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntwow64.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntxcapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\ntzwapi.h" />
+    <ClInclude Include="..\..\3rd\phnt\phnt.h" />
+    <ClInclude Include="..\..\3rd\phnt\phnt_ntdef.h" />
+    <ClInclude Include="..\..\3rd\phnt\phnt_windows.h" />
+    <ClInclude Include="..\..\3rd\phnt\subprocesstag.h" />
+    <ClInclude Include="..\..\3rd\phnt\winsta.h" />
+    <ClInclude Include="..\..\3rd\zlib\crc32.h" />
+    <ClInclude Include="..\..\3rd\zlib\deflate.h" />
+    <ClInclude Include="..\..\3rd\zlib\inffast.h" />
+    <ClInclude Include="..\..\3rd\zlib\inffixed.h" />
+    <ClInclude Include="..\..\3rd\zlib\inflate.h" />
+    <ClInclude Include="..\..\3rd\zlib\inftrees.h" />
+    <ClInclude Include="..\..\3rd\zlib\trees.h" />
+    <ClInclude Include="..\..\3rd\zlib\zconf.h" />
+    <ClInclude Include="..\..\3rd\zlib\zlib.h" />
+    <ClInclude Include="..\..\3rd\zlib\zutil.h" />
+    <ClInclude Include="Capstone\KernelCommon.Capstone.h" />
+    <ClInclude Include="CrossSystem\KernelCommon.CrossSystem.h" />
+    <ClInclude Include="dbgk\KernelCommon.Dbgk.Core.h" />
+    <ClInclude Include="dbgk\KernelCommon.Dbgk.FuncDef.h" />
+    <ClInclude Include="Dbgk\KernelCommon.Dbgk.h" />
+    <ClInclude Include="Driver\KernelCommon.Driver.h" />
+    <ClInclude Include="Encrypt\KernelCommon.Encrypt.Blowfish.h" />
+    <ClInclude Include="ia32-doc\ia32.hpp" />
+    <ClInclude Include="Kcpp\cpp_path\cpp_path.hpp" />
+    <ClInclude Include="Kcpp\crt\crt.h" />
+    <ClInclude Include="Kcpp\KernelCommon.Kcpp.h" />
+    <ClInclude Include="Kcpp\kcrt\kcrt.h" />
+    <ClInclude Include="Kcpp\kstl\kernel_stl.h" />
+    <ClInclude Include="Kcpp\kstl\kstl.h" />
+    <ClInclude Include="Kcpp\kstl\multiton.h" />
+    <ClInclude Include="Kcpp\kstl\scope.h" />
+    <ClInclude Include="Kcpp\kstl\scope_exit.h" />
+    <ClInclude Include="Kcpp\kstl\singleton.h" />
+    <ClInclude Include="Kcpp\kstl\strategy.h" />
+    <ClInclude Include="Kcpp\kstl\unique_resource.h" />
+    <ClInclude Include="Kcpp\noimp\FIntrin.h" />
+    <ClInclude Include="Kcpp\noimp\Helpers.h" />
+    <ClInclude Include="Kcpp\noimp\HideImport.h" />
+    <ClInclude Include="Kcpp\noimp\Internals.h" />
+    <ClInclude Include="Kcpp\noimp\MapLoad.h" />
+    <ClInclude Include="Kcpp\noimp\Memory.h" />
+    <ClInclude Include="KernelCommon.cheader.h" />
+    <ClInclude Include="KernelCommon.cppheader.h" />
+    <ClInclude Include="KernelCommon.FuncDef.h" />
+    <ClInclude Include="KernelCommon.h" />
+    <ClInclude Include="KernelCommon.log.h" />
+    <ClInclude Include="KernelCommon.macro.h" />
+    <ClInclude Include="KernelCommon.pch.h" />
+    <ClInclude Include="KernelCommon.version.h" />
+    <ClInclude Include="KernelCommon.winbase.h" />
+    <ClInclude Include="Lock\KernelCommon.Lock.h" />
+    <ClInclude Include="Lock\KernelCommon.mutexlock.h" />
+    <ClInclude Include="Lock\KernelCommon.rwlock.h" />
+    <ClInclude Include="Lock\KernelCommon.shared_mutexlock.h" />
+    <ClInclude Include="Lock\KernelCommon.spinlock.h" />
+    <ClInclude Include="Log2File\KernelCommon.Log2File.h" />
+    <ClInclude Include="Log\Log.h" />
+    <ClInclude Include="SerialPort\SerialPort.h" />
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Define.h" />
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Enum.h" />
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Fun.h" />
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.h" />
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Struct.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.dll.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.eprocess.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.ethread.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.export.function.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.file.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.memory.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.module.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.objs.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.process.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.ssdt.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.string.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.thread.h" />
+    <ClInclude Include="Utils\KernelCommon.Utils.util.h" />
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.Cloak.h" />
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.EptHook.h" />
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_10240.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_10586.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_14393.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_15063.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_16299.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_17134.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_17763.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_18362.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_18363.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19041.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19042.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19043.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19044.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19045.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_19569.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_20150.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_20180.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_21292.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_22000.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_22621.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_22631.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_7600.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_7601.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_9200.h" />
+    <ClInclude Include="Wdk2\Wdk2.build_9600.h" />
+    <ClInclude Include="Wdk2\KernelCommon.Wdk2.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_10240.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_10586.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_14393.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_15063.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_16299.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_17134.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_17763.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_18356.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_18362.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_18363.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19041.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19042.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19043.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19044.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19045.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_19569.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_20150.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_20180.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_21292.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_22000.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_22621.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_22622.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_22623.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_22631.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_23481.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_25905.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_25982.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_26016.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_26040.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_7600.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_7601.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_9200.h" />
+    <ClInclude Include="Wdk2\Wdk2.syscall_9600.h" />
+    <ClInclude Include="Wdk\KernelCommon.Wdk.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Wdk\Wdk.CmKernel.inl" />
+    <None Include="Wdk\Wdk.CmStruct.inl" />
+    <None Include="Wdk\Wdk.DbgKernel.inl" />
+    <None Include="Wdk\Wdk.DbgStruct.inl" />
+    <None Include="Wdk\Wdk.ExKernel.inl" />
+    <None Include="Wdk\Wdk.ExStruct.inl" />
+    <None Include="Wdk\Wdk.FsKernel.inl" />
+    <None Include="Wdk\Wdk.FsStruct.inl" />
+    <None Include="Wdk\Wdk.IoKernel.inl" />
+    <None Include="Wdk\Wdk.IoStruct.inl" />
+    <None Include="Wdk\Wdk.KeKernel.inl" />
+    <None Include="Wdk\Wdk.KeStruct.inl" />
+    <None Include="Wdk\Wdk.LPCKernel.inl" />
+    <None Include="Wdk\Wdk.LPCStruct.inl" />
+    <None Include="Wdk\Wdk.MmKernel.inl" />
+    <None Include="Wdk\Wdk.MmStruct.inl" />
+    <None Include="Wdk\Wdk.Native.inl" />
+    <None Include="Wdk\Wdk.NetKernel.inl" />
+    <None Include="Wdk\Wdk.NetStruct.inl" />
+    <None Include="Wdk\Wdk.ObKernel.inl" />
+    <None Include="Wdk\Wdk.ObStruct.inl" />
+    <None Include="Wdk\Wdk.PsKernel.inl" />
+    <None Include="Wdk\Wdk.PsStruct.inl" />
+    <None Include="Wdk\Wdk.RtlKernel.inl" />
+    <None Include="Wdk\Wdk.RtlStruct.inl" />
+    <None Include="Wdk\Wdk.SeKernel.inl" />
+    <None Include="Wdk\Wdk.SeMacro.inl" />
+    <None Include="Wdk\Wdk.SeStruct.inl" />
+    <None Include="Wdk\Wdk.TsKernel.inl" />
+    <None Include="Wdk\Wdk.TsStruct.inl" />
+    <None Include="Wdk\Wdk.WmiKernel.inl" />
+    <None Include="Wdk\Wdk.WmiStruct.inl" />
+    <None Include="Wdk\Wdk.ZwKernel.inl" />
+    <None Include="Wdk\Wdk.ZwStruct.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Kcpp\noimp\FuckStack.asm" />
+    <MASM Include="VmxHelper\KernelCommon.VmxHelperAsm.asm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

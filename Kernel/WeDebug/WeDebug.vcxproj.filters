@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{fe4ac2b1-122c-4812-8ac3-e82babaa2ea3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WeDebug.Global.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.Control.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.Symbolic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.DbgkApi.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.List.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WeDebug.pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Control.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Symbolic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.DbgkApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.List.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

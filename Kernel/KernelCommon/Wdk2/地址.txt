@@ -1,0 +1,1 @@
+https://github.com/hfiref0x/SyscallTables/blob/1c404109f83835c5dee944c94bd128d103888203/Compiled/Composition/NT10/ntos/25905.txt

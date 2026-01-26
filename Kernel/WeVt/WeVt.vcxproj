@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Devlepoment|x64">
+      <Configuration>Devlepoment</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FABE0ED4-390C-49FC-A0C2-FE46A21B2E7E}</ProjectGuid>
+    <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration>Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>WeVt</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <ProjectName>WeVt</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+    <SpectreMitigation>false</SpectreMitigation>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="Configuration">
+    <TargetVersion>
+    </TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+    <SpectreMitigation>false</SpectreMitigation>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(IncludePath);$(KMDF_INC_PATH)$(KMDF_VER_PATH);$(ProjectDir)include\;$(ProjectDir)..\..\kcpplib\eastl\include\;$(ProjectDir)..\..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\..\3rd\zydis\include\;$(ProjectDir)..\..\3rd\zydis\dependencies\zycore\include;$(ProjectDir)..\..\3rd\zlib\</IncludePath>
+    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\WeVt\</OutDir>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeVt\$(ProjectName)\</IntDir>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
+    <EnableInf2cat>false</EnableInf2cat>
+    <TargetName>WeVt</TargetName>
+    <LibraryPath>$(ProjectDir)\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(IncludePath);$(KMDF_INC_PATH)$(KMDF_VER_PATH);$(ProjectDir)include\;$(ProjectDir)..\..\kcpplib\eastl\include\;$(ProjectDir)..\..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\..\3rd\zydis\include\;$(ProjectDir)..\..\3rd\zydis\dependencies\zycore\include;$(ProjectDir)..\..\3rd\zlib\</IncludePath>
+    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\WeVt\</OutDir>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeVt\$(ProjectName)\</IntDir>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
+    <EnableInf2cat>false</EnableInf2cat>
+    <TargetName>WeVt</TargetName>
+    <LibraryPath>$(ProjectDir)\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <UseLldLink>false</UseLldLink>
+    <UseLlvmLib>false</UseLlvmLib>
+    <ClangClAdditionalOptions>-mllvm -ipobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100</ClangClAdditionalOptions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="LLVM">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <UseLldLink>false</UseLldLink>
+    <UseLlvmLib>false</UseLlvmLib>
+    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <DisableSpecificWarnings>4201;4603;4627;4986;4987;4996;4091;4311;4302;4005;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ConformanceMode>true</ConformanceMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_KERNEL_MODE;ZYDIS_STATIC_DEFINE;_NO_CRT_STDIO_INLINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>..\..\3rd\;..\..\3rd\zydis\msvc;..\..\KernelCommon\;..\..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\..\KernelCommon\Kcpp\eastl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Inf />
+    <MASM />
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>libcntpr.lib;wdm.lib;wdmsec.lib;aux_klib.lib;fltMgr.lib;fwpkclnt.lib;netio.lib;Ntstrsafe.lib;FltMgr.lib;KernelCommon.lib;capstone_driver.lib;asmjit.lib;Zycore.lib;Zydis.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Lib\WeVt\;$(SolutionDir)Lib\WeVt\Zydis\R0\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent />
+    <DriverSign />
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Release\WowClassic\WeVt.sys"
+copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Release\PUBG\WeVt.sys"
+copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Release\EFT\WeVt.sys"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <ClCompile>
+      <DisableSpecificWarnings>4201;4603;4627;4986;4987;4996;4091;4311;4302;4005;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ConformanceMode>true</ConformanceMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_KERNEL_MODE;ZYDIS_STATIC_DEFINE;_NO_CRT_STDIO_INLINE;CONFIG_DEBUG_PRINT_ON=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>..\..\3rd;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\..\Communication;..\KernelIntrin;..\KernelCommon;..\KernelCommon\Kcpp\eastl\include;..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\SymbolicAccess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderFile>WeVt.pch.h</PrecompiledHeaderFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Inf />
+    <MASM />
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <AdditionalDependencies>WDMSec.lib;FwpKClnt.lib;Fwpuclnt.lib;ntoskrnl.lib;hal.lib;wmilib.lib;NDIS.lib;UUID.lib;advapi32.lib;kernel32.lib;libcntpr.lib;wdm.lib;wdmsec.lib;aux_klib.lib;fltMgr.lib;fwpkclnt.lib;netio.lib;Ntstrsafe.lib;FltMgr.lib;Zycore_x64.lib;Zydis_x64.lib;KernelIntrin.lib;KernelCommon.lib;SymbolicAccess.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Kernel\Lib\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent />
+    <DriverSign />
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VT\VT.Apic.cpp" />
+    <ClCompile Include="VT\VT.BreakPoint.cpp" />
+    <ClCompile Include="VT\VT.cpp" />
+    <ClCompile Include="VT\VT.Debugger.cpp" />
+    <ClCompile Include="VT\VT.InterruptHook.cpp" />
+    <ClCompile Include="VT\VT.RedirectInterrupt.cpp" />
+    <ClCompile Include="VT\VT.Test.cpp" />
+    <ClCompile Include="VT\VT.Ultimap.cpp" />
+    <ClCompile Include="VT\VT.Util.cpp" />
+    <ClCompile Include="VT\VT.VmxOffLoad.cpp" />
+    <ClCompile Include="VT\VT.Watch.cpp" />
+    <ClCompile Include="WeVt.Global.cpp" />
+    <ClCompile Include="WeVt.Hypervisor.cpp" />
+    <ClCompile Include="WeVt.Main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="WeVt.pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VT\VT.Apic.h" />
+    <ClInclude Include="VT\VT.BreakPoint.h" />
+    <ClInclude Include="VT\VT.Debugger.h" />
+    <ClInclude Include="VT\VT.h" />
+    <ClInclude Include="VT\VT.InterruptHook.h" />
+    <ClInclude Include="VT\VT.RedirectInterrupt.h" />
+    <ClInclude Include="VT\VT.Test.h" />
+    <ClInclude Include="VT\VT.Ultimap.h" />
+    <ClInclude Include="VT\VT.Util.h" />
+    <ClInclude Include="VT\VT.vmdisk.h" />
+    <ClInclude Include="VT\VT.VmxOffLoad.h" />
+    <ClInclude Include="VT\VT.Watch.h" />
+    <ClInclude Include="WeVt.Config.h" />
+    <ClInclude Include="WeVt.Global.h" />
+    <ClInclude Include="WeVt.Hypervisor.h" />
+    <ClInclude Include="WeVt.pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="VT\VT.DebuggerAsm.asm" />
+    <MASM Include="VT\VT.TestAsm.asm" />
+    <MASM Include="VT\VT.UtilAsm.asm" />
+    <MASM Include="VT\VT.VmxOffLoadAsm.asm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

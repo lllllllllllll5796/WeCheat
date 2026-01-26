@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DBK.pch.cpp" />
+    <ClCompile Include="DBK.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DBK.pch.h" />
+    <ClInclude Include="DBK.h" />
+  </ItemGroup>
+</Project>

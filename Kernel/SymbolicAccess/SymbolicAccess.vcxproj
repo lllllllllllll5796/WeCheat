@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Devlepoment|x64">
+      <Configuration>Devlepoment</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{994BD41C-68EC-462A-B1E5-60914FD6B0DA}</ProjectGuid>
+    <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration>Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>kcpplib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(SolutionDir)Lib\WeCheat\</OutDir>
+    <IncludePath>.\;$(VC_IncludePath);$(ProjectDir)..\kcpplib\eastl\include\;$(ProjectDir)..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\3rd\zlib\;$(ProjectDir)..\3rd\zydis\include\;$(ProjectDir)..\3rd\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeCheat\$(ProjectName)\</IntDir>
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <OutDir>$(SolutionDir)Kernel\Lib\</OutDir>
+    <IncludePath>.\;$(VC_IncludePath);$(ProjectDir)..\kcpplib\eastl\include\;$(ProjectDir)..\kcpplib\eastl\test\packages\EABase\include\Common\;$(ProjectDir)..\3rd\zlib\;$(ProjectDir)..\3rd\zydis\include\;$(ProjectDir)..\3rd\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IntDir>$(SolutionDir)Bin\obj\$(PlatformShortName)\$(Configuration)\WeCheat\$(ProjectName)\</IntDir>
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
+  <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <ClangClAdditionalOptions>-mllvm -ipobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
+    <UseLldLink>false</UseLldLink>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="LLVM">
+    <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
+    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference -Wno-deprecated-declarations -Wno-deprecated-builtins</ClangClAdditionalOptions>
+    <UseLldLink>false</UseLldLink>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;CONFIG_DEBUG_PRINT_ON=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.\;Kcpp\eastl\include;Kcpp\eastl\test\packages\EABase\include\Common;..\3rd\;..\3rd\zydis\include;..\3rd\zydis\dependencies\zycore\include;..\3rd\zydis\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>KernelBase_pch.h</PrecompiledHeaderFile>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">
+    <Link>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;ENABLE_LOGGING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.\;..\KernelCommon\Kcpp\eastl\include;..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\..\3rd\;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\KernelIntrin;..\KernelCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SymbolicAccess.pch.h</PrecompiledHeaderFile>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Lib\</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SymbolicAccess.FileStream.h" />
+    <ClInclude Include="SymbolicAccess.h" />
+    <ClInclude Include="SymbolicAccess.Log.h" />
+    <ClInclude Include="SymbolicAccess.ModuleData.h" />
+    <ClInclude Include="SymbolicAccess.ModuleExtender.h" />
+    <ClInclude Include="SymbolicAccess.ModuleExtenderFactory.h" />
+    <ClInclude Include="SymbolicAccess.ModuleFinder.h" />
+    <ClInclude Include="SymbolicAccess.MsfReader.h" />
+    <ClInclude Include="SymbolicAccess.pch.h" />
+    <ClInclude Include="SymbolicAccess.PdbGrabber.h" />
+    <ClInclude Include="SymbolicAccess.PdbStructs.h" />
+    <ClInclude Include="SymbolicAccess.ProcessCreator.h" />
+    <ClInclude Include="SymbolicAccess.ProcessCreatorFactory.h" />
+    <ClInclude Include="SymbolicAccess.ProcessCreatorInterface.h" />
+    <ClInclude Include="SymbolicAccess.Registry.h" />
+    <ClInclude Include="SymbolicAccess.ScopedHandle.h" />
+    <ClInclude Include="SymbolicAccess.ScopedStackAttach.h" />
+    <ClInclude Include="SymbolicAccess.StreamReader.h" />
+    <ClInclude Include="SymbolicAccess.StructExtractor.h" />
+    <ClInclude Include="SymbolicAccess.SymbolExtractor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SymbolicAccess.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SymbolicAccess.FileStream.cpp" />
+    <ClCompile Include="SymbolicAccess.Log.cpp" />
+    <ClCompile Include="SymbolicAccess.ModuleExtenderFactory.cpp" />
+    <ClCompile Include="SymbolicAccess.ModuleFinder.cpp" />
+    <ClCompile Include="SymbolicAccess.MsfReader.cpp" />
+    <ClCompile Include="SymbolicAccess.PdbGrabber.cpp" />
+    <ClCompile Include="SymbolicAccess.ProcessCreator.cpp" />
+    <ClCompile Include="SymbolicAccess.ProcessCreatorFactory.cpp" />
+    <ClCompile Include="SymbolicAccess.Registry.cpp" />
+    <ClCompile Include="SymbolicAccess.ScopedHandle.cpp" />
+    <ClCompile Include="SymbolicAccess.StreamReader.cpp" />
+    <ClCompile Include="SymbolicAccess.StructExtractor.cpp" />
+    <ClCompile Include="SymbolicAccess.SymbolExtractor.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{f635c3b5-3557-4908-a88d-f97dfd979e94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{0ce6e3f8-9fd6-4f1f-a39e-c7095e36546e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd">
+      <UniqueIdentifier>{4fc229b4-c695-4194-9813-9568895e782c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\detours">
+      <UniqueIdentifier>{37a2ea2f-b20f-41ab-bde1-df21aef8453e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\AttachHelper\pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\detours\detours.h">
+      <Filter>3rd\detours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\detours\detver.h">
+      <Filter>3rd\detours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AttachHelper\Global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AttachHelper\dllmain.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AttachHelper\Hook.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AttachHelper\FunctionSet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AttachHelper\Ioctl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\AttachHelper\dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\creatwth.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\detours.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disasm.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disolarm.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disolarm64.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disolia64.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disolx64.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\disolx86.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\image.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\detours\modules.cpp">
+      <Filter>3rd\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AttachHelper\Global.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AttachHelper\Hook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AttachHelper\FunctionSet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AttachHelper\Ioctl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\3rd\detours\Makefile">
+      <Filter>3rd\detours</Filter>
+    </None>
+  </ItemGroup>
+</Project>

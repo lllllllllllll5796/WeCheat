@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="3rd">
+      <UniqueIdentifier>{6f1355a5-cbeb-4894-89da-a9daf62259a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\phnt">
+      <UniqueIdentifier>{4e55536f-6812-490b-b593-29a3adf1953a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\oxorany">
+      <UniqueIdentifier>{98d577ba-68f1-4f2b-8ff6-73106dc2875a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\UserCommon\UserCommon.pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.cheader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.cppheader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntdbg.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntexapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntgdi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntioapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntkeapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntldr.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntlpcapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntmisc.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntmmapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntnls.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntobapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpebteb.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpfapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpnpapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpoapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpsapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntregapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntrtl.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntsam.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntseapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntsmss.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\nttmapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\nttp.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntwow64.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntxcapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntzwapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt_ntdef.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt_windows.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\subprocesstag.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\winsta.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.scope_exit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.singleton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.Interlocked.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.multiton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.unique_resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.lazy_importer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.defclass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.harderror.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.idadefs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.msrnames.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.physicalmemory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.function_ref.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.peb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.threadpool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.struct.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.util.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.enum.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\compiletime_hash.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\obfusheader.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\oxorany.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.time.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.initializer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.ollvm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.Blowfish.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\UserCommon\UserCommon.pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.string.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.util.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\oxorany\oxorany.cpp">
+      <Filter>3rd\oxorany</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.time.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.Blowfish.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

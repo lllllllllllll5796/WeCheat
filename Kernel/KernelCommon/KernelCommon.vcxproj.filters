@@ -1,0 +1,922 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\3rd\oxorany\oxorany.cpp">
+      <Filter>3rd\oxorany</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\cpp_path\cpp_path.cpp">
+      <Filter>Kcpp\cpp_path</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\allocator_eastl.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\assert.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\atomic.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\fixed_pool.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\hashtable.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\intrusive_list.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\numeric_limits.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\red_black_tree.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\string.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\eastl\source\thread_support.cpp">
+      <Filter>Kcpp\eastl\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\err.cpp">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\fltintrn.cpp">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\invargc.cpp">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\kcrtc.cpp">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\kcrtfs.cpp">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\strtod.c">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kcrt\strtoll.c">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\kstl\kernel_stl.cpp">
+      <Filter>Kcpp\kstl</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\FIntrin.cpp">
+      <Filter>Kcpp\noimp</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\Helpers.cpp">
+      <Filter>Kcpp\noimp</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\HideImport.cpp">
+      <Filter>Kcpp\noimp</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\MapLoad.cpp">
+      <Filter>Kcpp\noimp</Filter>
+    </ClCompile>
+    <ClCompile Include="Kcpp\noimp\Memory.cpp">
+      <Filter>Kcpp\noimp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\adler32.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\compress.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\crc32.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\deflate.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\gzlib.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\infback.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inffast.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inflate.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\inftrees.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\trees.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\uncompr.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\zlib\zutil.c">
+      <Filter>3rd\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.rwlock.cpp">
+      <Filter>Lock</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.mutexlock.cpp">
+      <Filter>Lock</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.spinlock.cpp">
+      <Filter>Lock</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock\KernelCommon.shared_mutexlock.cpp">
+      <Filter>Lock</Filter>
+    </ClCompile>
+    <ClCompile Include="CrossSystem\KernelCommon.CrossSystem.cpp">
+      <Filter>CrossSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.string.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.dll.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.eprocess.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.module.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.export.function.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.util.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.memory.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.process.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.ethread.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.thread.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.objs.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.ssdt.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\KernelCommon.Utils.file.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rd\Lde\Lde.cpp">
+      <Filter>3rd\Lde</Filter>
+    </ClCompile>
+    <ClCompile Include="Capstone\KernelCommon.Capstone.cpp">
+      <Filter>Capstone</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelCommon.pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelCommon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Log2File\KernelCommon.Log2File.cpp">
+      <Filter>Log2File</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialPort\SerialPort.cpp">
+      <Filter>SerialPort</Filter>
+    </ClCompile>
+    <ClCompile Include="Encrypt\KernelCommon.Encrypt.Blowfish.cpp">
+      <Filter>Encrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="Log\Log.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.cpp">
+      <Filter>VmxHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.Cloak.cpp">
+      <Filter>VmxHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="VmxHelper\KernelCommon.VmxHelper.EptHook.cpp">
+      <Filter>VmxHelper</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Wdk2\KernelCommon.Wdk2.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_7600.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_7601.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_9200.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_9600.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_10240.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_10586.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_14393.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_15063.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_16299.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_17134.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_17763.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_18362.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_18363.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19041.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19042.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19043.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19044.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19045.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_19569.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_20150.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_20180.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_21292.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_22000.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_22621.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.build_22631.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_7600.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_7601.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_9200.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_9600.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_10240.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_10586.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_14393.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_15063.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_16299.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_17134.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_17763.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_18362.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_18363.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19041.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19042.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19043.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19044.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19045.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_19569.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_20150.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_20180.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_21292.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_22000.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_22621.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_22622.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_22623.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_22631.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_23481.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_25905.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_25982.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_26016.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_26040.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk\KernelCommon.Wdk.h">
+      <Filter>Wdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\compiletime_hash.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\obfusheader.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\oxorany\oxorany.h">
+      <Filter>3rd\oxorany</Filter>
+    </ClInclude>
+    <ClInclude Include="dbgk\KernelCommon.Dbgk.Core.h">
+      <Filter>Dbgk</Filter>
+    </ClInclude>
+    <ClInclude Include="dbgk\KernelCommon.Dbgk.FuncDef.h">
+      <Filter>Dbgk</Filter>
+    </ClInclude>
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Define.h">
+      <Filter>UnDoc</Filter>
+    </ClInclude>
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Enum.h">
+      <Filter>UnDoc</Filter>
+    </ClInclude>
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Fun.h">
+      <Filter>UnDoc</Filter>
+    </ClInclude>
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.Struct.h">
+      <Filter>UnDoc</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\KernelCommon.Kcpp.h">
+      <Filter>Kcpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\cpp_path\cpp_path.hpp">
+      <Filter>Kcpp\cpp_path</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\crt\crt.h">
+      <Filter>Kcpp\crt</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kcrt\kcrt.h">
+      <Filter>Kcpp\kcrt</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\kernel_stl.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\kstl.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\multiton.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\scope.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\scope_exit.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\singleton.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\strategy.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\kstl\unique_resource.h">
+      <Filter>Kcpp\kstl</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\FIntrin.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\Helpers.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\HideImport.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\Internals.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\MapLoad.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kcpp\noimp\Memory.h">
+      <Filter>Kcpp\noimp</Filter>
+    </ClInclude>
+    <ClInclude Include="UnDoc\KernelCommon.UnDoc.h">
+      <Filter>UnDoc</Filter>
+    </ClInclude>
+    <ClInclude Include="Dbgk\KernelCommon.Dbgk.h">
+      <Filter>Dbgk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\crc32.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\deflate.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\inffast.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\inffixed.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\inflate.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\inftrees.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\trees.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\zconf.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\zlib.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\zlib\zutil.h">
+      <Filter>3rd\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock\KernelCommon.rwlock.h">
+      <Filter>Lock</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock\KernelCommon.mutexlock.h">
+      <Filter>Lock</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock\KernelCommon.spinlock.h">
+      <Filter>Lock</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock\KernelCommon.shared_mutexlock.h">
+      <Filter>Lock</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock\KernelCommon.Lock.h">
+      <Filter>Lock</Filter>
+    </ClInclude>
+    <ClInclude Include="Driver\KernelCommon.Driver.h">
+      <Filter>Driver</Filter>
+    </ClInclude>
+    <ClInclude Include="CrossSystem\KernelCommon.CrossSystem.h">
+      <Filter>CrossSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.string.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.dll.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.eprocess.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.module.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.export.function.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.util.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.memory.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.process.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.ethread.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.thread.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.objs.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.ssdt.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\KernelCommon.Utils.file.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Wdk2\Wdk2.syscall_18356.h">
+      <Filter>Wdk2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\Lde\Lde.h">
+      <Filter>3rd\Lde</Filter>
+    </ClInclude>
+    <ClInclude Include="Capstone\KernelCommon.Capstone.h">
+      <Filter>Capstone</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.cheader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.cppheader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.FuncDef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.version.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.winbase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32-doc\ia32.hpp">
+      <Filter>ia32-doc</Filter>
+    </ClInclude>
+    <ClInclude Include="Log2File\KernelCommon.Log2File.h">
+      <Filter>Log2File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntbcd.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntdbg.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntexapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntgdi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntioapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntkeapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntldr.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntlpcapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntmisc.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntmmapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntnls.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntobapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpebteb.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpfapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpnpapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpoapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntpsapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntregapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntrtl.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntsam.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntseapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntsmss.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\nttmapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\nttp.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntwow64.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntxcapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\ntzwapi.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt_ntdef.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\phnt_windows.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\subprocesstag.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\phnt\winsta.h">
+      <Filter>3rd\phnt</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialPort\SerialPort.h">
+      <Filter>SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="Encrypt\KernelCommon.Encrypt.Blowfish.h">
+      <Filter>Encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="Log\Log.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.h">
+      <Filter>VmxHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.Cloak.h">
+      <Filter>VmxHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.EptHook.h">
+      <Filter>VmxHelper</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Wdk">
+      <UniqueIdentifier>{dbaaebc4-8ef1-4892-8dc1-3571676909ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wdk2">
+      <UniqueIdentifier>{591a0a71-919a-4ffd-b2ed-1d8d0c97c6cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd">
+      <UniqueIdentifier>{25127a7e-ec12-437d-90bc-3c99ba5e2e8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\oxorany">
+      <UniqueIdentifier>{7eaaa506-aaaf-4f68-8d82-77ee8a13384c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dbgk">
+      <UniqueIdentifier>{1aa971ac-f038-46e9-863a-4e46d329e35a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UnDoc">
+      <UniqueIdentifier>{1396a6fc-2de4-43a4-b433-46cea307a553}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp">
+      <UniqueIdentifier>{1d372470-77c1-4ef2-9229-844c46629cae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\cpp_path">
+      <UniqueIdentifier>{702992d1-0d2e-4da4-858e-37a63f7c2277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\crt">
+      <UniqueIdentifier>{ca3c8b9e-5068-4529-bb18-d7f1753f9336}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\eastl">
+      <UniqueIdentifier>{55b1ab19-8b21-45e5-be7b-64e2b980bb8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\kcrt">
+      <UniqueIdentifier>{16412384-17ef-4634-8b9d-2bce7b604623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\kstl">
+      <UniqueIdentifier>{8d2c9cf3-9f60-4ee0-b956-6165a1f53382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\noimp">
+      <UniqueIdentifier>{38eb146b-7e5c-4222-8717-4c1ea383d2cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kcpp\eastl\source">
+      <UniqueIdentifier>{17e44789-f35c-4bd3-a290-2801cf147a6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\zlib">
+      <UniqueIdentifier>{9a8350d2-9d2a-4d0c-a008-64f5677eab53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lock">
+      <UniqueIdentifier>{7e8dea08-69ee-4a4f-9226-e25548902783}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Driver">
+      <UniqueIdentifier>{a142cc42-b503-4c2a-9723-3bfcaf3b206e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CrossSystem">
+      <UniqueIdentifier>{580d8d93-6629-4093-9ec9-1e707ab463aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{9fa4e751-8b86-44ef-878a-8c152bed3e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\Lde">
+      <UniqueIdentifier>{a6920779-8946-4261-8d08-e4b575d2181d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Capstone">
+      <UniqueIdentifier>{c00d9fa3-c734-4572-858f-8d80e3006f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{3c9a9632-51d1-41b1-bf67-45bc3343d91d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{6d7a05b3-63b1-488c-9ad9-d1cc2438e8d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ia32-doc">
+      <UniqueIdentifier>{9ea34ee7-f8dd-4bab-8c20-15d6f55d2676}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log2File">
+      <UniqueIdentifier>{fcd01da7-d22d-44e3-93d3-6c3884741eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\phnt">
+      <UniqueIdentifier>{057fabf6-f163-463b-a58a-bd8f6bd14bb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SerialPort">
+      <UniqueIdentifier>{67fc0090-ca32-4b22-bb53-0e63a6d3a2a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Encrypt">
+      <UniqueIdentifier>{b7ac17e8-e15c-4097-8f73-c034de22ba7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{1bdce694-f3e8-4d4f-933f-52e275ca8fb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VmxHelper">
+      <UniqueIdentifier>{9e036a6a-ff8f-415b-ad23-b6c431af9ea9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Wdk\Wdk.MmKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.MmStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.Native.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.NetKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.NetStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ObKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ObStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.PsKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.PsStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.RtlKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.RtlStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.SeKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.SeMacro.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.SeStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.TsKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.TsStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.WmiKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.WmiStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ZwKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ZwStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.CmKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.CmStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.DbgKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.DbgStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ExKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.ExStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.FsKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.FsStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.IoKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.IoStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.KeKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.KeStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.LPCKernel.inl">
+      <Filter>Wdk</Filter>
+    </None>
+    <None Include="Wdk\Wdk.LPCStruct.inl">
+      <Filter>Wdk</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Kcpp\noimp\FuckStack.asm">
+      <Filter>Kcpp\noimp</Filter>
+    </MASM>
+    <MASM Include="VmxHelper\KernelCommon.VmxHelperAsm.asm">
+      <Filter>VmxHelper</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>
