@@ -1,12 +1,8 @@
 #pragma once
 
-extern "C" uintptr_t vmcall_intel(uint64_t Password3, uint64_t Password1, void* pVMCallInfo);
-extern "C" uintptr_t vmcall_amd(uint64_t Password3, uint64_t Password1, void* pVMCallInfo);
-extern "C" void RunWithKernelStack(void* pThis, void* pFunc);
+#include "UserCommon.Asm.h"
 
 #pragma pack(push, 1)
-
-
 struct ChangeRegOnBPInfo
 {
 	struct
@@ -111,32 +107,206 @@ class DBVM
 public:
 	DBVM();
 	~DBVM();
+
+	constexpr static uint64_t default_password1 = 0x76543210;
+	constexpr static uint32_t default_password2 = 0xfedcba98;
+	constexpr static uint64_t default_password3 = 0x90909090;
+
+private:
+	constexpr static uint16_t KernelCS = 0x10;
+	bool     bIntel = true;
+	uint64_t current_password1 = default_password1;
+	uint32_t current_password2 = default_password2;
+	uint64_t current_password3 = default_password3;
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 public:
-	//需要初始化
-	std::function<BOOL(IN HANDLE ProcessId, IN PVOID VirtualAddress, OUT ULONG64& PhysicalAddress)> GetPhysicalAddress;
-	std::function<BOOL(IN HANDLE ProcessId, IN PVOID pRemoteAddress, IN size_t Size)> TriggerCOW_ByProcessId;
-	std::function<BOOL(IN HANDLE ProcessId, IN OUT PVOID* BaseAddress, IN OUT PSIZE_T RegionSize, IN ULONG LockOption)> LockVirtualMemory;
-	std::function<BOOL(IN HANDLE ProcessId, IN OUT PVOID* BaseAddress, IN OUT PSIZE_T RegionSize, IN ULONG LockOption)> UnLockVirtualMemory;
-	std::function<BOOL(IN HANDLE ProcessId, OUT ULONG64& CR3)> GetCR3;
-	std::function<BOOL(IN HANDLE ProcessId, IN PVOID BaseAddress, OUT PVOID	Buffer, IN SIZE_T NumberOfBytesToRead, OUT PSIZE_T NumberOfBytesReaded)> ReadMemoryByProcessId;
+	constexpr static uint32_t VMCALL_GETVERSION = 0;
+	constexpr static uint32_t VMCALL_CHANGEPASSWORD = 1;
+	constexpr static uint32_t VMCALL_READ_PHYSICAL_MEMORY = 3;
+	constexpr static uint32_t VMCALL_WRITE_PHYSICAL_MEMORY = 4;
+	constexpr static uint32_t VMCALL_REDIRECTINT1 = 9;
+	constexpr static uint32_t VMCALL_INT1REDIRECTED = 10;
+	constexpr static uint32_t VMCALL_CHANGESELECTORS = 12;
+	constexpr static uint32_t VMCALL_BLOCK_INTERRUPTS = 13;
+	constexpr static uint32_t VMCALL_RESTORE_INTERRUPTS = 14;
+	constexpr static uint32_t VMCALL_REGISTER_CR3_EDIT_CALLBACK = 16;
+	constexpr static uint32_t VMCALL_RETURN_FROM_CR3_EDIT_CALLBACK = 17;
+	constexpr static uint32_t VMCALL_GETCR0 = 18;
+	constexpr static uint32_t VMCALL_GETCR3 = 19;
+	constexpr static uint32_t VMCALL_GETCR4 = 20;
+	constexpr static uint32_t VMCALL_RAISEPRIVILEGE = 21;
+	constexpr static uint32_t VMCALL_REDIRECTINT14 = 22;
+	constexpr static uint32_t VMCALL_INT14REDIRECTED = 23;
+	constexpr static uint32_t VMCALL_REDIRECTINT3 = 24;
+	constexpr static uint32_t VMCALL_INT3REDIRECTED = 25;
+	//v6+
+	constexpr static uint32_t VMCALL_READMSR = 26;
+	constexpr static uint32_t VMCALL_WRITEMSR = 27;
+	constexpr static uint32_t VMCALL_ULTIMAP = 28;
+	constexpr static uint32_t VMCALL_ULTIMAP_DISABLE = 29;
+	//v7
+	constexpr static uint32_t VMCALL_SWITCH_TO_KERNELMODE = 30;
+	constexpr static uint32_t VMCALL_DISABLE_DATAPAGEFAULTS = 31;
+	constexpr static uint32_t VMCALL_ENABLE_DATAPAGEFAULTS = 32;
+	constexpr static uint32_t VMCALL_GETLASTSKIPPEDPAGEFAULT = 33;
+	constexpr static uint32_t VMCALL_ULTIMAP_PAUSE = 34;
+	constexpr static uint32_t VMCALL_ULTIMAP_RESUME = 35;
+	constexpr static uint32_t VMCALL_ULTIMAP_DEBUGINFO = 36;
+	constexpr static uint32_t VMCALL_PSODTEST = 37;
+	//11
+	constexpr static uint32_t VMCALL_GETMEM = 38;
+	constexpr static uint32_t VMCALL_JTAGBREAK = 39;
+	constexpr static uint32_t VMCALL_GETNMICOUNT = 40;
+	constexpr static uint32_t VMCALL_WATCH_WRITES = 41;
+	constexpr static uint32_t VMCALL_WATCH_READS = 42;
+	constexpr static uint32_t VMCALL_WATCH_RETRIEVELOG = 43;
+	constexpr static uint32_t VMCALL_WATCH_DELETE = 44;
+	constexpr static uint32_t VMCALL_CLOAK_ACTIVATE = 45;
+	constexpr static uint32_t VMCALL_CLOAK_DEACTIVATE = 46;
+	constexpr static uint32_t VMCALL_CLOAK_READORIGINAL = 47;
+	constexpr static uint32_t VMCALL_CLOAK_WRITEORIGINAL = 48;
+	constexpr static uint32_t VMCALL_CLOAK_CHANGEREGONBP = 49;
+	constexpr static uint32_t VMCALL_CLOAK_REMOVECHANGEREGONBP = 50;
+	constexpr static uint32_t VMCALL_EPT_RESET = 51;
+	constexpr static uint32_t VMCALL_LOG_CR3VALUES_START = 52;
+	constexpr static uint32_t VMCALL_LOG_CR3VALUES_STOP = 53;
+	constexpr static uint32_t VMCALL_REGISTERPLUGIN = 54;
+	constexpr static uint32_t VMCALL_RAISEPMI = 55;
+	constexpr static uint32_t VMCALL_ULTIMAP2_HIDERANGEUSAGE = 56;
+	constexpr static uint32_t VMCALL_ADD_MEMORY = 57;
+	constexpr static uint32_t VMCALL_DISABLE_EPT = 58;
+	constexpr static uint32_t VMCALL_GET_STATISTICS = 59;
+	constexpr static uint32_t VMCALL_WATCH_EXECUTES = 60;
+	constexpr static uint32_t VMCALL_SETTSCADJUST = 61;
+	constexpr static uint32_t VMCALL_SETSPEEDHACK = 62;
+	constexpr static uint32_t VMCALL_CAUSEDDEBUGBREAK = 63;
+	constexpr static uint32_t VMCALL_DISABLE_TSCADJUST = 64;
+	constexpr static uint32_t VMCALL_CLOAKEX_ACTIVATE = 65;
+	constexpr static uint32_t VMCALL_DISABLETSCHOOK = 66;
+	constexpr static uint32_t VMCALL_ENABLETSCHOOK = 67;
+	constexpr static uint32_t VMCALL_WATCH_GETSTATUS = 68;
+	constexpr static uint32_t VMCALL_CLOAK_TRACEONBP = 69;
+	constexpr static uint32_t VMCALL_CLOAK_TRACEONBP_REMOVE = 70;
+	constexpr static uint32_t VMCALL_CLOAK_TRACEONBP_READLOG = 71;
+	constexpr static uint32_t VMCALL_CLOAK_TRACEONBP_GETSTATUS = 72;
+	constexpr static uint32_t VMCALL_CLOAK_TRACEONBP_STOPTRACE = 73;
+	constexpr static uint32_t VMCALL_GETBROKENTHREADLISTSIZE = 74;
+	constexpr static uint32_t VMCALL_GETBROKENTHREADENTRYSHORT = 75;
+	constexpr static uint32_t VMCALL_GETBROKENTHREADENTRYFULL = 76;
+	constexpr static uint32_t VMCALL_SETBROKENTHREADENTRYFULL = 77;
+	constexpr static uint32_t VMCALL_RESUMEBROKENTHREAD = 78;
+	constexpr static uint32_t VMCALL_HIDEDBVMPHYSICALADDRESSES = 79;
+	constexpr static uint32_t VMCALL_HIDEDBVMPHYSICALADDRESSESALL = 80;
+	constexpr static uint32_t VMCALL_KERNELMODE = 100;
+	constexpr static uint32_t VMCALL_USERMODE = 101;
+	constexpr static uint32_t VMCALL_DEBUG_SETSPINLOCKTIMEOUT = 254;
 
-	bool IsIntel() const;
 
-	bool IsAMD() const;
+public:
+
+	bool IsIntel();
+
+	bool IsAMD();
+
+	bool IsCapable();
+
+	template <typename... Types>
+	uint64_t VMCall(uint32_t Command, Types... Args) const
+	{
+		constexpr size_t SizeOfArgs = (0 + ... + sizeof(Args));
+		uint8_t VMCallInfo[sizeof(uint32_t) + sizeof(current_password2) + sizeof(Command) + SizeOfArgs];
+		size_t Index = 0;
+
+		//C++20才能支持
+		auto AddElement = [&]<class Type>(const Type & Element)
+		{
+			*(Type*)&VMCallInfo[Index] = Element;
+			Index += sizeof(Element);
+		};
+
+		AddElement(uint32_t(sizeof(VMCallInfo)));
+		AddElement(current_password2);
+		AddElement(Command);
+		(AddElement(Args), ...);
+
+		if (bIntel)
+			return vmcall_intel(current_password3, current_password1, VMCallInfo);
+		return vmcall_amd(current_password3, current_password1, VMCallInfo);
+	}
 
 	//此函数会抛异常,需要Try住
 	uint32_t GetVersion() const;
 
-	bool ModifyRegisterOnExecute(HANDLE PID, uintptr_t VirtualAddress, ModifyRegisterInfo& Info, bool IsWinApi);
-	bool UnModifyRegisterOnExecute(HANDLE PID, uintptr_t VirtualAddress);
+	uintptr_t GetMemory() const;
 
-	bool ModifyCodeOnExecute(HANDLE PID, uintptr_t VirtualAddress, const void* Buffer, size_t Size, bool IsWinApi);
-	bool UnModifyCodeOnExecute(HANDLE PID, uintptr_t VirtualAddress, size_t Size);
+	uintptr_t SwitchToKernelMode(uintptr_t Rip, uintptr_t Param) const;
 
-	bool WPMHideWrapper(HANDLE PID, BOOL bRemoteAddressIsWinApi, void* pRemoteAddress, const void* pBuffer, size_t Size, std::vector<uint8_t>& OriginalBytes, std::function<void()> CallBackFunc) const;
+	const tReadPhysicalMemory ReadPhysicalMemory = [&](PhysicalAddress srcPA, void* dstVA, size_t size)
+		{
+			// OutputDebugStringEx("2222222222222\n");
+			constexpr unsigned nopagefault = true;
+			return VMCall(VMCALL_READ_PHYSICAL_MEMORY, srcPA, (unsigned)size, dstVA, nopagefault) == 0;
+		};
 
-private:
-	//std::unordered_map<uintptr_t, std::pair<ULONG64, bool>> Va2PaMap;
+	const tWritePhysicalMemory WritePhysicalMemory = [&](PhysicalAddress dstPA, const void* srcVA, size_t size)
+		{
+			constexpr unsigned nopagefault = true;
+			return VMCall(VMCALL_WRITE_PHYSICAL_MEMORY, dstPA, (unsigned)size, srcVA, nopagefault) == 0;
+		};
+
+	uint64_t SwitchToKernelMode() const;
+
+	void ReturnToUserMode() const;
+
+	CR3 GetCR3() const;
+
+	void SetCR3(CR3 cr3) const;
+
+	uint64_t GetCR4() const;
+
+	uint64_t ReadMSR(uint32_t MSR) const;
+
+	void WriteMSR(uint32_t MSR, uint64_t Value) const;
+
+	bool ChangeRegisterOnBP(PhysicalAddress PABase, const ChangeRegOnBPInfo& changeregonbpinfo) const;
+
+	bool RemoveChangeRegisterOnBP(PhysicalAddress PABase) const;
+
+	bool CloakWriteOriginal(PhysicalAddress PABase, const void* Src) const;
+
+	bool CloakReadOriginal(PhysicalAddress PABase, void* Dst) const;
+
+	void CloakActivate(PhysicalAddress PABase, uintptr_t Mode = 1) const;
+
+	void CloakDeactivate(PhysicalAddress PABase) const;
+
+	void CloakReset() const;
+
+	void HideDBVM() const;
+
+	void ChangePassword(uint64_t password1, uint32_t password2, uint64_t password3);
+
+	void SetPassword(uint64_t password1, uint32_t password2, uint64_t password3);
+
+	void GetPassword(uint64_t& password1, uint32_t& password2, uint64_t& password3) const;
+
+	void SetDefaultPassword();
+
+	PhysicalAddress GetPTEAddress(uintptr_t VirtualAddress, CR3 cr3) const;
+
+	PhysicalAddress GetPhysicalAddress(uintptr_t VirtualAddress, CR3 cr3) const;
+
+	bool RPM(uintptr_t Address, void* Buffer, size_t Size, CR3 cr3) const;
+
+	bool WPM(uintptr_t Address, const void* Buffer, size_t Size, CR3 cr3) const;
+
+	bool WPMCloak(uintptr_t Address, const void* Buffer, size_t Size, CR3 cr3) const;
+
+	bool RemoveCloak(uintptr_t Address, size_t Size, CR3 cr3) const;
+
+	bool CloakWrapper(uintptr_t Address, const void* Buffer, size_t Size, CR3 cr3, auto f) const;
 };
 
 #pragma pack(pop)

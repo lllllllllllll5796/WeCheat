@@ -203,7 +203,13 @@
     <ClInclude Include="..\include\UserCommon\UserCommon.Blowfish.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\UserCommon\UserCommon.VT.h">
+    <ClInclude Include="..\include\UserCommon\UserCommon.DBVM.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.Hypervisor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\UserCommon\UserCommon.Asm.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -229,8 +235,16 @@
     <ClCompile Include="..\src\UserCommon\UserCommon.Blowfish.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\UserCommon\UserCommon.VT.cpp">
+    <ClCompile Include="..\src\UserCommon\UserCommon.DBVM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\UserCommon\UserCommon.Hypervisor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\src\UserCommon\UserCommon.Asm.asm">
+      <Filter>源文件</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

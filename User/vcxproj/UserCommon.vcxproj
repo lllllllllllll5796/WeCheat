@@ -61,6 +61,7 @@
     <ClInclude Include="..\..\3rd\phnt\phnt_windows.h" />
     <ClInclude Include="..\..\3rd\phnt\subprocesstag.h" />
     <ClInclude Include="..\..\3rd\phnt\winsta.h" />
+    <ClInclude Include="..\include\UserCommon\UserCommon.Asm.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.Blowfish.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.cheader.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.cppheader.h" />
@@ -69,6 +70,7 @@
     <ClInclude Include="..\include\UserCommon\UserCommon.function_ref.hpp" />
     <ClInclude Include="..\include\UserCommon\UserCommon.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.harderror.h" />
+    <ClInclude Include="..\include\UserCommon\UserCommon.Hypervisor.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.idadefs.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.initializer.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.lazy_importer.hpp" />
@@ -88,17 +90,21 @@
     <ClInclude Include="..\include\UserCommon\UserCommon.unique_resource.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.string.h" />
     <ClInclude Include="..\include\UserCommon\UserCommon.util.h" />
-    <ClInclude Include="..\include\UserCommon\UserCommon.VT.h" />
+    <ClInclude Include="..\include\UserCommon\UserCommon.DBVM.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rd\oxorany\oxorany.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.Blowfish.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.cpp" />
+    <ClCompile Include="..\src\UserCommon\UserCommon.Hypervisor.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.pch.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.string.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.time.cpp" />
     <ClCompile Include="..\src\UserCommon\UserCommon.util.cpp" />
-    <ClCompile Include="..\src\UserCommon\UserCommon.VT.cpp" />
+    <ClCompile Include="..\src\UserCommon\UserCommon.DBVM.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\src\UserCommon\UserCommon.Asm.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
