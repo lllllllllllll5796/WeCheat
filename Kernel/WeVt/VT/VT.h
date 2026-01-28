@@ -2,10 +2,10 @@
 
 namespace VT
 {
-	BOOL SuportVT();
+	BOOLEAN  SuportVT();
 
-	BOOL EnableVT();
+	BOOLEAN  EnableVT();
 
-	BOOL StartVT(PCWSTR vmdiskPath, DWORD32 cpuid);
+	BOOLEAN  StartVT(PCWSTR vmdiskPath, DWORD32 cpuid);
 }
 

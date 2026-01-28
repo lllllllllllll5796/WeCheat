@@ -81,7 +81,7 @@
     <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
     <UseLldLink>false</UseLldLink>
     <UseLlvmLib>false</UseLlvmLib>
-    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

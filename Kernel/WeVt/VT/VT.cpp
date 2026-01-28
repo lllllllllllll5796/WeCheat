@@ -2,24 +2,29 @@
 
 namespace VT
 {
-	BOOL SuportVT()
+	BOOLEAN SuportVT()
 	{
-		BOOL SuportVT = VT_Util::HvmIsSuported();
+		LOG_DEBUG("[+] SuportVT 1\n");
 
-		if (!SuportVT)
+		BOOLEAN  bSuportVT = VT_Util::HvmIsSuported();
+
+		if (!bSuportVT)
 		{
 			LOG_DEBUG("[-] 此机器不支持VT虚拟化\n");
 			return FALSE;
 		}
 
+		LOG_DEBUG("[+] SuportVT 3\n");
+
 		return TRUE;
 	}
 
-	BOOL StartVT(PCWSTR vmdiskPath, DWORD32 cpuid)  //这里的cpuid
+	BOOLEAN StartVT(PCWSTR vmdiskPath, DWORD32 cpuid)  //这里的cpuid
 	{
-		BOOL bRet = FALSE;
+		BOOLEAN bRet = FALSE;
+		LOG_DEBUG("[+] StartVT\n");
 
-#if 1
+#if 0
 		WCHAR FileName[512];
 		RtlZeroMemory(FileName, sizeof(FileName));
 
@@ -53,22 +58,27 @@ namespace VT
 				VT_Util::forOneCpu((CCHAR)cpuid, VT_VmxOffLoad::VmxOffLoad_Dpc, NULL, NULL, NULL, VT_VmxOffLoad::VmxOffLoad_Override);
 			}
 
-			//LOG_DEBUG("Returned from vmxoffload()\n");
+			LOG_DEBUG("Returned from vmxoffload()\n");
+
 			return TRUE;
 		}
 
 		return FALSE;
 	}
 
-	BOOL EnableVT()
+	BOOLEAN EnableVT()
 	{
- 		BOOL bRet = FALSE;
+		BOOLEAN bRet = FALSE;
+
+		LOG_DEBUG("[+] EnableVT 1\n");
 
 		if (Global::g_SuportVT)
 		{
+			LOG_DEBUG("[+] EnableVT 2\n");
+
 			if (Global::g_HypervisorRunning == FALSE)
 			{
-				
+				LOG_DEBUG("[+] EnableVT 3\n");
 				//-------------------------
 				if (VT::StartVT(NULL, 0xffffffff))
 				{

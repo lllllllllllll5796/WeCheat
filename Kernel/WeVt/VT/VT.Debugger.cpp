@@ -194,13 +194,13 @@ namespace VT_Debugger
 	//(蓝屏炸裂)
 	void debugger_initialize(void)
 	{
-		//LOG_DEBUG("Initializing Debugger\n");
+		LOG_DEBUG("Initializing Debugger\n");
 
 		bHookedInterrupts = FALSE;
 
 		DebuggerState.globalDebug = FALSE;  //<-----问题应该在这里了
 
-		//LOG_DEBUG("Initializing Debugger Events\n");
+		LOG_DEBUG("Initializing Debugger Events\n");
 
 		ImpCall(KeInitializeEvent, &debugger_event_WaitForContinue, SynchronizationEvent, FALSE);
 		ImpCall(KeInitializeEvent, &debugger_event_CanBreak, SynchronizationEvent, TRUE);         //true so the first can enter

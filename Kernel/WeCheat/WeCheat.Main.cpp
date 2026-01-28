@@ -6,6 +6,8 @@ VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeCheat DriverUnLoad\r\n"));
 	Global::UnInitialize_Global();
+	LogDestroy();
+	_cexit();
 }
 
 CODE_OBF_MFLT
@@ -14,6 +16,7 @@ NTSTATUS
 DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath) 
 {
 	NTSTATUS Status = STATUS_UNSUCCESSFUL;
+	ULONG LogLevel = LogPutLevelDebug | LogOptDisableFunctionName | LogOptDisableAppend;
 
 	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeCheat DriverEntry\r\n"));
 
@@ -88,6 +91,8 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 #endif
 		//初始化导入函数
 		InitializeHideImport(Global::g_KernelBase);
+
+		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeCheat_Log.log");
 
 		LOG_INFO("[+] ********************************************************\r\n");
 		LOG_INFO("[+] *                www.woaidaima.com                     *\r\n");

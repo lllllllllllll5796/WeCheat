@@ -29,7 +29,6 @@ inline void writemsr(unsigned long __register, unsigned __int64 val)
 	unsigned long __edx = (unsigned long)(((unsigned __int64)val) << 32);
 	unsigned long __eax = (unsigned long)val;
 	__asm __volatile__("wrmsr" : : "a"(__eax), "d"(__edx), "c"(__register) : "memory");
-	//return (((unsigned __int64)__edx) << 32) | (unsigned __int64)__eax;
 }
 
 DBVM::DBVM()

@@ -5,7 +5,7 @@
 
 namespace Global
 {
-	BOOL Initialize_Global();
+	BOOLEAN Initialize_Global();
 	VOID UnInitialize_Global();
 
 	extern PDRIVER_OBJECT g_DriverObject;
@@ -15,8 +15,8 @@ namespace Global
 	extern ULONG64 g_KernelBase;
 	extern ULONG32 g_KernelSize;
 
-	extern BOOL g_SuportVT;
-	extern BOOL g_HypervisorRunning;
+	extern BOOLEAN g_SuportVT;
+	extern BOOLEAN g_HypervisorRunning;
 }
 
 

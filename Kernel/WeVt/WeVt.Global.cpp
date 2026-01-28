@@ -10,10 +10,10 @@ namespace Global
 	ULONG64 g_KernelBase = 0;
 	ULONG32 g_KernelSize = 0;
 
-	BOOL g_SuportVT = FALSE;
-	BOOL g_HypervisorRunning = FALSE;
+	BOOLEAN g_SuportVT = FALSE;
+	BOOLEAN g_HypervisorRunning = FALSE;
 
-	BOOL Initialize_Global()
+	BOOLEAN Initialize_Global()
 	{
 		g_KernelProcess = ImpCall(IoGetCurrentProcess);
 

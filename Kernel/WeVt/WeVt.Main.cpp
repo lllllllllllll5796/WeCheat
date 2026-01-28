@@ -6,11 +6,17 @@ VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
 	UNREFERENCED_PARAMETER(DriverObject);
 
-    DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeCheat DriverUnLoad\r\n"));
+    DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeVT DriverUnLoad\r\n"));
 
-	VT_Util::UnInitVT();
+	if (Global::g_SuportVT)
+	{
+		VT_Util::UnInitVT();
+	}
 
 	Global::UnInitialize_Global();
+
+	LogDestroy();
+
 	_cexit();
 }
 
@@ -23,13 +29,16 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 	NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
-	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeCheat DriverEntry\r\n"));
+	ULONG LogLevel = LogPutLevelDebug | LogOptDisableFunctionName | LogOptDisableAppend;
+
+	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeVT DriverEntry\r\n"));
 
 	//
 	// Make sure we are not running in safe mode!
 	//
 	if (*InitSafeBootMode != 0) 
 	{
+		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[-] WeVT InitSafeBootMode\r\n"));
 		return STATUS_NOT_SUPPORTED;
 	}
 
@@ -72,7 +81,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		Global::g_DriverBase = (ULONG64)v_self_entry->DllBase;
 		Global::g_DriverSize = v_self_entry->SizeOfImage;
 
-		//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] g_DriverBase:0x%llX g_DriverSize:0x%X\r\n", Global::g_DriverBase, Global::g_DriverSize);
+		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] g_DriverBase:0x%llX g_DriverSize:0x%X\r\n", Global::g_DriverBase, Global::g_DriverSize);
 
 		v_fist_entry = v_self_entry;
 		do
@@ -94,8 +103,11 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 		//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] KernelBase:0x%llX KernelSize:0x%X\r\n", Global::g_KernelBase, Global::g_KernelSize);
 #endif
+
 		//初始化导入函数
 		InitializeHideImport(Global::g_KernelBase);
+
+		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeVt_Log.log");
 
 		LOG_INFO("[+] ********************************************************\r\n");
 		LOG_INFO("[+] *                www.woaidaima.com                     *\r\n");
@@ -128,20 +140,21 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		Global::g_HypervisorRunning = FALSE;
 		VT_VmxOffLoad::InitializedVmm = FALSE;
 
-		VT_Util::InitVT();
-
 		Global::g_SuportVT = VT::SuportVT();
+ 
+ 		if (Global::g_SuportVT)
+ 		{
+ 			LOG_DEBUG("[+] 此机器支持VT虚拟化\r\n");
 
-		if (Global::g_SuportVT)
-		{
-			LOG_DEBUG("[+] 此机器支持VT虚拟化\r\n");
-		}
+			VT_Util::InitVT();
 
-		//启动虚拟化
-		if (VT::EnableVT())
-		{
-			LOG_DEBUG("[+] 虚拟化启动成功\r\n");
-		}
+			//启动虚拟化
+			if (VT::EnableVT())
+			{
+				LOG_DEBUG("[+] 虚拟化启动成功\r\n");
+			}
+ 		}
+
 		//--------------------------------------
 
 	}

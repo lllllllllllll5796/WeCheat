@@ -225,7 +225,7 @@ namespace VT_Util
 	void InitVT();
 	void UnInitVT();
 
-	BOOL HvmIsSuported();
+	BOOLEAN HvmIsSuported();
 
 	void forEachCpuPassive(PF f, UINT_PTR param);
 	void forOneCpu(CCHAR cpunr, PKDEFERRED_ROUTINE dpcfunction, PVOID DeferredContext, PVOID  SystemArgument1, PVOID  SystemArgument2, OPTIONAL PPREDPC_CALLBACK preDPCCallback);

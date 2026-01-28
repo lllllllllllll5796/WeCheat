@@ -34,16 +34,23 @@ namespace VT_Util
 
 	BOOL VmxHardSuported()
 	{
-		CPUID data = { 0 };
+		LOG_DEBUG("[+] VmxHardSuported 1\n");
+
+		CPUID data;
+
+		
 		IA32_FEATURE_CONTROL_MSR Control = { 0 };
 
 		// VMX bit   这里动手脚
 		KernelIntrin__cpuid((int*)&data, 1);
+
 		if ((data.ecx & (1 << 5)) == 0)
 		{
-			LOG_DEBUG("VMX bit failed\n");
+			LOG_DEBUG("[-] VMX bit failed\n");
 			return FALSE;
 		}
+
+		LOG_DEBUG("[+] VmxHardSuported 2\n");
 
 		DWORD a = data.eax;
 
@@ -60,7 +67,7 @@ namespace VT_Util
 		Cpu_Model = Cpu_Model + (Cpu_Ext_ModelID << 4);
 		Cpu_FamilyID = Cpu_FamilyID + (Cpu_Ext_FamilyID << 4);
 
-		//LOG_DEBUG("cpu_model:0x%X cpu_familyID:0x%X\r\n", cpu_model, cpu_familyID);
+		LOG_DEBUG("[+] cpu_model:0x%X cpu_familyID:0x%X\r\n", Cpu_Model, Cpu_FamilyID);
 
 		Control.All = KernelIntrin__readmsr(0x3A);
 
@@ -73,7 +80,7 @@ namespace VT_Util
 		}
 		else if (Control.Fields.EnableVmxon == false)
 		{
-			LOG_DEBUG("Control.Fields.EnableVmxon == false\n");
+			LOG_DEBUG("[-] Control.Fields.EnableVmxon == false\n");
 			return FALSE;
 		}
 
@@ -82,47 +89,63 @@ namespace VT_Util
 
 	CPU_VENDOR UtilCPUVendor()
 	{
-		CPUID data = { 0 };
-		char vendor[0x20] = { 0 };
+		LOG_DEBUG("[+] UtilCPUVendor 1\n");
+
+		CPUID data;
+
 		KernelIntrin__cpuid((int*)&data, 0);
+
+		LOG_DEBUG("[+] UtilCPUVendor 2\n");
+
+		char vendor[0x20] = { 0 };
 
 		*(int*)(vendor) = data.ebx;
 		*(int*)(vendor + 4) = data.edx;
 		*(int*)(vendor + 8) = data.ecx;
-		//LOG_DEBUG("vendor=%s\n", vendor);
-		if (memcmp(vendor, oxorany("GenuineIntel"), 12) == 0)  //0x756e6547
+
+		LOG_DEBUG("[+] vendor:%s\n", vendor);
+
+		if (memcmp(vendor, "GenuineIntel", 12) == 0)  //0x756e6547
 		{
 			return CPU_Intel;
 		}
 
-		if (memcmp(vendor, oxorany("AuthenticAMD"), 12) == 0)  //0x68747541
+		if (memcmp(vendor, "AuthenticAMD", 12) == 0)  //0x68747541
 			return CPU_AMD;
 
 		return CPU_Other;
 	}
 
-	BOOL HvmIsSuported()
+	BOOLEAN HvmIsSuported()
 	{
+		LOG_DEBUG("[+] HvmIsSuported 1\n");
+
 		Cpu_Vendor = UtilCPUVendor();
+
 		if (Cpu_Vendor == CPU_Intel)
 		{
 			return VmxHardSuported();
 		}
 		else
 		{
-			LOG_DEBUG("Not an Intel CPU\r\n");
+			LOG_DEBUG("[-] Not an Intel CPU\r\n");
 			if (Cpu_Vendor == CPU_AMD)
 			{
-				LOG_DEBUG("This is an AMD\n");
+				LOG_DEBUG("[+] This is an AMD\n");
 				return TRUE;
 			}
 		}
+
+		LOG_DEBUG("[+] HvmIsSuported 2\n");
 		return FALSE;
 	}
 
 	void InitVT()
 	{
+		LOG_DEBUG("[+] InitVT\n");
+
 		WORD this_cs, this_ss, this_ds, this_es, this_fs, this_gs;
+
 		ULONG cr4reg;
 		UNICODE_STRING uFuncName;
 
@@ -166,7 +189,7 @@ namespace VT_Util
 		MAX_PDE_POS = 0xFFFFF6FB7FFFFFF8ULL; // base + 0x7B7FFFFFF8
 #endif
 
-		//LOG_DEBUG("[+] Initializing debugger\n");
+		LOG_DEBUG("[+] Initializing debugger\n");
 		VT_Debugger::debugger_initialize();
 
 		int r[4];
@@ -174,7 +197,7 @@ namespace VT_Util
 
 		__cpuid(r, 0);
 
-		//LOG_DEBUG("[+] cpuid.0: r[1]=%x\n", r[1]);
+		LOG_DEBUG("[+] cpuid.0: r[1]=%x\n", r[1]);
 
 		if (r[1] == 0x756e6547) //GenuineIntel
 		{
@@ -583,8 +606,6 @@ namespace VT_Util
 	{
 		return __readcr3();
 	}
-
-
 
 	void setCR4(UINT64 newcr4)
 	{

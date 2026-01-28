@@ -70,7 +70,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="LLVM">
     <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
-    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indbr -mllvm -indgv -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference -Wno-deprecated-declarations -Wno-deprecated-builtins</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-mllvm -sobf  -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference -Wno-deprecated-declarations -Wno-deprecated-builtins</ClangClAdditionalOptions>
     <UseLldLink>false</UseLldLink>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -659,8 +659,8 @@ namespace VT_VmxOffLoad
 	{
 		InitializedVmm = FALSE;
 
-		//LOG_DEBUG("InitializeDBVM_4NoModule\r\n");
-		//LOG_DEBUG("First time run. Initializing vmm section\r\n");
+		LOG_DEBUG("InitializeDBVM_4NoModule\r\n");
+		LOG_DEBUG("First time run. Initializing vmm section\r\n");
 
 		CHAR* ImageFileBuffer = NULL;
 		ULONG64 uImageFileLength = 0;
@@ -725,7 +725,7 @@ namespace VT_VmxOffLoad
 						//往后蹿4096字节然后0x1000对齐粒度
 						vmmsize = (vmmsize + 4096) & 0xfffffffffffff000ULL; //adjust the size internally to a page boundary (sure, there's some mem loss, but it's predicted, dbvm assumes first 10 pages are scratch pages)
 
-						//LOG_DEBUG("vmmsize=%x\n", vmmsize);
+						LOG_DEBUG("vmmsize=%x\n", vmmsize);
 
 						if (InitializeDBVM_Internal(vmmsize, LowAddress, HighAddress, SkipBytes))
 						{

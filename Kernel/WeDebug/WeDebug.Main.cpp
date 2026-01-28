@@ -31,8 +31,6 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 	NTSTATUS Status = STATUS_UNSUCCESSFUL;
 	ULONG LogLevel =  LogPutLevelDebug | LogOptDisableFunctionName | LogOptDisableAppend;
 
-
-
 	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeDebug DriverEntry\r\n"));
 
 	//
@@ -107,7 +105,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		//初始化导入函数
 		InitializeHideImport(Global::g_KernelBase);
 
-		Status = LogInitialize(LogLevel, L"\\??\\C:\\Log.log");
+		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeDebug_Log.log");
 
 		if (!NT_SUCCESS(Status)) {
 			DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] Failed to initialize logging interface with status 0x%08x\r\n", Status);
