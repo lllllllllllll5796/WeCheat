@@ -177,9 +177,13 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WeVt.ept.cpp" />
+    <ClCompile Include="WeVt.gdt.cpp" />
     <ClCompile Include="WeVt.Global.cpp" />
     <ClCompile Include="WeVt.Hypervisor.cpp" />
     <ClCompile Include="WeVt.hypervisor_routines.cpp" />
+    <ClCompile Include="WeVt.idt.cpp" />
+    <ClCompile Include="WeVt.invalid_ept.cpp" />
     <ClCompile Include="WeVt.poolmanager.cpp" />
     <ClCompile Include="WeVt.Symbolic.cpp" />
     <ClCompile Include="WeVt.Main.cpp">
@@ -193,13 +197,24 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WeVt.HypervisorGlobals.cpp" />
+    <ClCompile Include="WeVt.vmcs.cpp" />
+    <ClCompile Include="WeVt.vmm.cpp" />
     <!-- VT 虚拟化核心源文件（不使用 PCH，因为位于子目录且使用 VT.pch.h 桥接） -->
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Shared\SharedStruct.h" />
+    <ClInclude Include="WeVt.AsmCallset.h" />
     <ClInclude Include="WeVt.Config.h" />
     <ClInclude Include="WeVt.cpuid.h" />
+    <ClInclude Include="WeVt.crx.h" />
+    <ClInclude Include="WeVt.ept.h" />
+    <ClInclude Include="WeVt.gdt.h" />
     <ClInclude Include="WeVt.Global.h" />
     <ClInclude Include="WeVt.hypervisor_routines.h" />
+    <ClInclude Include="WeVt.idt.h" />
+    <ClInclude Include="WeVt.invalid_ept.h" />
+    <ClInclude Include="WeVt.msr.h" />
+    <ClInclude Include="WeVt.ntapi.h" />
     <ClInclude Include="WeVt.poolmanager.h" />
     <ClInclude Include="WeVt.Symbolic.h" />
     <ClInclude Include="WeVt.MinMax.h" />
@@ -207,7 +222,16 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <ClInclude Include="WeVt.pch.h" />
     <ClInclude Include="WeVt.Trace.h" />
     <ClInclude Include="WeVt.HypervisorGlobals.h" />
+    <ClInclude Include="WeVt.vmcs.h" />
+    <ClInclude Include="WeVt.vmm.h" />
     <!-- VT 头文件 -->
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="WeVt.AsmCallset.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="WeVt.interrupt-handlers.asm" />
+    <MASM Include="WeVt.vm-launch.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

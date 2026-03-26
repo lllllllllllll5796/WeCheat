@@ -40,6 +40,106 @@
 
 #define EPTWATCHLISTSIZE  100
 
+union __ept_violation
+{
+	unsigned __int64 all;
+	struct
+	{
+		/**
+		 * [Bit 0] Set if the access causing the EPT violation was a data read.
+		 */
+		unsigned __int64 read_access : 1;
+
+		/**
+		 * [Bit 1] Set if the access causing the EPT violation was a data write.
+		 */
+		unsigned __int64 write_access : 1;
+
+		/**
+		 * [Bit 2] Set if the access causing the EPT violation was an instruction fetch.
+		 */
+		unsigned __int64 execute_access : 1;
+
+		/**
+		 * [Bit 3] The logical-AND of bit 0 in the EPT paging-structure entries used to translate the guest-physical address of the
+		 * access causing the EPT violation (indicates whether the guest-physical address was readable).
+		 */
+		unsigned __int64 ept_readable : 1;
+
+		/**
+		 * [Bit 4] The logical-AND of bit 1 in the EPT paging-structure entries used to translate the guest-physical address of the
+		 * access causing the EPT violation (indicates whether the guest-physical address was writeable).
+		 */
+		unsigned __int64 ept_writeable : 1;
+
+		/**
+		 * [Bit 5] The logical-AND of bit 2 in the EPT paging-structure entries used to translate the guest-physical address of the
+		 * access causing the EPT violation.
+		 * If the "mode-based execute control for EPT" VM-execution control is 0, this indicates whether the guest-physical address
+		 * was executable. If that control is 1, this indicates whether the guest-physical address was executable for
+		 * supervisor-mode linear addresses.
+		 */
+		unsigned __int64 ept_executable : 1;
+
+		/**
+		 * [Bit 6] If the "mode-based execute control" VM-execution control is 0, the value of this bit is undefined. If that
+		 * control is 1, this bit is the logical-AND of bit 10 in the EPT paging-structures entries used to translate the
+		 * guest-physical address of the access causing the EPT violation. In this case, it indicates whether the guest-physical
+		 * address was executable for user-mode linear addresses.
+		 */
+		unsigned __int64 ept_executable_for_usermode : 1;
+
+		/**
+		 * [Bit 7] Set if the guest linear-address field is valid. The guest linear-address field is valid for all EPT violations
+		 * except those resulting from an attempt to load the guest PDPTEs as part of the execution of the MOV CR instruction.
+		 */
+		unsigned __int64 valid_guest_linear_address : 1;
+
+		/**
+		 * [Bit 8] If bit 7 is 1:
+		 * - Set if the access causing the EPT violation is to a guest-physical address that is the translation of a linear
+		 * address.
+		 * - Clear if the access causing the EPT violation is to a paging-structure entry as part of a page walk or the update of
+		 * an accessed or dirty bit.
+		 * Reserved if bit 7 is 0 (cleared to 0).
+		 */
+		unsigned __int64 caused_by_translation : 1;
+
+		/**
+		 * [Bit 9] This bit is 0 if the linear address is a supervisor-mode linear address and 1 if it is a user-mode linear
+		 * address. Otherwise, this bit is undefined.
+		 *
+		 * @remarks If bit 7 is 1, bit 8 is 1, and the processor supports advanced VM-exit information for EPT violations. (If
+		 *          CR0.PG = 0, the translation of every linear address is a user-mode linear address and thus this bit will be 1.)
+		 */
+		unsigned __int64 usermode_linear_address : 1;
+
+		/**
+		 * [Bit 10] This bit is 0 if paging translates the linear address to a read-only page and 1 if it translates to a
+		 * read/write page. Otherwise, this bit is undefined
+		 *
+		 * @remarks If bit 7 is 1, bit 8 is 1, and the processor supports advanced VM-exit information for EPT violations. (If
+		 *          CR0.PG = 0, every linear address is read/write and thus this bit will be 1.)
+		 */
+		unsigned __int64 readable_writable_page : 1;
+
+		/**
+		 * [Bit 11] This bit is 0 if paging translates the linear address to an executable page and 1 if it translates to an
+		 * execute-disable page. Otherwise, this bit is undefined.
+		 *
+		 * @remarks If bit 7 is 1, bit 8 is 1, and the processor supports advanced VM-exit information for EPT violations. (If
+		 *          CR0.PG = 0, CR4.PAE = 0, or MSR_IA32_EFER.NXE = 0, every linear address is executable and thus this bit will be 0.)
+		 */
+		unsigned __int64 execute_disable_page : 1;
+
+		/**
+		 * [Bit 12] NMI unblocking due to IRET.
+		 */
+		unsigned __int64 nmi_unblocking : 1;
+		unsigned __int64 reserved1 : 51;
+	};
+};
+
 struct vmx_msr_entry {
 	uint32_t msr_idx;
 	uint32_t _reserved;
@@ -463,6 +563,117 @@ struct __ept_hooked_page_info
 	bool isInt3;
 };
 
+typedef struct _PageEventBasic
+{
+	unsigned __int64 VirtualAddress;
+	unsigned __int64 PhysicalAddress;
+	unsigned __int64 CR3; //in case of kernel or other process
+	unsigned __int64 FSBASE;
+	unsigned __int64 GSBASE;
+	unsigned __int64 GSBASE_KERNEL;
+	unsigned __int64 FLAGS;
+	unsigned __int64 RAX;
+	unsigned __int64 RBX;
+	unsigned __int64 RCX;
+	unsigned __int64 RDX;
+	unsigned __int64 RSI;
+	unsigned __int64 RDI;
+	unsigned __int64 R8;
+	unsigned __int64 R9;
+	unsigned __int64 R10;
+	unsigned __int64 R11;
+	unsigned __int64 R12;
+	unsigned __int64 R13;
+	unsigned __int64 R14;
+	unsigned __int64 R15;
+	unsigned __int64 RBP;
+	unsigned __int64 RSP;
+	unsigned __int64 RIP;
+	unsigned __int64 DR0;
+	unsigned __int64 DR1;
+	unsigned __int64 DR2;
+	unsigned __int64 DR3;
+	unsigned __int64 DR6;
+	unsigned __int64 DR7;
+	unsigned short CS;
+	unsigned short DS;
+	unsigned short ES;
+	unsigned short SS;
+	unsigned short FS;
+	unsigned short GS;
+	unsigned int Count; //number of times this block has been seen, or heartbeat when used for internal dbvm bp
+} PageEventBasic, * PPageEventBasic;
+
+typedef struct _PageEventExtended
+{
+	PageEventBasic basic;
+	FXSAVE64 fpudata;
+} PageEventExtended, * PPageEventExtended;
+
+typedef struct _BrokenThreadEntry
+{
+	int inuse;  //是否已被使用
+	int continueMethod; //0=no, 1=single step, 2=run  (resets to 0 after taking a step.  if 2 then inuse turns false
+	int watchid; //导致中断的 watchid。如果是单步，则为 -1
+
+	unsigned __int64 UserModeLoop; //完成某步后要去哪里
+	unsigned __int64 KernelModeLoop;
+
+	PageEventExtended state; //包含 CR3、FSBASE 和 GSBASE
+} BrokenThreadEntry, * PBrokenThreadEntry;
+
+struct __ept_hooked_function_info
+{
+	//
+	// Linked list entires for each function hook.
+	//
+	LIST_ENTRY hooked_function_list;
+
+	//
+	// Pointer to page with our hooked functions
+	// 伪造页内容
+	// 指向4KB物理页
+	//
+	unsigned __int8* fake_page_contents;
+
+	//
+	// Size of hook
+	//
+	unsigned __int64 hook_size;
+
+	//欲设置断点的物理地址
+	unsigned __int64 breakpoint_address;
+
+	//用途
+	int Options;
+
+	unsigned __int64 LoopUserMode;
+
+	unsigned __int64 LoopKernelMode;
+
+	BrokenThreadEntry CurrentBrokenThread;
+
+	//
+	// Virtual address of function
+	// 函数的虚拟地址
+	//
+	void* virtual_address;
+
+	//事件的处理函数
+	void* handler_function;
+
+	//
+	// Address to first trampoline used to call original function
+	// 用于调用原始函数的
+	//
+	unsigned __int8* first_trampoline_address;
+
+	//
+	// Address of code cave which is used to jmp to our hooked function
+	//
+	void* second_trampoline_address;
+};
+
 struct __ept_state
 {
 	LIST_ENTRY hooked_page_list;
@@ -629,6 +840,76 @@ struct __vmm_context
 	bool hv_presence;  //标识hy对象已经创建    
 };
 
+//动态分割
+struct __ept_dynamic_split
+{
+	DECLSPEC_ALIGN(PAGE_SIZE) __ept_pte pml1[512];  //页表pt
+
+	__ept_pde* entry;
+
+	LIST_ENTRY dynamic_split_list;
+};
+
+union __mtrr_cap_reg
+{
+	unsigned __int64 all;
+	struct
+	{
+		unsigned __int64 range_register_number : 8; //bit 7:0  处理器中可变MTRRs寄存器的数量。
+		unsigned __int64 fixed_range_support : 1; //bit 8
+		unsigned __int64 reserved : 1; //bit 9
+		unsigned __int64 write_combining_support : 1; //bit 10
+		unsigned __int64 smrr_support : 1; //bit 11
+		unsigned __int64 reserved2 : 52; //bit 63:12
+	};
+};
+
+union __mtrr_physbase_reg
+{
+	unsigned __int64 all;
+	struct
+	{
+		unsigned __int64 type : 8;
+		unsigned __int64 reserved : 4;
+		unsigned __int64 physbase : 36;
+		unsigned __int64 reserved2 : 16;
+	};
+};
+
+union __mtrr_physmask_reg
+{
+	unsigned __int64 all;
+	struct
+	{
+		unsigned __int64 reserved : 11;
+		unsigned __int64 valid : 1;
+		unsigned __int64 physmask : 36;
+		unsigned __int64 reserved2 : 16;
+	};
+};
+
+union __mtrr_def_type
+{
+	unsigned __int64 all;
+	struct
+	{
+		unsigned __int64 memory_type : 3;  //bit 2:0
+		unsigned __int64 reserved1 : 7;  //bit 9:3
+		unsigned __int64 fixed_range_mtrr_enabled : 1;  //bit 10
+		unsigned __int64 mtrr_enabled : 1;  //bit 11
+		unsigned __int64 reserved2 : 52;  //bit 63:12
+	};
+};
+
+union __mtrr_fixed_range_type
+{
+	unsigned __int64 all;
+	struct
+	{
+		unsigned __int8 types[8];
+	};
+};
+
 typedef struct
 {
 	unsigned __int64 cr3; //目标进程的cr3    
@@ -656,5 +937,224 @@ extern EPTWatchEntry eptWatchList[EPTWATCHLISTSIZE];
 
 namespace hv
 {
+	struct trap_frame {
+		// TODO: SSE registers...
+
+		// general-purpose registers
+		union {
+			uint64_t rax;
+			uint32_t eax;
+			uint16_t ax;
+			uint8_t  al;
+		};
+		union {
+			uint64_t rcx;
+			uint32_t ecx;
+			uint16_t cx;
+			uint8_t  cl;
+		};
+		union {
+			uint64_t rdx;
+			uint32_t edx;
+			uint16_t dx;
+			uint8_t  dl;
+		};
+		union {
+			uint64_t rbx;
+			uint32_t ebx;
+			uint16_t bx;
+			uint8_t  bl;
+		};
+		union {
+			uint64_t rbp;
+			uint32_t ebp;
+			uint16_t bp;
+			uint8_t  bpl;
+		};
+		union {
+			uint64_t rsi;
+			uint32_t esi;
+			uint16_t si;
+			uint8_t  sil;
+		};
+		union {
+			uint64_t rdi;
+			uint32_t edi;
+			uint16_t di;
+			uint8_t  dil;
+		};
+		union {
+			uint64_t r8;
+			uint32_t r8d;
+			uint16_t r8w;
+			uint8_t  r8b;
+		};
+		union {
+			uint64_t r9;
+			uint32_t r9d;
+			uint16_t r9w;
+			uint8_t  r9b;
+		};
+		union {
+			uint64_t r10;
+			uint32_t r10d;
+			uint16_t r10w;
+			uint8_t  r10b;
+		};
+		union {
+			uint64_t r11;
+			uint32_t r11d;
+			uint16_t r11w;
+			uint8_t  r11b;
+		};
+		union {
+			uint64_t r12;
+			uint32_t r12d;
+			uint16_t r12w;
+			uint8_t  r12b;
+		};
+		union {
+			uint64_t r13;
+			uint32_t r13d;
+			uint16_t r13w;
+			uint8_t  r13b;
+		};
+		union {
+			uint64_t r14;
+			uint32_t r14d;
+			uint16_t r14w;
+			uint8_t  r14b;
+		};
+		union {
+			uint64_t r15;
+			uint32_t r15d;
+			uint16_t r15w;
+			uint8_t  r15b;
+		};
+
+		// interrupt vector
+		uint8_t vector;
+
+		// _MACHINE_FRAME
+		uint64_t error;
+		uint64_t rip;
+		uint64_t cs;
+		uint64_t rflags;
+		uint64_t rsp;
+		uint64_t ss;
+	};
+	// remember to update this value in interrupt-handlers.asm
+	static_assert(sizeof(trap_frame) == (0x78 + 0x38));
+
+	// structure that gets filled out when a host exception occurs
+	struct host_exception_info {
+		// whether an exception occurred or not
+		// 是否发生异常
+		bool exception_occurred;
+
+		// interrupt vector
+		uint64_t vector;
+
+		// error code
+		uint64_t error;
+	};
+
+	struct host_page_tables {
+		// array of PML4 entries that point to a PDPT
+		alignas(0x1000) pml4e_64 pml4[512];
+
+		// PDPT for mapping physical memory
+		alignas(0x1000) pdpte_64 phys_pdpt[512];
+
+		// PDs for mapping physical memory
+		alignas(0x1000) pde_2mb_64 phys_pds[HOST_PHYSICAL_MEMORY_PD_COUNT][512];
+	};
+
+	struct hypervisor {
+		// host page tables that are shared between vcpus
+		alignas(0x1000) host_page_tables host_page_tables;
+
+		// pointer to the System process
+		uint8_t* system_eprocess;
+
+		// kernel CR3 value of the System process
+		// System进程的内核 CR3 值
+		cr3 system_cr3;
+
+		// windows specific offsets D:
+		uint64_t kprocess_directory_table_base_offset;
+		uint64_t eprocess_unique_process_id_offset;
+		uint64_t eprocess_image_file_name;
+		uint64_t kpcr_pcrb_offset;
+		uint64_t kprcb_current_thread_offset;
+		uint64_t kthread_apc_state_offset;
+		uint64_t kapc_state_process_offset;
+	};
+
+	// global instance of the hypervisor
+	extern hypervisor ghv;
+
+	// selectors for the host GDT
+	extern segment_selector host_cs_selector;
+	extern segment_selector host_tr_selector;
+
+	EXTERN_C
+	{
+		void interrupt_handler_0();
+		void interrupt_handler_1();
+		void interrupt_handler_2();
+		void interrupt_handler_3();
+		void interrupt_handler_4();
+		void interrupt_handler_5();
+		void interrupt_handler_6();
+		void interrupt_handler_7();
+		void interrupt_handler_8();
+		void interrupt_handler_10();
+		void interrupt_handler_11();
+		void interrupt_handler_12();
+		void interrupt_handler_13();
+		void interrupt_handler_14();
+		void interrupt_handler_16();
+		void interrupt_handler_17();
+		void interrupt_handler_18();
+		void interrupt_handler_19();
+		void interrupt_handler_20();
+		void interrupt_handler_30();
+	}
+
+	EXTERN_C
+	{
+		// defined in vm-launch.asm
+		bool vm_launch();
+
+		// defined in vm-exit.asm
+		void vm_exit();
+
+		void handle_host_interrupt(trap_frame* const frame);
+
+		// 具有异常处理的xsetbv
+		void xsetbv_safe(host_exception_info& e, uint32_t idx, uint64_t value);
+
+		// 具有异常处理的 rdmsr
+		uint64_t rdmsr_safe(host_exception_info& e, uint32_t msr);
+
+		// 具有异常处理的wrmsr
+		void wrmsr_safe(host_exception_info& e, uint32_t msr, uint64_t value);
+
+		// 具有异常处理的 memcpy
+		void memcpy_safe(host_exception_info& e, void* dst, void const* src, size_t size);
+	}
+
+	ia32_vmx_procbased_ctls_register read_ctrl_proc_based();
+	void write_ctrl_proc_based(ia32_vmx_procbased_ctls_register const value);
+
 	void InitGlobalVariables();
+
+	bool enter_vmx_operation(vmxon& vmxon_region);
+
+	bool load_vmcs_pointer(vmcs& vmcs_region);
+
+	void prepare_external_structures(__vcpu* const vcpu);
+
+	void prepare_host_page_tables();
 }

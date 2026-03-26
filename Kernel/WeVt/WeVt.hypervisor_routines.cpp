@@ -17,4 +17,49 @@ namespace hv
 		__cpuid(&cpuid.cpu_info[0], 1);
 		return cpuid.cpuid_eax_01.feature_information_ecx.virtual_machine_extensions;
 	}
+
+	/// <summary>
+	/// Read vmcs field
+	/// </summary>
+	/// <param name="vmcs_field"></param>
+	/// <returns></returns>
+	unsigned __int64 vmread(unsigned __int64 vmcs_field)
+	{
+		unsigned __int64 value;
+		__vmx_vmread(vmcs_field, &value);
+		return value;
+	}
+
+	bool vmx_on(unsigned __int64 vmxon_phys_addr)
+	{
+		//0则表示操作成功
+		unsigned char res = __vmx_on(&vmxon_phys_addr);
+		if (res)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	bool vmx_vmclear(unsigned __int64 vmcs_phys)
+	{
+		//0则表示操作成功
+		unsigned char res = __vmx_vmclear(&vmcs_phys);
+		if (res)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	bool vmx_vmptrld(unsigned __int64 vmcs_phys)
+	{
+		//0则表示操作成功
+		unsigned char res = __vmx_vmptrld(&vmcs_phys);
+		if (res)
+		{
+			return false;
+		}
+		return true;
+	}
 }

@@ -6,6 +6,7 @@
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
 #include "WeVt.hypervisor_routines.h"
+#include "WeVt.vmm.h"
 
 EXTERN_C
 VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
@@ -125,7 +126,9 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 			//
 			if (!hv::virtualization_support())
 			{
+#if ENABLE_TRACE
 				TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] VMX operation is not supported on this processor.\n");
+#endif
 				return STATUS_UNSUCCESSFUL;
 			}
 
@@ -136,6 +139,10 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 			//
 
 			hv::InitGlobalVariables();
+			if (vmm_init() == false)
+			{
+
+			}
 
 		}
 

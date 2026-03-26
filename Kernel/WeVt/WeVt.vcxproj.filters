@@ -34,6 +34,24 @@
     <ClCompile Include="WeVt.poolmanager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WeVt.vmm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.ept.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.invalid_ept.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.idt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.gdt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.vmcs.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WeVt.pch.h">
@@ -69,5 +87,47 @@
     <ClInclude Include="WeVt.poolmanager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WeVt.AsmCallset.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.ept.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.invalid_ept.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\SharedStruct.h" />
+    <ClInclude Include="WeVt.crx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.msr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.idt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmcs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.gdt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.ntapi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="WeVt.AsmCallset.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="WeVt.interrupt-handlers.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="WeVt.vm-launch.asm">
+      <Filter>源文件</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
