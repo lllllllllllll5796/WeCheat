@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Devlepoment|x64">
@@ -36,7 +36,7 @@
     <TargetVersion>
     </TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
     <SpectreMitigation>false</SpectreMitigation>
@@ -81,7 +81,8 @@
     <ClangClExecutable>$(SolutionDir)Tools\clang-cl.exe</ClangClExecutable>
     <UseLldLink>false</UseLldLink>
     <UseLlvmLib>false</UseLlvmLib>
-    <ClangClAdditionalOptions>-mllvm -sobf -mllvm -indcall -mllvm -flt_bitrep=InvInt1 -mllvm -split_num=9 -mllvm -function_obf_prob=100 -Wno-missing-declarations -Wno-extern-c-compat -Wno-microsoft-enum-forward-reference</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>
+    </ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -100,7 +101,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\..\3rd\;..\..\3rd\zydis\msvc;..\..\KernelCommon\;..\..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\..\KernelCommon\Kcpp\eastl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)VT;..\..\3rd\;..\..\3rd\zydis\msvc;..\..\KernelCommon\;..\..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\..\KernelCommon\Kcpp\eastl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -138,13 +139,13 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_KERNEL_MODE;ZYDIS_STATIC_DEFINE;_NO_CRT_STDIO_INLINE;CONFIG_DEBUG_PRINT_ON=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_KERNEL_MODE;ZYDIS_STATIC_DEFINE;_NO_CRT_STDIO_INLINE;CONFIG_DEBUG_PRINT_ON=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\..\3rd;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\..\Communication;..\KernelIntrin;..\KernelCommon;..\KernelCommon\Kcpp\eastl\include;..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\SymbolicAccess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)VT;..\..\3rd;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\..\Communication;..\KernelIntrin;..\KernelCommon;..\KernelCommon\Kcpp\eastl\include;..\KernelCommon\Kcpp\eastl\test\packages\EABase\include\Common;..\SymbolicAccess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -153,6 +154,8 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
       <AdditionalOptions>
       </AdditionalOptions>
       <SDLCheck>false</SDLCheck>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData>WeVt.Trace.h</WppScanConfigurationData>
     </ClCompile>
     <Inf />
     <MASM />
@@ -174,19 +177,9 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VT\VT.Apic.cpp" />
-    <ClCompile Include="VT\VT.BreakPoint.cpp" />
-    <ClCompile Include="VT\VT.cpp" />
-    <ClCompile Include="VT\VT.Debugger.cpp" />
-    <ClCompile Include="VT\VT.InterruptHook.cpp" />
-    <ClCompile Include="VT\VT.RedirectInterrupt.cpp" />
-    <ClCompile Include="VT\VT.Test.cpp" />
-    <ClCompile Include="VT\VT.Ultimap.cpp" />
-    <ClCompile Include="VT\VT.Util.cpp" />
-    <ClCompile Include="VT\VT.VmxOffLoad.cpp" />
-    <ClCompile Include="VT\VT.Watch.cpp" />
     <ClCompile Include="WeVt.Global.cpp" />
     <ClCompile Include="WeVt.Hypervisor.cpp" />
+    <ClCompile Include="WeVt.Init.Symbolic.cpp" />
     <ClCompile Include="WeVt.Main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
@@ -197,30 +190,17 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <!-- VT 虚拟化核心源文件（不使用 PCH，因为位于子目录且使用 VT.pch.h 桥接） -->
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VT\VT.Apic.h" />
-    <ClInclude Include="VT\VT.BreakPoint.h" />
-    <ClInclude Include="VT\VT.Debugger.h" />
-    <ClInclude Include="VT\VT.h" />
-    <ClInclude Include="VT\VT.InterruptHook.h" />
-    <ClInclude Include="VT\VT.RedirectInterrupt.h" />
-    <ClInclude Include="VT\VT.Test.h" />
-    <ClInclude Include="VT\VT.Ultimap.h" />
-    <ClInclude Include="VT\VT.Util.h" />
-    <ClInclude Include="VT\VT.vmdisk.h" />
-    <ClInclude Include="VT\VT.VmxOffLoad.h" />
-    <ClInclude Include="VT\VT.Watch.h" />
     <ClInclude Include="WeVt.Config.h" />
     <ClInclude Include="WeVt.Global.h" />
+    <ClInclude Include="WeVt.Init.Symbolic.h" />
+    <ClInclude Include="WeVt.MinMax.h" />
     <ClInclude Include="WeVt.Hypervisor.h" />
     <ClInclude Include="WeVt.pch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="VT\VT.DebuggerAsm.asm" />
-    <MASM Include="VT\VT.TestAsm.asm" />
-    <MASM Include="VT\VT.UtilAsm.asm" />
-    <MASM Include="VT\VT.VmxOffLoadAsm.asm" />
+    <ClInclude Include="WeVt.Trace.h" />
+    <!-- VT 头文件 -->
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

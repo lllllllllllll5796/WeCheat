@@ -2,7 +2,7 @@
 
 namespace Hypervisor
 {
-	BOOL SuportVT();
-	BOOL EnableVT();
-	void DisableVT();
+	//BOOL SuportVT();
+	//BOOL EnableVT();
+	//void DisableVT();
 }

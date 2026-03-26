@@ -1,44 +1,53 @@
 #include "WeVt.pch.h"
+#include "WeVt.Trace.h"
+#include "WeVt.Main.tmh"
+#include "WeVt.Hypervisor.h"
+#include "WeVt.Init.Symbolic.h"
 
-CODE_OBF_MFLT
 EXTERN_C
 VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
 	UNREFERENCED_PARAMETER(DriverObject);
 
-    DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeVT DriverUnLoad\r\n"));
-
-	if (Global::g_SuportVT)
-	{
-		VT_Util::UnInitVT();
-	}
+	//Hypervisor::DisableVT();
 
 	Global::UnInitialize_Global();
 
 	LogDestroy();
 
 	_cexit();
+
+#if ENABLE_TRACE
+	TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "[+] DriverUnLoad End");
+#endif
+
+	WPP_CLEANUP(DriverObject);
 }
 
-CODE_OBF_MFLT
 EXTERN_C
 NTSTATUS
-DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath) 
+DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 {
+	WPP_INIT_TRACING(DriverObject, RegistryPath);
+
+#if ENABLE_TRACE
+	TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, oxorany("[+] DriverEntry"));
+#endif
+
 	sLog("\n");
 
 	NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
 	ULONG LogLevel = LogPutLevelDebug | LogOptDisableFunctionName | LogOptDisableAppend;
 
-	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeVT DriverEntry\r\n"));
-
 	//
 	// Make sure we are not running in safe mode!
 	//
-	if (*InitSafeBootMode != 0) 
+	if (*InitSafeBootMode != 0)
 	{
-		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[-] WeVT InitSafeBootMode\r\n"));
+#if ENABLE_TRACE
+		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, oxorany("[-] InitSafeBootMode"));
+#endif
 		return STATUS_NOT_SUPPORTED;
 	}
 
@@ -47,42 +56,19 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 #else
 	if (RegistryPath)
 	{
-		//驱动无模块
-#if DRIVER_NO_MODULE
-		InitFuncAddr(reinterpret_cast<PDRIVER_OBJECT>(DriverObject));
-
-		if (!IsMapSelf(reinterpret_cast<PDRIVER_OBJECT>(DriverObject), reinterpret_cast<PUNICODE_STRING>(RegistryPath)))
-		{
-			Status = MapSelf(reinterpret_cast<PDRIVER_OBJECT>(DriverObject), reinterpret_cast<PUNICODE_STRING>(RegistryPath));
-
-			//清除一些驱动加载信息
-			ClearDriverInstallMark(DriverObject);
-
-			if (!NT_SUCCESS(Status))
-			{
-				bool SuccessFlag = true;
-			}
-
-			return STATUS_NOT_SUPPORTED;
-		}
-
-		Global::g_KernelBase = (((ULONG64)(reinterpret_cast<PUNICODE_STRING>(RegistryPath)->Buffer) & 0xFFFFFFFF) * 0x1000) | 0xFFFFF00000000000;
-
-		KBase2 = (PVOID)Global::g_KernelBase;
-#else
 		DriverObject->DriverUnload = DriverUnLoad;
 
 		LDR_DATA_TABLE_ENTRY* v_fist_entry = nullptr;
 		LDR_DATA_TABLE_ENTRY* v_target_entry = nullptr;
 		auto v_self_entry = static_cast<LDR_DATA_TABLE_ENTRY*>(DriverObject->DriverSection);
 
-		//驱动自己的信息
+
 		Global::g_DriverObject = DriverObject;
 		Global::g_DriverBase = (ULONG64)v_self_entry->DllBase;
 		Global::g_DriverSize = v_self_entry->SizeOfImage;
-
-		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] g_DriverBase:0x%llX g_DriverSize:0x%X\r\n", Global::g_DriverBase, Global::g_DriverSize);
-
+#if ENABLE_TRACE
+		TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "[+] g_DriverBase:0x%llX g_DriverSize:0x%X\r\n", Global::g_DriverBase, Global::g_DriverSize);
+#endif
 		v_fist_entry = v_self_entry;
 		do
 		{
@@ -97,27 +83,19 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 			}
 		} while (v_self_entry->InLoadOrderLinks.Blink != reinterpret_cast<PLIST_ENTRY>(v_fist_entry));
 
-		//这玩意是系统内核的地址和大小
+
 		Global::g_KernelBase = (ULONG64)v_target_entry->DllBase;
 		Global::g_KernelSize = (ULONG32)v_target_entry->SizeOfImage;
 
-		//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] KernelBase:0x%llX KernelSize:0x%X\r\n", Global::g_KernelBase, Global::g_KernelSize);
-#endif
-
-		//初始化导入函数
-		InitializeHideImport(Global::g_KernelBase);
-
+#if ENABLE_LOG
 		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeVt_Log.log");
-
-		LOG_INFO("[+] ********************************************************\r\n");
-		LOG_INFO("[+] *                www.woaidaima.com                     *\r\n");
-		LOG_INFO("[+] *                  我爱代码论坛                        *\r\n");
-		LOG_INFO("[+] *                     WeVt                             *\r\n");
-		LOG_INFO("[+] ********************************************************\r\n");
+#endif
 
 		if (_cinit() != 0)
 		{
-			LOG_ERROR("[-] _cinit\r\n");
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] _cinit Error");
+#endif
 			return STATUS_APP_INIT_FAILURE;
 		}
 
@@ -125,36 +103,35 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 		if (!NT_SUCCESS(Status))
 		{
-			LOG_ERROR("[-] [1] WdkInitSystem 初始化失败\r\n");
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] WdkInitSystem Error");
+#endif
 			return Status;
 		}
 
 		if (!Global::Initialize_Global())
 		{
-			LOG_ERROR("[-] [2] 全局初始化失败\r\n");
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Initialize_Global Error");
+#endif
 			return STATUS_UNSUCCESSFUL;
 		}
 
+		if (InitNtoskrnlSymbolsTable())
+		{
+
+		}
+
 		//---------------------------------------
-		//初始化VT运行状态
-		Global::g_HypervisorRunning = FALSE;
-		VT_VmxOffLoad::InitializedVmm = FALSE;
-
-		Global::g_SuportVT = VT::SuportVT();
- 
- 		if (Global::g_SuportVT)
- 		{
- 			LOG_DEBUG("[+] 此机器支持VT虚拟化\r\n");
-
-			VT_Util::InitVT();
-
-			//启动虚拟化
-			if (VT::EnableVT())
-			{
-				LOG_DEBUG("[+] 虚拟化启动成功\r\n");
-			}
- 		}
-
+		// 启动 VT 虚拟化
+//		if (!Hypervisor::EnableVT())
+//		{
+//#if ENABLE_TRACE
+//			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] EnableVT failed");
+//#endif
+//			LOG_DEBUG("[-] EnableVT failed\r\n");
+//			return STATUS_UNSUCCESSFUL;
+//		}
 		//--------------------------------------
 
 	}
