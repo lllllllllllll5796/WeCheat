@@ -2,14 +2,15 @@
 #include "WeVt.Trace.h"
 #include "WeVt.Main.tmh"
 #include "WeVt.Hypervisor.h"
-#include "WeVt.Init.Symbolic.h"
+#include "WeVt.Symbolic.h"
+#include "WeVt.poolmanager.h"
+#include "WeVt.HypervisorGlobals.h"
+#include "WeVt.hypervisor_routines.h"
 
 EXTERN_C
 VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
 	UNREFERENCED_PARAMETER(DriverObject);
-
-	//Hypervisor::DisableVT();
 
 	Global::UnInitialize_Global();
 
@@ -119,20 +120,24 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 		if (InitNtoskrnlSymbolsTable())
 		{
+			//
+			// Check if our cpu support virtualization
+			//
+			if (!hv::virtualization_support())
+			{
+				TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] VMX operation is not supported on this processor.\n");
+				return STATUS_UNSUCCESSFUL;
+			}
+
+			//
+			// Initialize and start virtual machine
+			// If it fails turn off vmx and deallocate all structures
+			// 初始化 并安装vt
+			//
+
+			hv::InitGlobalVariables();
 
 		}
-
-		//---------------------------------------
-		// 启动 VT 虚拟化
-//		if (!Hypervisor::EnableVT())
-//		{
-//#if ENABLE_TRACE
-//			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] EnableVT failed");
-//#endif
-//			LOG_DEBUG("[-] EnableVT failed\r\n");
-//			return STATUS_UNSUCCESSFUL;
-//		}
-		//--------------------------------------
 
 	}
 #endif  //EmptyDriver

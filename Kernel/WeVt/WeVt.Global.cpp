@@ -27,13 +27,13 @@ namespace Global
 		NTSTATUS Status = RtlGetVersion(&OsVersion);
 		if (!NT_SUCCESS(Status))
 		{
-			LOG_DEBUG("[-] RtlGetVersion ʧ��\r\n");
+			//LOG_DEBUG("[-] RtlGetVersion ʧ��\r\n");
 			return FALSE;
 		}
 
 		g_CurrentWindowsBuildNumber = OsVersion.dwBuildNumber;
 
-		LOG_DEBUG("[+] ��ǰϵͳ�汾:%d\r\n", g_CurrentWindowsBuildNumber);
+		//LOG_DEBUG("[+] ��ǰϵͳ�汾:%d\r\n", g_CurrentWindowsBuildNumber);
 
 		return TRUE;
 	}

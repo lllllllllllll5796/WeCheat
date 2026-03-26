@@ -179,7 +179,9 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
   <ItemGroup>
     <ClCompile Include="WeVt.Global.cpp" />
     <ClCompile Include="WeVt.Hypervisor.cpp" />
-    <ClCompile Include="WeVt.Init.Symbolic.cpp" />
+    <ClCompile Include="WeVt.hypervisor_routines.cpp" />
+    <ClCompile Include="WeVt.poolmanager.cpp" />
+    <ClCompile Include="WeVt.Symbolic.cpp" />
     <ClCompile Include="WeVt.Main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
@@ -190,16 +192,21 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WeVt.HypervisorGlobals.cpp" />
     <!-- VT 虚拟化核心源文件（不使用 PCH，因为位于子目录且使用 VT.pch.h 桥接） -->
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WeVt.Config.h" />
+    <ClInclude Include="WeVt.cpuid.h" />
     <ClInclude Include="WeVt.Global.h" />
-    <ClInclude Include="WeVt.Init.Symbolic.h" />
+    <ClInclude Include="WeVt.hypervisor_routines.h" />
+    <ClInclude Include="WeVt.poolmanager.h" />
+    <ClInclude Include="WeVt.Symbolic.h" />
     <ClInclude Include="WeVt.MinMax.h" />
     <ClInclude Include="WeVt.Hypervisor.h" />
     <ClInclude Include="WeVt.pch.h" />
     <ClInclude Include="WeVt.Trace.h" />
+    <ClInclude Include="WeVt.HypervisorGlobals.h" />
     <!-- VT 头文件 -->
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

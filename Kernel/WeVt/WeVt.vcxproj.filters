@@ -22,7 +22,16 @@
     <ClCompile Include="WeVt.Hypervisor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="WeVt.Init.Symbolic.cpp">
+    <ClCompile Include="WeVt.Symbolic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.hypervisor_routines.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.HypervisorGlobals.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.poolmanager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,7 +54,19 @@
     <ClInclude Include="WeVt.Trace.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WeVt.Init.Symbolic.h">
+    <ClInclude Include="WeVt.Symbolic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.hypervisor_routines.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.cpuid.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.HypervisorGlobals.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.poolmanager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
