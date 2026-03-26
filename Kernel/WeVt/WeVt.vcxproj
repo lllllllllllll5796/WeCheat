@@ -208,14 +208,18 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <ClInclude Include="WeVt.cpuid.h" />
     <ClInclude Include="WeVt.crx.h" />
     <ClInclude Include="WeVt.ept.h" />
+    <ClInclude Include="WeVt.exception.h" />
     <ClInclude Include="WeVt.gdt.h" />
     <ClInclude Include="WeVt.Global.h" />
     <ClInclude Include="WeVt.hypervisor_routines.h" />
     <ClInclude Include="WeVt.idt.h" />
+    <ClInclude Include="WeVt.interrupt.h" />
     <ClInclude Include="WeVt.invalid_ept.h" />
+    <ClInclude Include="WeVt.lde64.h" />
     <ClInclude Include="WeVt.msr.h" />
     <ClInclude Include="WeVt.ntapi.h" />
     <ClInclude Include="WeVt.poolmanager.h" />
+    <ClInclude Include="WeVt.segment.h" />
     <ClInclude Include="WeVt.Symbolic.h" />
     <ClInclude Include="WeVt.MinMax.h" />
     <ClInclude Include="WeVt.Hypervisor.h" />
@@ -223,6 +227,7 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <ClInclude Include="WeVt.Trace.h" />
     <ClInclude Include="WeVt.HypervisorGlobals.h" />
     <ClInclude Include="WeVt.vmcs.h" />
+    <ClInclude Include="WeVt.vmexit_handler.h" />
     <ClInclude Include="WeVt.vmm.h" />
     <!-- VT 头文件 -->
   </ItemGroup>
@@ -230,8 +235,19 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <MASM Include="WeVt.AsmCallset.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
     </MASM>
-    <MASM Include="WeVt.interrupt-handlers.asm" />
-    <MASM Include="WeVt.vm-launch.asm" />
+    <MASM Include="WeVt.exception-routines.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="WeVt.interrupt-handlers.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="WeVt.lde64.asm" />
+    <MASM Include="WeVt.vm-exit.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="WeVt.vm-launch.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'">false</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

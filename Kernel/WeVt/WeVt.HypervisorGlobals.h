@@ -1,5 +1,8 @@
 #pragma once
 
+#define MIN(a,b)    (((a) < (b)) ? (a) : (b))
+#define MAX(a,b)    (((a) > (b)) ? (a) : (b))
+
 //16位md5哈希摘要
 #define EPTW_WRITE             0xE943BC6264401591
 #define EPTW_READWRITE         0x03F03258ADC870FC
@@ -910,6 +913,18 @@ union __mtrr_fixed_range_type
 	};
 };
 
+// 4级页映射的虚拟地址
+union pml4_virtual_address {
+	void const* address;
+	struct {
+		uint64_t offset : 12;
+		uint64_t pt_idx : 9;
+		uint64_t pd_idx : 9;
+		uint64_t pdpt_idx : 9;
+		uint64_t pml4_idx : 9;
+	};
+};
+
 typedef struct
 {
 	unsigned __int64 cr3; //目标进程的cr3    
@@ -1157,4 +1172,32 @@ namespace hv
 	void prepare_external_structures(__vcpu* const vcpu);
 
 	void prepare_host_page_tables();
+
+	// read MTRR data into a single structure
+	mtrr_data read_mtrr_data();
+
+	// calculate the MTRR memory type for the given physical memory range
+	uint8_t calc_mtrr_mem_type(mtrr_data const& mtrrs, uint64_t address, uint64_t size);
+
+	//将GVA转换为GPA
+	uint64_t get_physical_address(unsigned __int64 guest_cr3, _In_ PVOID BaseAddress);
+
+	size_t read_guest_virtual_memory(cr3 const guest_cr3,
+		void* const gva, void* const hva, size_t const size);
+
+	// attempt to read the memory at the specified guest virtual address from root-mode
+	// 读取guest中当前进程的虚拟内存
+	size_t read_guest_virtual_memory(void* const gva, void* const hva, size_t const size);
+
+	size_t write_guest_virtual_memory(cr3 const guest_cr3,
+		void* const gva, void* const hva, size_t const size);
+
+	// 写入guest中当前进程的虚拟内存
+	size_t write_guest_virtual_memory(void* const gva, void* const hva, size_t const size);
+
+	//获取空闲的id
+	int getIdleWatchID();
+
+	//将guest虚拟地址转为guest物理地址
+	uint64_t gva2gpa(cr3 guest_cr3, void* gva, size_t* offset_to_next_page = nullptr);
 }

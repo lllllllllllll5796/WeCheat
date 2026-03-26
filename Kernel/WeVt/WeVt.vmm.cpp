@@ -122,7 +122,7 @@ void init_logical_processor2(unsigned int iter)
 	if (!hv::enter_vmx_operation(vcpu->vmxon))  //进入vmx模式
 	{
 #if ENABLE_TRACE
-		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Failed to put vcpu %d into VMX operation", processor_number);
+		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Failed to put vcpu %d into VMX operation", (int)processor_number);
 #endif
 		return;
 	}
@@ -130,7 +130,7 @@ void init_logical_processor2(unsigned int iter)
 	if (!hv::load_vmcs_pointer(vcpu->vmcs))
 	{
 #if ENABLE_TRACE
-		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] vcpu %d load_vmcs_pointer error", processor_number);
+		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] vcpu %d load_vmcs_pointer error", (int)processor_number);
 #endif
 		return;
 	}
@@ -139,7 +139,7 @@ void init_logical_processor2(unsigned int iter)
 	hv::prepare_external_structures(vcpu);
 	vcpu->vcpu_status.vmx_on = true;
 #if ENABLE_TRACE
-	TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] vcpu %d is now in VMX operation", processor_number);
+	TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] vcpu %d is now in VMX operation", (int)processor_number);
 #endif
 
 	//配置vmcs区域
@@ -151,7 +151,7 @@ void init_logical_processor2(unsigned int iter)
 	if (!hv::vm_launch()) {
 		vcpu->vmexit_info.instruction_error = hv::vmread(VM_INSTRUCTION_ERROR);
 #if ENABLE_TRACE
-		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Vmlaunch failed error: %d", vcpu->vmexit_info.instruction_error);
+		TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Vmlaunch failed error: %d", (int)vcpu->vmexit_info.instruction_error);
 #endif
 		vcpu->vcpu_status.vmm_launched = false;
 		vcpu->vcpu_status.vmx_on = false;
@@ -238,7 +238,6 @@ void create_host_page_tables()
 //分配vcpu结构内存
 bool init_vcpu(__vcpu* vcpu)
 {
-
 	//vcpu->vmm_stack = allocate_pool<void*>(VMM_STACK_SIZE);
 	//if (vcpu->vmm_stack == nullptr)
 	//{

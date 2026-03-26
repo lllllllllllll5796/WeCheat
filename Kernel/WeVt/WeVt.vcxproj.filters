@@ -118,6 +118,21 @@
     <ClInclude Include="WeVt.ntapi.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WeVt.lde64.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.interrupt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmexit_handler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.exception.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.segment.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="WeVt.AsmCallset.asm">
@@ -127,6 +142,15 @@
       <Filter>源文件</Filter>
     </MASM>
     <MASM Include="WeVt.vm-launch.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="WeVt.lde64.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="WeVt.exception-routines.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="WeVt.vm-exit.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>
