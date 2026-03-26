@@ -74,7 +74,7 @@ namespace pool_manager
     /// <returns></returns>
     bool perform_allocation();
 
-    void request_pool_x(allocation_intention intention, PLIST_ENTRY current, __pool_table* pool_table, void* address);
+    bool request_pool_x(allocation_intention intention, unsigned __int64* address);
 
     /// <summary>
     /// Returns pre allocated pool and request new one for allocation
@@ -86,12 +86,10 @@ namespace pool_manager
     template <typename T>
     T request_pool(allocation_intention intention, bool new_pool, unsigned __int64 size)
     {
-        PLIST_ENTRY current = 0;
-        void* address = 0;
+        unsigned __int64 address = 0;
         bool is_recycled = false;
-        __pool_table* pool_table;
 
-        is_recycled = request_pool_x(intention, current, pool_table, address);
+        is_recycled = request_pool_x(intention, &address);
 
         //
         // If pool which we got is recycled then we don't allocate
