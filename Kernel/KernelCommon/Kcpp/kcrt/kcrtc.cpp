@@ -73,7 +73,7 @@ GET_MALLOC_SIZE(PVOID ptr)
     PMALLOC_HEADER header = GET_MALLOC_HEADER(ptr);
 
     if (header->Tags != KCRT_POOL_DEFAULT_TAG)
-        ImpCall(KeBugCheckEx, BAD_POOL_HEADER, 0, 0, 0, 0);
+        KeBugCheckEx(BAD_POOL_HEADER, 0, 0, 0, 0);
 
     return header->Size;
 }
@@ -85,9 +85,9 @@ void __cdecl free(void *ptr)
         MALLOC_HEADER *mhdr = GET_MALLOC_HEADER(ptr);
 
         if (mhdr->Tags != KCRT_POOL_DEFAULT_TAG)
-            ImpCall(KeBugCheckEx, BAD_POOL_HEADER, 0, 0, 0, 0);
+            KeBugCheckEx(BAD_POOL_HEADER, 0, 0, 0, 0);
 
-        ImpCall(ExFreePoolWithTag, mhdr, KCRT_POOL_DEFAULT_TAG);
+        ExFreePoolWithTag(mhdr, KCRT_POOL_DEFAULT_TAG);
     }
 }
 
@@ -96,7 +96,7 @@ void *__cdecl malloc(size_t size)
     PMALLOC_HEADER mhdr = NULL;
     const size_t new_size = size + sizeof(MALLOC_HEADER);
 
-    mhdr = (PMALLOC_HEADER)ImpCall(ExAllocatePoolWithTag, NonPagedPool, new_size, KCRT_POOL_DEFAULT_TAG);
+    mhdr = (PMALLOC_HEADER)ExAllocatePoolWithTag(NonPagedPool, new_size, KCRT_POOL_DEFAULT_TAG);
     if (mhdr)
     {
         RtlZeroMemory(mhdr, new_size);
@@ -230,8 +230,8 @@ init_c_api()
                            0,
                            0};
 
-        ImpCall(RtlInitUnicodeString, &usRs, wfunc);
-        g_vsnprintf = (pfn_vsnprintf)(ImpCall(MmGetSystemRoutineAddress,&usRs));
+        RtlInitUnicodeString(&usRs, wfunc);
+        g_vsnprintf = (pfn_vsnprintf)(MmGetSystemRoutineAddress(&usRs));
     }
 
     // verify result......
@@ -278,7 +278,7 @@ _onexit(_PVFV lpfn)
 
     _Entry->func = lpfn;
     // InsertHeadList(&__onexithead, &_Entry->Entry);
-    ImpCall(ExInterlockedInsertHeadList, &__onexithead, &_Entry->Entry, &__onexitheadSpinLock);
+    ExInterlockedInsertHeadList(&__onexithead, &_Entry->Entry, &__onexitheadSpinLock);
     return lpfn;
 }
 
@@ -298,11 +298,11 @@ doexit(int code, int quick, int retcaller)
         while (!IsListEmpty(&__onexithead))
         {
             // ExInterlockedRemoveHeadList
-            PLIST_ENTRY _Entry = ImpCall(ExInterlockedRemoveHeadList, &__onexithead, &__onexitheadSpinLock);
+            PLIST_ENTRY _Entry = ExInterlockedRemoveHeadList(&__onexithead, &__onexitheadSpinLock);
             PON_EXIT_ENTRY Entry = (PON_EXIT_ENTRY)_Entry;
             if (Entry)
             {
-                //¼ÓÈëSEH ·ÀÖ¹Îö¹¹º¯ÊýÄÚ²¿·ÃÎÊÒÑÐ¶ÔØµÄÊý¾Ý µ¼ÖÂµÄÒì³£
+                //ï¿½ï¿½ï¿½ï¿½SEH ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Âµï¿½ï¿½ì³£
                 __try
                 {
                     Entry->func();
@@ -342,7 +342,7 @@ void __cdecl _wassert(wchar_t const *_Message, wchar_t const *_File, unsigned _L
     _Line;
 
     KdBreakPoint();
-    ImpCall(ExRaiseStatus, STATUS_BAD_DATA);
+    ExRaiseStatus(STATUS_BAD_DATA);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -371,7 +371,7 @@ __time64_t __cdecl _time64(__time64_t *_Time)
     __time64_t uTime64;
 
     KeQuerySystemTime(&li);
-    ImpCall(RtlTimeToSecondsSince1970, &li, &uTime);
+    RtlTimeToSecondsSince1970(&li, &uTime);
     uTime64 = uTime;
     if (_Time)
     {
@@ -409,7 +409,7 @@ int __cdecl dprintf(const char *format, ...)
     va_list args;
 
     va_start(args, format);
-    status = ImpCall(vDbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, format, args);
+    status = vDbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, format, args);
     va_end(args);
     return NT_SUCCESS(status);
 
@@ -431,9 +431,9 @@ _Use_decl_annotations_ EXTERN_C int __cdecl __stdio_common_vsprintf_s(
 	if (!local__vsnprintf)
 	{
 		UNICODE_STRING proc_name_U = {};
-		ImpCall(RtlInitUnicodeString, &proc_name_U, L"_vsnprintf");
+		RtlInitUnicodeString(&proc_name_U, L"_vsnprintf");
 		local__vsnprintf = reinterpret_cast<_vsnprintf_type*>(
-			ImpCall(MmGetSystemRoutineAddress, &proc_name_U));
+			MmGetSystemRoutineAddress(&proc_name_U));
 	}
 
 	return local__vsnprintf(_Buffer, _BufferCount, _Format, _ArgList);
@@ -454,9 +454,9 @@ _Use_decl_annotations_ EXTERN_C int __cdecl __stdio_common_vswprintf_s(
 	if (!local__vsnwprintf)
 	{
 		UNICODE_STRING proc_name_U = {};
-		ImpCall(RtlInitUnicodeString, &proc_name_U, L"_vsnwprintf");
+		RtlInitUnicodeString(&proc_name_U, L"_vsnwprintf");
 		local__vsnwprintf = reinterpret_cast<_vsnwprintf_type*>(
-			ImpCall(MmGetSystemRoutineAddress, &proc_name_U));
+			MmGetSystemRoutineAddress(&proc_name_U));
 	}
 
 	return local__vsnwprintf(_Buffer, _BufferCount, _Format, _ArgList);
@@ -492,9 +492,9 @@ _Success_(return >= 0) _Check_return_opt_ int __cdecl __stdio_common_vswprintf(
 	if (!local__vsnwprintf)
 	{
 		UNICODE_STRING proc_name_U = {};
-		ImpCall(RtlInitUnicodeString, &proc_name_U, L"_vsnwprintf");
+		RtlInitUnicodeString(&proc_name_U, L"_vsnwprintf");
 		local__vsnwprintf = reinterpret_cast<_vsnwprintf_type*>(
-			ImpCall(MmGetSystemRoutineAddress, &proc_name_U));
+			MmGetSystemRoutineAddress(&proc_name_U));
 	}
 
 	return local__vsnwprintf(_Buffer, _BufferCount, _Format, _ArgList);

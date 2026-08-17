@@ -10,7 +10,7 @@ namespace KernelCommon
 			ULONG i = 0;
 			__try
 			{
-				if (!ImpCall(MmIsAddressValid, usStr))
+				if (!MmIsAddressValid(usStr))
 				{
 					return FALSE;
 				}
@@ -22,7 +22,7 @@ namespace KernelCommon
 
 				for (i = 0; i < usStr->Length; i++)
 				{
-					if (!ImpCall(MmIsAddressValid, (PUCHAR)usStr->Buffer + i))
+					if (!MmIsAddressValid((PUCHAR)usStr->Buffer + i))
 					{
 						return FALSE;
 					}
@@ -40,7 +40,7 @@ namespace KernelCommon
 
 			if (ValidateUnicodeString(UnicodeString))
 			{
-				auto ns = ImpCall(RtlUnicodeStringToAnsiString, &asName, UnicodeString, TRUE);
+				auto ns = RtlUnicodeStringToAnsiString(&asName, UnicodeString, TRUE);
 				if (NT_SUCCESS(ns))
 				{
 					buffer = (char*)malloc(asName.MaximumLength);
@@ -51,7 +51,7 @@ namespace KernelCommon
 						FullPath = buffer;
 						free(buffer);
 					}
-					ImpCall(RtlFreeAnsiString, &asName);
+					RtlFreeAnsiString(&asName);
 				}
 			}
 			return FullPath;
@@ -60,7 +60,7 @@ namespace KernelCommon
 		eastl::string ConvertToString(const wchar_t* src, ULONG64 len)
 		{
 			if (len == -1) {
-				len = ImpCall(wcslen, src);
+				len = wcslen(src);
 			}
 			eastl::string str;
 			// dunno why easstl::DecodePart needs more space
@@ -119,7 +119,7 @@ namespace KernelCommon
 
 			for (USHORT i = 0; i <= NumCharsDiff; ++i, ++Slice.Buffer, Slice.MaximumLength -= 1)
 			{
-				if (ImpCall(RtlEqualString, &Slice, SubStr, CaseInsensitive))
+				if (RtlEqualString(&Slice, SubStr, CaseInsensitive))
 					return TRUE;
 			}
 			return FALSE;
@@ -136,13 +136,13 @@ namespace KernelCommon
 
 			for (USHORT i = 0; i <= NumCharsDiff; ++i, ++Slice.Buffer, Slice.MaximumLength -= sizeof(WCHAR))
 			{
-				if (ImpCall(RtlEqualUnicodeString, &Slice, SubStr, CaseInsensitive))
+				if (RtlEqualUnicodeString(&Slice, SubStr, CaseInsensitive))
 					return TRUE;
 			}
 			return FALSE;
 		}
 
-		//ÅÐ¶ÏUNICODE×Ö·û´®ÊÇ·ñÎª¿Õ
+		//ï¿½Ð¶ï¿½UNICODEï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½
 		BOOLEAN StrIsValid2(UNICODE_STRING filePath)
 		{
 			if (filePath.Length == 0)

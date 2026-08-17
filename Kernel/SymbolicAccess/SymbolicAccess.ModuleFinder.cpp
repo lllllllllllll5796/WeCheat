@@ -1,14 +1,14 @@
 #include "SymbolicAccess.pch.h"
 #include "SymbolicAccess.ModuleFinder.h"
 
-extern "C"
-NTKERNELAPI NTSTATUS NTAPI ZwQuerySystemInformation
-(
-	IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
-	OUT PVOID SystemInformation,
-	IN ULONG SystemInformationLength,
-	OUT PULONG ReturnLength OPTIONAL
-);
+//extern "C"
+//NTKERNELAPI NTSTATUS NTAPI ZwQuerySystemInformation
+//(
+//	IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
+//	OUT PVOID SystemInformation,
+//	IN ULONG SystemInformationLength,
+//	OUT PULONG ReturnLength OPTIONAL
+//);
 
 namespace symbolic_access
 {

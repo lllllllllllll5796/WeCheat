@@ -584,8 +584,8 @@ namespace KernelCommon
 	CLIENT_ID GetThreadCid(PETHREAD Thread) 
 	{
 		CLIENT_ID cid{};
-		cid.UniqueProcess = ImpCall(PsGetThreadProcessId, Thread);
-		cid.UniqueThread = ImpCall(PsGetThreadId, Thread);
+		cid.UniqueProcess = PsGetThreadProcessId(Thread);
+		cid.UniqueThread = PsGetThreadId(Thread);
 		return cid;
 	}
 

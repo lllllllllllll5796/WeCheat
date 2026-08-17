@@ -75,8 +75,6 @@ enum class SystemVersion : UINT32
 
 __declspec(selectany) SystemVersion NtSystemVersion = SystemVersion::Unknown;
 
-extern decltype(&RtlGetVersion) RtlGetVersionFn;
-
 //
 // Indicates the safe boot init value. Possible values are:
 //  0   The operating system is not in Safe Mode.
@@ -92,7 +90,7 @@ inline SystemVersion GetSystemVersion()
 
 	RTL_OSVERSIONINFOW  vVersion;
 
-	vStatus = RtlGetVersionFn(&vVersion);
+	vStatus = RtlGetVersion(&vVersion);
 
 	if (STATUS_SUCCESS != vStatus)
 	{

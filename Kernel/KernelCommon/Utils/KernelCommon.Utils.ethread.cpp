@@ -10,10 +10,10 @@ namespace KernelCommon
 			PETHREAD Thread = NULL;
 			PETHREAD Result = NULL;
 
-			if (ImpCall(PsLookupThreadByThreadId, ThreadId, &Thread) == STATUS_SUCCESS)
+			if (PsLookupThreadByThreadId(ThreadId, &Thread) == STATUS_SUCCESS)
 			{
 				Result = Thread;
-				ImpCall(ObfDereferenceObject, Thread);
+				ObfDereferenceObject(Thread);
 			}
 			return Result;
 		}

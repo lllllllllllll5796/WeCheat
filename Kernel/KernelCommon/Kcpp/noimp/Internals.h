@@ -1044,21 +1044,25 @@ extern "C"
 // 	PVOID ProcessInformation,
 // 	ULONG ProcessInformationLength);
 
-	NTKERNELAPI NTSTATUS __stdcall ZwSetInformationProcess(
-		HANDLE ProcessHandle,
-		PROCESSINFOCLASS ProcessInformationClass,
-		PVOID ProcessInformation,
-		ULONG ProcessInformationLength);
+	//NTKERNELAPI         
+	//	NTSTATUS
+	//	NTAPI
+	//	ZwSetInformationProcess(
+	//		_In_ HANDLE ProcessHandle,
+	//		_In_ PROCESSINFOCLASS ProcessInformationClass,
+	//		_In_reads_bytes_(ProcessInformationLength) PVOID ProcessInformation,
+	//		_In_ ULONG ProcessInformationLength
+	//	);
 
 
-	NTKERNELAPI NTSYSAPI
-		NTSTATUS
-		NTAPI
-		ZwLockVirtualMemory(
-			IN HANDLE               ProcessHandle,
-			IN PVOID* BaseAddress,
-			IN OUT PULONG64           NumberOfBytesToLock,
-			IN ULONG                LockOption);
+	//NTKERNELAPI NTSYSAPI
+	//	NTSTATUS
+	//	NTAPI
+	//	ZwLockVirtualMemory(
+	//		IN HANDLE               ProcessHandle,
+	//		IN PVOID* BaseAddress,
+	//		IN OUT PULONG64           NumberOfBytesToLock,
+	//		IN ULONG                LockOption);
 
 	typedef DWORD(NTAPI* PTHREAD_START_ROUTINE)(PVOID lpThreadParameter);
 	typedef struct _PROC_THREAD_ATTRIBUTE_LIST* PPROC_THREAD_ATTRIBUTE_LIST, * LPPROC_THREAD_ATTRIBUTE_LIST;
@@ -1083,66 +1087,66 @@ extern "C"
 // 		);
 
 	
-	NTKERNELAPI
-		BOOLEAN
-		NTAPI
-		KeInsertQueueApc(
-			PKAPC Apc,
-			PVOID SystemArgument1,
-			PVOID SystemArgument2,
-			KPRIORITY Increment
-		);
+	//NTKERNELAPI
+	//	BOOLEAN
+	//	NTAPI
+	//	KeInsertQueueApc(
+	//		PKAPC Apc,
+	//		PVOID SystemArgument1,
+	//		PVOID SystemArgument2,
+	//		KPRIORITY Increment
+	//	);
 
 		
-		NTKERNELAPI NTSYSAPI
-		NTSTATUS
-		NTAPI
-		ZwUnlockVirtualMemory(
+		//NTKERNELAPI NTSYSAPI
+		//NTSTATUS
+		//NTAPI
+		//ZwUnlockVirtualMemory(
 
 
-			IN HANDLE               ProcessHandle,
-			IN PVOID* BaseAddress,
-			IN OUT PULONG64           NumberOfBytesToLock,
-			IN ULONG                LockOption);
+		//	IN HANDLE               ProcessHandle,
+		//	IN PVOID* BaseAddress,
+		//	IN OUT PULONG64           NumberOfBytesToLock,
+		//	IN ULONG                LockOption);
 
-	NTKERNELAPI NTSTATUS NTAPI MmCopyVirtualMemory
-	(
-		PEPROCESS SourceProcess,
-		PVOID SourceAddress,
-		PEPROCESS TargetProcess,
-		PVOID TargetAddress,
-		SIZE_T BufferSize,
-		KPROCESSOR_MODE PreviousMode,
-		PSIZE_T ReturnSize
-	);
+	//NTKERNELAPI NTSTATUS NTAPI MmCopyVirtualMemory
+	//(
+	//	PEPROCESS SourceProcess,
+	//	PVOID SourceAddress,
+	//	PEPROCESS TargetProcess,
+	//	PVOID TargetAddress,
+	//	SIZE_T BufferSize,
+	//	KPROCESSOR_MODE PreviousMode,
+	//	PSIZE_T ReturnSize
+	//);
 	//NTKERNELAPI wdk::PPEB PsGetProcessPeb(PEPROCESS);
 	//NTKERNELAPI PVOID PsGetProcessWow64Process(PEPROCESS Process);
 	NTKERNELAPI void PsReleaseProcessExitSynchronization(PEPROCESS);
 	NTKERNELAPI NTSTATUS PsAcquireProcessExitSynchronization(PEPROCESS);
 	NTKERNELAPI NTSTATUS KeUserModeCallback(ULONG, PVOID, ULONG, PVOID, PVOID);
-	NTKERNELAPI NTSTATUS ZwWaitForMultipleObjects(
-		ULONG Count,
-		HANDLE Object[],
-		WAIT_TYPE WaitType,
-		BOOLEAN Alertable,
-		PLARGE_INTEGER Time);
+	//NTKERNELAPI NTSTATUS ZwWaitForMultipleObjects(
+	//	ULONG Count,
+	//	HANDLE Object[],
+	//	WAIT_TYPE WaitType,
+	//	BOOLEAN Alertable,
+	//	PLARGE_INTEGER Time);
 	//NTSYSAPI __int64 __fastcall PsGetThreadWin32Thread(PETHREAD a1);
-	NTSYSAPI NTSTATUS ZwProtectVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG, PULONG);
+	//NTSYSAPI NTSTATUS ZwProtectVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG, PULONG);
 	//NTKERNELAPI NTSTATUS ZwQuerySystemInformation(SYSTEM_INFORMATION_CLASS, PVOID, ULONG, PULONG);
 	NTSYSAPI void RtlRestoreContext(struct _CONTEXT* ContextRecord, struct _EXCEPTION_RECORD* ExceptionRecord);
 	NTSYSAPI NTSTATUS RtlCreateUserThread(HANDLE, PVOID, BOOLEAN, ULONG, SIZE_T, SIZE_T, PVOID, PVOID, PHANDLE, PCLIENT_ID);
-	NTKERNELAPI
-		PVOID
-		NTAPI
-		PsGetThreadTeb(IN PETHREAD Thread);
+	//NTKERNELAPI
+	//	PVOID
+	//	NTAPI
+	//	PsGetThreadTeb(IN PETHREAD Thread);
 // 
 // 	NTKERNELAPI
 // 		PVOID
 // 		NTAPI
 // 		PsGetCurrentProcessWow64Process();
 
-	NTKERNELAPI
-		BOOLEAN
-		NTAPI
-		KeTestAlertThread(IN KPROCESSOR_MODE AlertMode);
+	//NTKERNELAPI
+	//	BOOLEAN
+	//	NTAPI
+	//	KeTestAlertThread(IN KPROCESSOR_MODE AlertMode);
 }

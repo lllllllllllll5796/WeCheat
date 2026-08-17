@@ -12,20 +12,20 @@ namespace Global
 
 	BOOL Initialize_Global()
 	{
-		g_KernelProcess = ImpCall(IoGetCurrentProcess);
+		g_KernelProcess = IoGetCurrentProcess();
 
 		OSVERSIONINFOW OsVersion;
 
-		NTSTATUS Status = ImpCall(RtlGetVersion, &OsVersion);
+		NTSTATUS Status = RtlGetVersion(&OsVersion);
 		if (!NT_SUCCESS(Status))
 		{
-			LOG_DEBUG("[-] RtlGetVersion 失败\r\n");
+			LOG_DEBUG("[-] RtlGetVersion 失锟斤拷\r\n");
 			return FALSE;
 		}
 
 		g_CurrentWindowsBuildNumber = OsVersion.dwBuildNumber;
 
-		LOG_DEBUG("[+] 当前系统版本:%d\r\n", g_CurrentWindowsBuildNumber);
+		LOG_DEBUG("[+] 锟斤拷前系统锟芥本:%d\r\n", g_CurrentWindowsBuildNumber);
 
 		return TRUE;
 	}

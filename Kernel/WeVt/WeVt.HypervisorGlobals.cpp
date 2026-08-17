@@ -1,4 +1,4 @@
-#include "WeVt.pch.h"
+ï»¿#include "WeVt.pch.h"
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
 #include "WeVt.AsmCallset.h"
@@ -7,6 +7,8 @@
 #include "WeVt.vmcs.h"
 #include "WeVt.idt.h"
 #include "WeVt.gdt.h"
+#include "WeVt.interrupt.h"
+#include "WeVt.msr.h"
 
 #include "WeVt.Trace.h"
 #include "WeVt.HypervisorGlobals.tmh"
@@ -27,15 +29,15 @@ EPTWatchEntry eptWatchList[EPTWATCHLISTSIZE];
 namespace hv
 {
 	// selectors for the host GDT
-	// hostµÄgdtÑ¡ÔñÆ÷
+	// selectors for the host GDT
 	segment_selector host_cs_selector = { 0, 0, 1 };
 	segment_selector host_tr_selector = { 0, 0, 2 };
 
-	//½«hostµÄÎïÀíµØÖ·Ó³ÉäÔÚpml4[255]´¦
+	//å°†hostçš„ç‰©ç†åœ°å€æ˜ å°„åœ¨pml4[255]å¤„
 	uint64_t host_physical_memory_pml4_idx = 255;
 
 	// directly access physical memory by using [base + offset]
-	// Ö¸Ê¾ÓĞĞ§µÄ4¼¶·ÖÒ³´Ópml4[255]¿ªÊ¼
+	// directly access physical memory by using [base + offset]
 	uint8_t* host_physical_memory_base = reinterpret_cast<uint8_t*>((uint64_t)255 << (9 + 9 + 9 + 12));
 
 	hypervisor ghv;
@@ -55,8 +57,8 @@ namespace hv
 	void InitGlobalVariables()
 	{
 		g_guest_cr3 = __readcr3();
-		__sgdt(&g_gdtr);                                 // ½«µ±Ç°Âß¼­´¦ÀíÆ÷µÄgdt´æ´¢ÔÚÈ«¾Ö±äÁ¿g_gdtrÖĞ
-		__sidt(&g_idtr);                                 // ½«µ±Ç°Âß¼­´¦ÀíÆ÷µÄidt´æ´¢ÔÚÈ«¾Ö±äÁ¿g_idtrÖĞ
+		__sgdt(&g_gdtr);                                 // å°†å½“å‰é€»è¾‘å¤„ç†å™¨çš„gdtå­˜å‚¨åœ¨å…¨å±€å˜é‡g_gdträ¸­
+		__sidt(&g_idtr);                                 // å°†å½“å‰é€»è¾‘å¤„ç†å™¨çš„idtå­˜å‚¨åœ¨å…¨å±€å˜é‡g_idträ¸­
 		g_guest_cr0 = __readcr0();
 		g_guest_cr4 = __readcr4();
 
@@ -70,21 +72,54 @@ namespace hv
 		ia32_vmx_basic_register vmx_basic;
 		vmx_basic.flags = __readmsr(IA32_VMX_BASIC);
 
-		// 3.24.11.5
 		vmxon_region.revision_id = vmx_basic.vmcs_revision_id;
 		vmxon_region.must_be_zero = 0;
 
-		auto vmxon_phys = MmGetPhysicalAddress(&vmxon_region).QuadPart;
-		NT_ASSERT(vmxon_phys % 0x1000 == 0);
+		unsigned __int64 vmxon_phys = (unsigned __int64)MmGetPhysicalAddress(&vmxon_region).QuadPart;
+		unsigned char vmxon_status = 0;
+		__ia32_feature_control_msr feature_msr = { 0 };
+		feature_msr.all = __readmsr(IA32_FEATURE_CONTROL);
 
-		// enter vmx operation
-		if (!vmx_on(vmxon_phys)) {
+#if ENABLE_TRACE
+		TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER,
+			"[+] VMXON va=%p pa=0x%llX aligned=%d cr0=0x%llX cr4=0x%llX feature_ctrl=0x%llX lock=%d vmx_outside_smx=%d rev=0x%X",
+			&vmxon_region,
+			vmxon_phys,
+			(vmxon_phys % 0x1000 == 0) ? 1 : 0,
+			__readcr0(),
+			__readcr4(),
+			feature_msr.all,
+			(int)feature_msr.lock,
+			(int)feature_msr.vmxon_outside_smx,
+			vmx_basic.vmcs_revision_id);
+#endif
+
+		if (vmxon_phys % 0x1000 != 0)
+		{
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] VMXON region is not 4KB aligned");
+#endif
 			return false;
 		}
 
-		// 3.28.3.3.4
-		invept_all_contexts_func();
+		if (feature_msr.lock != 0 && feature_msr.vmxon_outside_smx == 0)
+		{
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] IA32_FEATURE_CONTROL locked without VMX outside SMX");
+#endif
+			return false;
+		}
 
+		vmxon_status = __vmx_on(&vmxon_phys);
+		if (vmxon_status != 0)
+		{
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] __vmx_on failed status=%u (1=VMfailInvalid)", (unsigned)vmxon_status);
+#endif
+			return false;
+		}
+
+		invept_all_contexts_func();
 		return true;
 	}
 
@@ -111,7 +146,7 @@ namespace hv
 		return true;
 	}
 
-	//´´½¨hostµÄidtºÍgdt
+	//åˆ›å»ºhostçš„idtå’Œgdt
 	void prepare_external_structures(__vcpu* const vcpu) 
 	{
 		memset(&vcpu->msr_bitmap, 0, sizeof(vcpu->msr_bitmap));
@@ -129,7 +164,7 @@ namespace hv
 	}
 
 	// directly map physical memory into the host page tables
-	// ÕâÀïÖ»Ó³Éä512GBµÄÄÚ´æ
+	// directly map physical memory into the host page tables
 	void map_physical_memory(host_page_tables& pt) {
 		auto& pml4e = pt.pml4[host_physical_memory_pml4_idx];
 		pml4e.flags = 0;
@@ -164,30 +199,30 @@ namespace hv
 				pde.page_level_cache_disable = 0;
 				pde.accessed = 0;
 				pde.dirty = 0;
-				pde.large_page = 1;  //ÆôÓÃ2mb ´óÒ³Ãæ
+				pde.large_page = 1;  //å¯ç”¨2mb å¤§é¡µé¢
 				pde.global = 0;
 				pde.pat = 0;
 				pde.execute_disable = 0;
-				pde.page_frame_number = (i << 9) + j; //ÉèÖÃpfn Ò³Ö¡ºÅ´Ó0¿ªÊ¼
+				pde.page_frame_number = (i << 9) + j; //è®¾ç½®pfn é¡µå¸§å·ä»0å¼€å§‹
 			}
 		}
 	}
 
 	// initialize the host page tables
-	// ³õÊ¼»¯hostÒ³±í
+	// initialize the host page tables
 	void prepare_host_page_tables() {
 		auto& pt = ghv.host_page_tables;
 		memset(&pt, 0, sizeof(pt));
 
 		map_physical_memory(pt);
 
-		//ÏÈ»ñµÃkernel system½ø³ÌµÄcr3µÄpml4µÄÎïÀíµØÖ·
+		//å…ˆè·å¾—kernel systemè¿›ç¨‹çš„cr3çš„pml4çš„ç‰©ç†åœ°å€
 		PHYSICAL_ADDRESS pml4_address;
 		pml4_address.QuadPart = ghv.system_cr3.address_of_page_directory << 12;
 
 		// kernel PML4 address
-		// ÓÉkernel pml4ÎïÀíµØÖ·µÃµ½ĞéÄâÏßĞÔµØÖ·
-		// ÒòÎªmemcpyÕâĞ©º¯ÊıÊÇ²Ù×÷ĞéÄâµØÖ·µÄ
+		// kernel PML4 address
+		// ç”±kernel pml4ç‰©ç†åœ°å€å¾—åˆ°è™šæ‹Ÿçº¿æ€§åœ°å€
 		auto const guest_pml4 = static_cast<pml4e_64*>(MmGetVirtualForPhysical(pml4_address));
 
 #if ENABLE_TRACE
@@ -195,14 +230,14 @@ namespace hv
 #endif
 
 		// copy the top half of the System pml4 (a.k.a. the kernel address space)
-		// ¸´ÖÆsystem pml4 µÄºó°ë²¿·Ö£¨ÓÖ³ÆÄÚºËµØÖ·¿Õ¼ä£©
-		// ½«256×óÒÆ39Î»µÃµ½0x800000000000
+		// copy the top half of the System pml4 (a.k.a. the kernel address space)
+		// å¤åˆ¶system pml4 çš„ååŠéƒ¨åˆ†ï¼ˆåˆç§°å†…æ ¸åœ°å€ç©ºé—´ï¼‰
 		//outDebug("&guest_pml4[256]: %p\n", &guest_pml4[256]);
 		memcpy(&pt.pml4[256], &guest_pml4[256], sizeof(pml4e_64) * 256);
 	}
 
 	// read MTRR data into a single structure
-	// »ñÈ¡MTRRÅäÖÃĞÅÏ¢
+	// read MTRR data into a single structure
 	mtrr_data read_mtrr_data() {
 		mtrr_data mtrrs;
 
@@ -227,38 +262,38 @@ namespace hv
 	}
 
 	// calculate the MTRR memory type for a single page
-	// ¼ÆËãµ¥¸öÒ³ÃæµÄ MTRR ÄÚ´æÀàĞÍ
+	// calculate the MTRR memory type for a single page
 	static uint8_t calc_mtrr_mem_type(mtrr_data const& mtrrs, uint64_t const pfn) {
 		if (!mtrrs.def_type.mtrr_enable)
 		{
-			// MTRRs±»½ûÓÃÕâÒâÎ¶×ÅËùÓĞµÄÎïÀíÄÚ´æ¶¼½«±»ÊÓÎªUC
+			// MTRRsè¢«ç¦ç”¨è¿™æ„å‘³ç€æ‰€æœ‰çš„ç‰©ç†å†…å­˜éƒ½å°†è¢«è§†ä¸ºUC
 			return MEMORY_TYPE_UNCACHEABLE;
 		}
 
 		// fixed range MTRRs
-		// ¹Ì¶¨·¶Î§MTRRs
+		// fixed range MTRRs
 		if (pfn < 0x100 && mtrrs.cap.fixed_range_supported && mtrrs.def_type.fixed_range_mtrr_enable)
 		{
-			// Èç¹ûpfnĞ¡ÓÚ256 ÇÒ¿ªÆôÁË¹Ì¶¨·¶Î§MTRRs
-			// Ôò½«ÎïÀíÄÚ´æÊÓÎªUCÀàĞÍ
+			// å¦‚æœpfnå°äº256 ä¸”å¼€å¯äº†å›ºå®šèŒƒå›´MTRRs
+			// åˆ™å°†ç‰©ç†å†…å­˜è§†ä¸ºUCç±»å‹
 			return MEMORY_TYPE_UNCACHEABLE;
 		}
 
 		uint8_t curr_mem_type = MEMORY_TYPE_INVALID;
 
 		// variable-range MTRRs
-		// ¿É±ä·¶Î§MTRRs
+		// variable-range MTRRs
 		for (uint32_t i = 0; i < mtrrs.var_count; ++i) {
 			auto const base = mtrrs.variable[i].base.page_frame_number;
 			auto const mask = mtrrs.variable[i].mask.page_frame_number;
 
 
 			//Vol.3A[12.11.3]
-			//·¶Î§ÄÚµÄÈÎºÎµØÖ·Óëmask½øĞĞ °´Î»Óë ÔËËãÊ±£¬Ëü½«·µ»ØbaseÓëmask½øĞĞ °´Î»Óë ÔËËãÊ±ÏàÍ¬µÄÖµ¡£
+			//Vol.3A[12.11.3]
 			if ((pfn & mask) == (base & mask)) {
 				auto const type = static_cast<uint8_t>(mtrrs.variable[i].base.type);
 
-				//ÅĞ¶ÏÊÇ·ñÊÇUCÀàĞÍ£¬Èç¹ûÊÇÔòÁ¢¼´·µ»Ø
+				//åˆ¤æ–­æ˜¯å¦æ˜¯UCç±»å‹ï¼Œå¦‚æœæ˜¯åˆ™ç«‹å³è¿”å›
 				if (type == MEMORY_TYPE_UNCACHEABLE)
 					return MEMORY_TYPE_UNCACHEABLE;
 
@@ -269,7 +304,7 @@ namespace hv
 		}
 
 		// no MTRR covers the specified address
-		//Î´±» MTRR Ó³ÉäµÄµØÖ··¶Î§Ó¦ÉèÖÃÎªÄ¬ÈÏÀàĞÍ
+		//æœªè¢« MTRR æ˜ å°„çš„åœ°å€èŒƒå›´åº”è®¾ç½®ä¸ºé»˜è®¤ç±»å‹
 		if (curr_mem_type == MEMORY_TYPE_INVALID)
 			return mtrrs.def_type.default_memory_type;
 
@@ -277,21 +312,21 @@ namespace hv
 	}
 
 	// calculate the MTRR memory type for the given physical memory range
-	// ¼ÆËã¸ø¶¨ÎïÀíÄÚ´æ·¶Î§µÄ MTRR ÄÚ´æÀàĞÍ
+	// calculate the MTRR memory type for the given physical memory range
 	uint8_t calc_mtrr_mem_type(mtrr_data const& mtrrs, uint64_t address, uint64_t size) {
 		// base address must be on atleast a 4KB boundary
-		// »ùµØÖ·±ØĞëÖÁÉÙÎ»ÓÚ 4KB ±ß½çÉÏ
+		// base address must be on atleast a 4KB boundary
 		address &= ~0xFFFull;
 
 		// minimum range size is 4KB
-		// ×îĞ¡·¶Î§´óĞ¡Îª 4KB
+		// minimum range size is 4KB
 		size = (size + 0xFFF) & ~0xFFFull;
 
-		//ÏÈ½«Æä³õÊ¼»¯ÎªÎŞĞ§µÄÄÚ´æÀàĞÍ
+		//å…ˆå°†å…¶åˆå§‹åŒ–ä¸ºæ— æ•ˆçš„å†…å­˜ç±»å‹
 		uint8_t curr_mem_type = MEMORY_TYPE_INVALID;
 
 		for (uint64_t curr = address; curr < address + size; curr += 0x1000) {
-			auto const type = calc_mtrr_mem_type(mtrrs, curr >> 12/*µÃµ½pfn*/);
+			auto const type = calc_mtrr_mem_type(mtrrs, curr >> 12/*å¾—åˆ°pfn*/);
 
 			if (type == MEMORY_TYPE_UNCACHEABLE)
 				return type;
@@ -308,8 +343,8 @@ namespace hv
 	}
 
 
-	// ½«guestĞéÄâµØÖ·×ªÎªguestÎïÀíµØÖ·
-	// ½« GVA ×ª»»Îª GPA, offset_to_next_page ÊÇÏÂÒ»Ò³µÄ×Ö½ÚÊı£¨¼´¿ÉÍ¨¹ı GPA °²È«·ÃÎÊÒÔĞŞ¸Ä GVA µÄ×Ö½ÚÊı£©¡£
+	// å°†guestè™šæ‹Ÿåœ°å€è½¬ä¸ºguestç‰©ç†åœ°å€
+	// å°† GVA è½¬æ¢ä¸º GPA, offset_to_next_page æ˜¯ä¸‹ä¸€é¡µçš„å­—èŠ‚æ•°ï¼ˆå³å¯é€šè¿‡ GPA å®‰å…¨è®¿é—®ä»¥ä¿®æ”¹ GVA çš„å­—èŠ‚æ•°ï¼‰ã€‚
 	uint64_t gva2gpa(cr3 const guest_cr3, void* const gva, size_t* const offset_to_next_page) {
 		if (offset_to_next_page)
 			*offset_to_next_page = 0;
@@ -317,21 +352,21 @@ namespace hv
 		pml4_virtual_address const vaddr = { gva };
 
 		// guest PML4
-		// ÓÉÓÚÎÒÃÇ½«ËùÓĞµÄÎïÀíµØÖ·Ó³ÉäÔÚÁËhost pt.pml4[255]¿ªÊ¼µÄµØ·½
-		// ¹ÊÎÒÃÇĞèÒª¿ØÖÆGPA pml4_idx´Óhost pml4[255]´¦¿ªÊ¼
-		// ´Óhost pt.pml4[255]´¦¿ªÊ¼
+		// guest PML4
+		// ç”±äºæˆ‘ä»¬å°†æ‰€æœ‰çš„ç‰©ç†åœ°å€æ˜ å°„åœ¨äº†host pt.pml4[255]å¼€å§‹çš„åœ°æ–¹
+		// ç”±äºæˆ‘ä»¬å°†æ‰€æœ‰çš„ç‰©ç†åœ°å€æ˜ å°„åœ¨äº†host pt.pml4[255]å¼€å§‹çš„åœ°æ–¹
 		auto const pml4 = reinterpret_cast<pml4e_64*>(host_physical_memory_base + (guest_cr3.address_of_page_directory << 12));
 		auto const pml4e = pml4[vaddr.pml4_idx];
 
-		//ÅĞ¶Ï¸ÃÒ³ÊÇ·ñ´æÔÚ
-		//µ±P=1Ö¸Ê¾±í»òÎïÀíÒ³ÃæÒÑ¼ÓÔØµ½ÎïÀíÄÚ´æÖĞ
+		//åˆ¤æ–­è¯¥é¡µæ˜¯å¦å­˜åœ¨
+		//å½“P=1æŒ‡ç¤ºè¡¨æˆ–ç‰©ç†é¡µé¢å·²åŠ è½½åˆ°ç‰©ç†å†…å­˜ä¸­
 		if (!pml4e.present)
 			return 0;
 
 		// guest PDPT
-		// ÒòÎªvmÀïµÄËùÒÔµØÖ·£¬¶ÔÓÚhostÀ´Ëµ¶¼ÊÇĞéÄâµØÖ·
-		// ËùÒÔÎÒÃÇÔÚhostÀïÈÔÈ»ÊÇ½«gpaµÄµØÖ·µ±×öÏßĞÔµØÖ·À´½âÎö
-		// ÎÒÃÇÈÔĞèÒª½«ÏßĞÔµØÖ·µÄpml4_idx´Ópml4[255]´¦¿ªÊ¼
+		// guest PDPT
+		// å› ä¸ºvmé‡Œçš„æ‰€ä»¥åœ°å€ï¼Œå¯¹äºhostæ¥è¯´éƒ½æ˜¯è™šæ‹Ÿåœ°å€
+		// æ‰€ä»¥æˆ‘ä»¬åœ¨hosté‡Œä»ç„¶æ˜¯å°†gpaçš„åœ°å€å½“åšçº¿æ€§åœ°å€æ¥è§£æ
 		auto const pdpt = reinterpret_cast<pdpte_64*>(host_physical_memory_base + (pml4e.page_frame_number << 12));
 		auto const pdpte = pdpt[vaddr.pdpt_idx];
 
@@ -382,11 +417,11 @@ namespace hv
 		if (offset_to_next_page)
 			*offset_to_next_page = 0x1000 - vaddr.offset;
 
-		//(pte.page_frame_number << 12) 4KBÎïÀíÒ³µÄÆğÊ¼µØÖ· + offsetÔòµÃµ½¾ßÌåµÄÎïÀíµØÖ·
+		//(pte.page_frame_number << 12) 4KBç‰©ç†é¡µçš„èµ·å§‹åœ°å€ + offsetåˆ™å¾—åˆ°å…·ä½“çš„ç‰©ç†åœ°å€
 		return (pte.page_frame_number << 12) + vaddr.offset;
 	}
 
-	//½«GVA×ª»»ÎªGPA
+	//å°†GVAè½¬æ¢ä¸ºGPA
 	uint64_t get_physical_address(unsigned __int64 guest_cr3, _In_ PVOID BaseAddress)
 	{
 		if (!guest_cr3)
@@ -406,13 +441,13 @@ namespace hv
 		auto const gpa = gva2gpa(guest_cr3, gva, offset_to_next_page);
 		if (!gpa)
 			return nullptr;
-		return host_physical_memory_base + gpa;  //½«gpaÓ³Éäµ½hva
+		return host_physical_memory_base + gpa;  //å°†gpaæ˜ å°„åˆ°hva
 	}
 
 	// translate a GVA to an HVA. offset_to_next_page is the number of bytes to
 	// the next page (i.e. the number of bytes that can be safely accessed through
 	// the HVA in order to modify the GVA.
-	// ½« GVA ·­ÒëÎª HVA¡£offset_to_next_page ÊÇÏÂÒ»Ò³µÄ×Ö½ÚÊı£¨¼´¿ÉÍ¨¹ı HVA °²È«·ÃÎÊÒÔĞŞ¸Ä GVA µÄ×Ö½ÚÊı£©
+	// translate a GVA to an HVA. offset_to_next_page is the number of bytes to
 	void* gva2hva(void* const gva, size_t* const offset_to_next_page) {
 		cr3 guest_cr3;
 		guest_cr3.flags = vmread(GUEST_CR3);
@@ -427,7 +462,7 @@ namespace hv
 		auto const src = reinterpret_cast<uint8_t*>(gva);
 
 		// the HVA that we're writing to
-		// Õâ¸öÊÇhva
+		// the HVA that we're writing to
 		auto const dst = reinterpret_cast<uint8_t*>(hva);
 
 		size_t bytes_read = 0;
@@ -437,8 +472,8 @@ namespace hv
 			size_t src_remaining = 0;
 
 			// translate the guest virtual address to a host virtual address
-			// ½«guestĞéÄâµØÖ·Ó³Éäµ½hostĞéÄâµØÖ·
-			// Èç¹û¿çÒ³curr_src½«»áÖ¸ÏòÏÂÒ»¸öÒ³
+			// translate the guest virtual address to a host virtual address
+			// å°†guestè™šæ‹Ÿåœ°å€æ˜ å°„åˆ°hostè™šæ‹Ÿåœ°å€
 			auto const curr_src = gva2hva(guest_cr3, src + bytes_read, &src_remaining);
 
 			// paged out
@@ -463,7 +498,7 @@ namespace hv
 	}
 
 	// attempt to read the memory at the specified guest virtual address from root-mode
-	// ¶ÁÈ¡guestÖĞµ±Ç°½ø³ÌµÄĞéÄâÄÚ´æ
+	// attempt to read the memory at the specified guest virtual address from root-mode
 	size_t read_guest_virtual_memory(void* const gva, void* const hva, size_t const size)
 	{
 		cr3 guest_cr3;
@@ -476,22 +511,22 @@ namespace hv
 	{
 		size_t bytes_read = 0;
 
-		// Õâ¸öÊÇgva
+		// è¿™ä¸ªæ˜¯gva
 		auto const dst = reinterpret_cast<uint8_t*>(gva);
 
-		// Õâ¸öÊÇhva
+		// è¿™ä¸ªæ˜¯hva
 		auto const src = reinterpret_cast<uint8_t*>(hva);
 
 		while (bytes_read < size) {
 			size_t dst_remaining = 0;
 
-			// remaining·µ»ØÒ³ÃæµÄÊ£Óà×Ö½ÚÊı
-			// Èç¹û¿çÒ³curr_dst½«»áÖ¸ÏòÏÂÒ»¸öÒ³
+			// remainingè¿”å›é¡µé¢çš„å‰©ä½™å­—èŠ‚æ•°
+			// å¦‚æœè·¨é¡µcurr_dstå°†ä¼šæŒ‡å‘ä¸‹ä¸€ä¸ªé¡µ
 			auto const curr_dst = gva2hva(guest_cr3, dst + bytes_read, &dst_remaining);
 
 			// this means that the target memory isn't paged in. there's nothing
 			// we can do about that since we're not currently in that process's context.
-			// ÕâÒâÎ¶×ÅÄ¿±êÄÚ´æÎ´±»µ÷ÈëÒ³¡£ÎÒÃÇ¶Ô´ËÎŞÄÜÎªÁ¦£¬ÒòÎªÎÒÃÇÄ¿Ç°²»ÔÚ¸Ã½ø³ÌµÄÉÏÏÂÎÄÖĞ¡£
+			// this means that the target memory isn't paged in. there's nothing
 			if (!curr_dst)
 				return bytes_read;
 
@@ -502,7 +537,7 @@ namespace hv
 			memcpy_safe(e, curr_dst, src + bytes_read, curr_size);
 
 			if (e.exception_occurred) {
-				// ÕâÕæµÄ²»Ó¦¸Ã·¢Éú¡­¡­ÓÀÔ¶¡­¡­
+				// è¿™çœŸçš„ä¸åº”è¯¥å‘ç”Ÿâ€¦â€¦æ°¸è¿œâ€¦â€¦
 				return bytes_read;
 			}
 
@@ -511,7 +546,7 @@ namespace hv
 		return bytes_read;
 	}
 
-	// Ğ´ÈëguestÖĞµ±Ç°½ø³ÌµÄĞéÄâÄÚ´æ
+	// å†™å…¥guestä¸­å½“å‰è¿›ç¨‹çš„è™šæ‹Ÿå†…å­˜
 	size_t write_guest_virtual_memory(void* const gva, void* const hva, size_t const size)
 	{
 		cr3 guest_cr3;
@@ -519,20 +554,200 @@ namespace hv
 		return write_guest_virtual_memory(guest_cr3, gva, hva, size);
 	}
 
-	//»ñÈ¡¿ÕÏĞµÄid
+	//è·å–ç©ºé—²çš„id
 	int getIdleWatchID()
 	{
 		int i;
 		for (i = 0; i < EPTWATCHLISTSIZE; i++)
 		{
-			if (eptWatchList[i].inuse == 0)  //²éÕÒÃ»ÓĞ±»Ê¹ÓÃµÄÎ»ÖÃ
+			if (eptWatchList[i].inuse == 0)  //æŸ¥æ‰¾æ²¡æœ‰è¢«ä½¿ç”¨çš„ä½ç½®
 			{
-				return i;  //ÕÒµ½ºó·µ»Øindex
+				return i;  //æ‰¾åˆ°åè¿”å›index
 			}
 		}
 		return -1;
 	}
 
+	cr0 read_effective_guest_cr0() {
+		// TODO: cache this value
+		auto const mask = vmread(CR0_GUEST_HOST_MASK);
 
+		// bits set to 1 in the mask are read from CR0, otherwise from the shadow
+		cr0 cr0;
+		cr0.flags = (vmread(CR0_READ_SHADOW) & mask) | (vmread(GUEST_CR0) & ~mask);
+
+		return cr0;
+	}
+
+	cr4 read_effective_guest_cr4() {
+		// TODO: cache this value
+		auto const mask = vmread(CR4_GUEST_HOST_MASK);
+
+		// bits set to 1 in the mask are read from CR4, otherwise from the shadow
+		cr4 cr4;
+		cr4.flags = (vmread(CR4_READ_SHADOW) & mask) | (vmread(GUEST_CR4) & ~mask);
+
+		return cr4;
+	}
+
+	vmx_interruptibility_state read_interruptibility_state()
+	{
+		vmx_interruptibility_state value;
+		value.flags = static_cast<uint32_t>(vmread(GUEST_INTERRUPTIBILITY_STATE));
+		return value;
+	}
+
+	void write_interruptibility_state(vmx_interruptibility_state const value)
+	{
+		hv::vmwrite(GUEST_INTERRUPTIBILITY_STATE, value.flags);
+	}
+
+	// inject an NMI into the guest
+	void inject_nmi() {
+		//vmentry_interrupt_information interrupt_info;
+		//interrupt_info.flags = 0;
+		//interrupt_info.vector = nmi;
+		//interrupt_info.interruption_type = non_maskable_interrupt;
+		//interrupt_info.deliver_error_code = 0;
+		//interrupt_info.valid = 1;
+		//vmwrite(VM_ENTRY_INTERRUPTION_INFO_FIELD, interrupt_info.flags);
+		inject_interruption(EXCEPTION_VECTOR_NMII, INTERRUPT_TYPE_NMI, 0, false);
+	}
+
+	// get the KPCR of the current guest (this pointer should stay constant per-vcpu)
+	PKPCR current_guest_kpcr() {
+		// GS base holds the KPCR when in ring-0
+		if (current_guest_cpl() == 0)
+			return reinterpret_cast<PKPCR>(vmread(GUEST_GS_BASE));
+
+		// when in ring-3, the GS_SWAP contains the KPCR
+		// åœ¨ ring-3 ä¸­ï¼ŒGS_SWAP åŒ…å« å†…æ ¸KPCR
+		return reinterpret_cast<PKPCR>(__readmsr(IA32_KERNEL_GS_BASE));
+	}
+
+	// get the ETHREAD of the current guest
+	// è·å–guesté‡Œçš„å½“å‰çº¿ç¨‹å¯¹è±¡
+	size_t current_guest_ethread()
+	{
+		// KPCR
+		auto const kpcr = current_guest_kpcr();
+
+		if (!kpcr)
+			return NULL;
+
+		// KPCR::Prcb
+		auto const kprcb = reinterpret_cast<uint8_t*>(kpcr) + ghv.kpcr_pcrb_offset;
+
+		// KPCRB::CurrentThread
+		size_t current_thread = NULL;
+		read_guest_virtual_memory(ghv.system_cr3,
+			kprcb + ghv.kprcb_current_thread_offset,
+			&current_thread,
+			sizeof(current_thread));
+
+		return current_thread;
+	}
+
+	PCLIENT_ID GuestCurrentThreadCid()
+	{
+		size_t Thread = hv::current_guest_ethread();
+		size_t ptr_Cid = Thread + Global::ethread_offset::Cid;
+		return (PCLIENT_ID)ptr_Cid;
+	}
+
+	//å‘guestæ³¨å…¥#DBäº‹ä»¶
+	void inject_single_step(__vcpu* vcpu)
+	{
+		//guestçš„æ¨¡å¼å¦‚æœæ˜¯å†…æ ¸å°±ä¸æ³¨å…¥#DB
+		int kernelmode = hv::get_guest_cpl() == 0;
+		if (!kernelmode)
+		{
+			PCLIENT_ID Cid = GuestCurrentThreadCid();
+			vcpu->Cid.UniqueThread = Cid->UniqueThread;  //è®°å½•å½“å‰guestçš„çº¿ç¨‹id
+			hv::inject_interruption(EXCEPTION_VECTOR_SINGLE_STEP, INTERRUPT_TYPE_HARDWARE_EXCEPTION, 0, false);
+		}
+	}
+
+	// set the memory type in every EPT paging structure to the specified value
+	// å°†æ¯ä¸ª EPT åˆ†é¡µç»“æ„ä¸­çš„å†…å­˜ç±»å‹è®¾ç½®ä¸ºæŒ‡å®šå€¼å°†æ¯ä¸ª EPT åˆ†é¡µç»“æ„ä¸­çš„å†…å­˜ç±»å‹è®¾ç½®ä¸ºæŒ‡å®šå€¼
+	void set_ept_memory_type(__ept_state& ept_state, uint8_t const memory_type)
+	{
+		sLog("\n");
+		for (size_t i = 0; i < EPT_PD_COUNT; ++i)
+		{
+			for (size_t j = 0; j < 512; ++j)
+			{
+				auto& pde = ept_state.ept_page_table->pml2[i][j];
+
+				// 2MB large page
+				// 2MB å¤§é¡µé¢
+				if (pde.page_directory_entry.large_page)
+				{
+					pde.page_directory_entry.memory_type = memory_type;
+				}
+				else
+				{
+					// PDE æŒ‡å‘ä¸€ä¸ª PT
+					auto const pt = reinterpret_cast<ept_pte*>(host_physical_memory_base + (pde.large_page.page_frame_number << 12));
+
+					// update the memory type for every PTE
+					// æ›´æ–°æ¯ä¸ª PTE çš„å†…å­˜ç±»å‹
+					for (size_t k = 0; k < 512; ++k)
+						pt[k].memory_type = memory_type;
+				}
+			}
+		}
+	}
+
+	// update the memory types in the EPT paging structures based on the MTRRs.
+	// æ ¹æ® MTRR æ›´æ–° EPT åˆ†é¡µç»“æ„ä¸­çš„å†…å­˜ç±»å‹ã€‚
+	// this function should only be called from root-mode during vmx-operation.
+	// æ­¤å‡½æ•°åº”ä»…åœ¨ vmx-operation æœŸé—´ä»hostè°ƒç”¨ã€‚
+	void update_ept_memory_type(__ept_state& ept_state)
+	{
+		sLog("\n");
+		// TODO: completely virtualize the guest MTRRs
+		// å®Œå…¨è™šæ‹ŸåŒ–guest MTRR
+		auto const mtrrs = read_mtrr_data();
+
+		for (size_t i = 0; i < EPT_PD_COUNT; ++i) {
+			for (size_t j = 0; j < 512; ++j) {
+				auto& pde = ept_state.ept_page_table->pml2[i][j];
+
+				// 2MB large page
+				if (pde.page_directory_entry.large_page) {
+					// update the memory type for this PDE
+					pde.page_directory_entry.memory_type = calc_mtrr_mem_type(mtrrs,
+						pde.page_directory_entry.page_frame_number << 21, 0x1000 << 9);
+				}
+				// PDE points to a PT
+				else {
+					auto const pt = reinterpret_cast<ept_pte*>(host_physical_memory_base + (pde.large_page.page_frame_number << 12));
+
+					// update the memory type for every PTE
+					for (size_t k = 0; k < 512; ++k) {
+						pt[k].memory_type = calc_mtrr_mem_type(mtrrs, pt[k].page_frame_number << 12, 0x1000);
+					}
+				}
+			}
+		}
+	}
+
+	//è¯»å–guesté€šç”¨å¯„å­˜å™¨
+	uint64_t read_guest_gpr(guest_context const* const ctx, uint64_t const gpr_idx)
+	{
+		if (gpr_idx == VMX_EXIT_QUALIFICATION_GENREG_RSP)
+			return hv::vmread(GUEST_RSP);
+		return ctx->gpr[gpr_idx];
+	}
+
+	//å†™guesté€šç”¨å¯„å­˜å™¨
+	void write_guest_gpr(guest_context* const ctx, uint64_t const gpr_idx, uint64_t const value)
+	{
+		if (gpr_idx == VMX_EXIT_QUALIFICATION_GENREG_RSP)
+			vmwrite(GUEST_RSP, value);
+		else
+			ctx->gpr[gpr_idx] = value;
+	}
 
 }

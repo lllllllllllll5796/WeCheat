@@ -7,7 +7,7 @@ namespace KernelCommon
 	{
 		PVOID RtlAllocateMemory(bool InZeroMemory, SIZE_T InSize)
 		{
-			void* Result = ImpCall(ExAllocatePoolWithTag, NonPagedPool, InSize, GetPoolTag());
+			void* Result = ExAllocatePoolWithTag(NonPagedPool, InSize, GetPoolTag());
 			if (InZeroMemory && (Result != NULL))
 				RtlZeroMemory(Result, InSize);
 			return Result;
@@ -15,22 +15,20 @@ namespace KernelCommon
 
 		VOID RtlFreeMemory(void* InPointer)
 		{
-			ImpCall(ExFreePool, InPointer);
+			ExFreePool(InPointer);
 		}
 
-		//必须要挂靠
 		PVOID AllocateInjectMemory(IN HANDLE ProcessHandle, IN PVOID DesiredAddress, IN SIZE_T DesiredSize)
 		{
 			wdk::MEMORY_BASIC_INFORMATION mbi;
 			SIZE_T AllocateSize = DesiredSize;
 
-			//检查是否x86内核地址
 			if ((ULONG_PTR)DesiredAddress >= 0x70000000 && (ULONG_PTR)DesiredAddress < 0x80000000)
 				DesiredAddress = (PVOID)0x70000000;
 
 			while (1)
 			{
-				if (!NT_SUCCESS(ImpCall(ZwQueryVirtualMemory, ProcessHandle,
+				if (!NT_SUCCESS(ZwQueryVirtualMemory(ProcessHandle,
 					DesiredAddress,
 					(::MEMORY_INFORMATION_CLASS)0,
 					&mbi, sizeof(mbi), NULL)))
@@ -38,7 +36,7 @@ namespace KernelCommon
 					LOG_DEBUG("faield QueryVirtualMemory\r\n");
 					return NULL;
 				}
-				//Windows会以64-KB为边界计算区域的启始地址 分配粒度为64kb 0x10000 16页
+
 				if (DesiredAddress != mbi.AllocationBase)
 				{
 					DesiredAddress = mbi.AllocationBase;
@@ -47,14 +45,12 @@ namespace KernelCommon
 				{
 					DesiredAddress = (PVOID)((ULONG_PTR)mbi.AllocationBase - 0x10000);
 				}
-				//BaseAddress只是分配页面中的起始虚拟地址
+
 				if (mbi.State == MEM_FREE)
 				{
-					//先设置为保留内存
-					if (NT_SUCCESS(ImpCall(ZwAllocateVirtualMemory, ProcessHandle, &mbi.BaseAddress, 0, &AllocateSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE)))
+					if (NT_SUCCESS(ZwAllocateVirtualMemory(ProcessHandle, &mbi.BaseAddress, 0, &AllocateSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE)))
 					{
-						//提交到物理内存
-						if (NT_SUCCESS(ImpCall(ZwAllocateVirtualMemory, ProcessHandle, &mbi.BaseAddress, 0, &AllocateSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE)))
+						if (NT_SUCCESS(ZwAllocateVirtualMemory(ProcessHandle, &mbi.BaseAddress, 0, &AllocateSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE)))
 						{
 							//LOG_DEBUG("Addr :0x%llX \r\n", mbi.BaseAddress);
 							return mbi.BaseAddress;
@@ -68,7 +64,7 @@ namespace KernelCommon
 		NTSTATUS FreeInjectMemory(IN HANDLE ProcessHandle, IN PVOID* BaseAddress)
 		{
 			SIZE_T allocSize = 0;
-			NTSTATUS STATE = NT_SUCCESS(ImpCall(ZwFreeVirtualMemory, ProcessHandle, BaseAddress, &allocSize, MEM_RELEASE));
+			NTSTATUS STATE = NT_SUCCESS(ZwFreeVirtualMemory(ProcessHandle, BaseAddress, &allocSize, MEM_RELEASE));
 			return STATE;
 		}
 
@@ -77,13 +73,13 @@ namespace KernelCommon
 			KIRQL oldIrql;
 			KeRaiseIrql(DISPATCH_LEVEL, &oldIrql);
 
-			PMDL mdl = ImpCall(IoAllocateMdl, Destination, Length, FALSE, FALSE, nullptr);
+			PMDL mdl = IoAllocateMdl(Destination, Length, FALSE, FALSE, nullptr);
 			if (mdl == nullptr) {
 				KeLowerIrql(oldIrql);
 				return STATUS_NO_MEMORY;
 			}
 
-			ImpCall(MmBuildMdlForNonPagedPool, mdl);
+			MmBuildMdlForNonPagedPool(mdl);
 			// Hack: prevent bugcheck from Driver Verifier and possible future version of Windows
 #pragma prefast(push)
 	// Disables the warnings specified in a given warning list.
@@ -93,21 +89,21 @@ namespace KernelCommon
 			mdl->MdlFlags &= ~MDL_SOURCE_IS_NONPAGED_POOL;
 
 			// Map pages and do the copy
-			PVOID mapped = ImpCall(MmMapLockedPagesSpecifyCache, mdl, KernelMode, MmCached, nullptr, FALSE, HighPagePriority);
+			PVOID mapped = MmMapLockedPagesSpecifyCache(mdl, KernelMode, MmCached, nullptr, FALSE, HighPagePriority);
 			if (mapped == nullptr) {
 				mdl->MdlFlags = flags;
-				ImpCall(IoFreeMdl, mdl);
+				IoFreeMdl(mdl);
 				KeLowerIrql(oldIrql);
 				return STATUS_NONE_MAPPED;
 			}
 
 			RtlCopyMemory(mapped, Source, Length);
 
-			ImpCall(MmUnmapLockedPages, mapped, mdl);
+			MmUnmapLockedPages(mapped, mdl);
 			mdl->MdlFlags = flags;
 #pragma prefast(pop)
 
-			ImpCall(IoFreeMdl, mdl);
+			IoFreeMdl(mdl);
 			KeLowerIrql(oldIrql);
 
 			return STATUS_SUCCESS;
@@ -115,7 +111,7 @@ namespace KernelCommon
 
 		BOOL WriteReadCopy(void* Destination, void* Source, SIZE_T Length)
 		{
-			auto mdl = ImpCall(IoAllocateMdl, Destination, static_cast<ULONG>(Length), FALSE, FALSE, nullptr);
+			auto mdl = IoAllocateMdl(Destination, static_cast<ULONG>(Length), FALSE, FALSE, nullptr);
 
 			// 		const std::unique_ptr<MDL, decltype(&IoFreeMdl)> mdl(
 			// 			IoAllocateMdl(destination, static_cast<ULONG>(size), FALSE, FALSE, nullptr),
@@ -125,27 +121,27 @@ namespace KernelCommon
 			if (!mdl)
 				return FALSE;
 
-			ImpCall(MmProbeAndLockPages, mdl, KernelMode, IoReadAccess);
+			MmProbeAndLockPages(mdl, KernelMode, IoReadAccess);
 
-			const auto mapped_page = ImpCall(MmMapLockedPagesSpecifyCache, mdl, KernelMode, MmNonCached, nullptr, FALSE, NormalPagePriority);
+			const auto mapped_page = MmMapLockedPagesSpecifyCache(mdl, KernelMode, MmNonCached, nullptr, FALSE, NormalPagePriority);
 
 			if (!mapped_page)
 			{
-				ImpCall(IoFreeMdl, mdl);
+				IoFreeMdl(mdl);
 				return FALSE;
 			}
 
-			if (!NT_SUCCESS(ImpCall(MmProtectMdlSystemAddress, mdl, PAGE_EXECUTE_READWRITE)))
+			if (!NT_SUCCESS(MmProtectMdlSystemAddress(mdl, PAGE_EXECUTE_READWRITE)))
 			{
-				ImpCall(IoFreeMdl, mdl);
+				IoFreeMdl(mdl);
 				return FALSE;
 			}
 
 			memcpy(mapped_page, Source, Length);
 
-			ImpCall(MmUnmapLockedPages, mapped_page, mdl);
-			ImpCall(MmUnlockPages, mdl);
-			ImpCall(IoFreeMdl, mdl);
+			MmUnmapLockedPages(mapped_page, mdl);
+			MmUnlockPages(mdl);
+			IoFreeMdl(mdl);
 			return TRUE;
 		}
 

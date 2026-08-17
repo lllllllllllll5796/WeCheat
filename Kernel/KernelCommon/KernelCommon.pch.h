@@ -1,6 +1,7 @@
 #pragma once
 
-#define ENABLE_LOG 1
+#define ENABLE_LOG 0
+#define ENABLE_TRACE 1
 
 #define CODE_NOTOBF __attribute((__annotate__(("notobf"))))
 #define CODE_OBF __attribute((__annotate__(("needobf"))))
@@ -26,9 +27,9 @@
 #include "KernelCommon.cheader.h"
 #include "KernelCommon.cppheader.h"
 #include "KernelCommon.macro.h"
-#include "KernelCommon.log.h"
 #include "KernelCommon.version.h"
 #include "KernelIntrin.h"
+
 
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>

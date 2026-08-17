@@ -71,82 +71,82 @@ typedef struct {
 // }
 
 //测试成功
-INLINE void __writedr(unsigned int Index, unsigned __int64 value)
-{
-	if (Index == 0)
-	{
-		__asm __volatile__("mov %0, %%dr0" : : "r"(value) : "memory");
-	}
-	else if (Index == 1)
-	{
-		__asm __volatile__("mov %0, %%dr1" : : "r"(value) : "memory");
-	}
-	else if (Index == 2)
-	{
-		__asm __volatile__("mov %0, %%dr2" : : "r"(value) : "memory");
-	}
-	else if (Index == 3)
-	{
-		__asm __volatile__("mov %0, %%dr3" : : "r"(value) : "memory");
-	}
-	else if (Index == 4)
-	{
-		__asm __volatile__("mov %0, %%dr4" : : "r"(value) : "memory");
-	}
-	else if (Index == 5)
-	{
-		__asm __volatile__("mov %0, %%dr5" : : "r"(value) : "memory");
-	}
-	else if (Index == 6)
-	{
-		__asm __volatile__("mov %0, %%dr6" : : "r"(value) : "memory");
-	}
-	else if (Index == 7)
-	{
-		__asm __volatile__("mov %0, %%dr7" : : "r"(value) : "memory");
-	}
-}
+//INLINE void __writedr(unsigned int Index, unsigned __int64 value)
+//{
+//	if (Index == 0)
+//	{
+//		__asm __volatile__("mov %0, %%dr0" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 1)
+//	{
+//		__asm __volatile__("mov %0, %%dr1" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 2)
+//	{
+//		__asm __volatile__("mov %0, %%dr2" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 3)
+//	{
+//		__asm __volatile__("mov %0, %%dr3" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 4)
+//	{
+//		__asm __volatile__("mov %0, %%dr4" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 5)
+//	{
+//		__asm __volatile__("mov %0, %%dr5" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 6)
+//	{
+//		__asm __volatile__("mov %0, %%dr6" : : "r"(value) : "memory");
+//	}
+//	else if (Index == 7)
+//	{
+//		__asm __volatile__("mov %0, %%dr7" : : "r"(value) : "memory");
+//	}
+//}
 
 //测试成功
-INLINE unsigned __int64 __readdr(unsigned int Index)
-{
-	unsigned __int64 addr = 0;
-
-	if (Index == 0)
-	{
-		__asm __volatile__("mov %%dr0, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 1)
-	{
-		__asm __volatile__("mov %%dr1, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 2)
-	{
-		__asm __volatile__("mov %%dr2, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 3)
-	{
-		__asm __volatile__("mov %%dr3, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 4)
-	{
-		__asm __volatile__("mov %%dr4, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 5)
-	{
-		__asm __volatile__("mov %%dr5, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 6)
-	{
-		__asm __volatile__("mov %%dr6, %0" : "=r"(addr) : : "memory");
-	}
-	else if (Index == 7)
-	{
-		__asm __volatile__("mov %%dr7, %0" : "=r"(addr) : : "memory");
-	}
-
-	return addr;
-}
+//INLINE unsigned __int64 __readdr(unsigned int Index)
+//{
+//	unsigned __int64 addr = 0;
+//
+//	if (Index == 0)
+//	{
+//		__asm __volatile__("mov %%dr0, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 1)
+//	{
+//		__asm __volatile__("mov %%dr1, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 2)
+//	{
+//		__asm __volatile__("mov %%dr2, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 3)
+//	{
+//		__asm __volatile__("mov %%dr3, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 4)
+//	{
+//		__asm __volatile__("mov %%dr4, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 5)
+//	{
+//		__asm __volatile__("mov %%dr5, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 6)
+//	{
+//		__asm __volatile__("mov %%dr6, %0" : "=r"(addr) : : "memory");
+//	}
+//	else if (Index == 7)
+//	{
+//		__asm __volatile__("mov %%dr7, %0" : "=r"(addr) : : "memory");
+//	}
+//
+//	return addr;
+//}
 
 //https://github.com/microsoft/SymCrypt/blob/0f83207858253be11f473dced88b146895004419/lib/linux/intrinsics.c
 // inl void __cpuid(int CPUInfo[4], int InfoType)
@@ -180,40 +180,40 @@ INLINE unsigned __int64 __readdr(unsigned int Index)
 // inl void __movsb(unsigned char* __dst, unsigned char const* __src, size_t __n) {
 // 	__asm __volatile__("rep movsb" : "+D"(__dst), "+S"(__src), "+c"(__n) : : "memory");
 // }
-
-INLINE unsigned __int64 __readcr2() {
-	unsigned __int64 __cr2_val;
-	__asm __volatile__("mov %%cr2, %0" : "=r"(__cr2_val) : : "memory");
-	return __cr2_val;
-}
-
-INLINE unsigned __int64 __readcr3() {
-	unsigned __int64 __cr3_val;
-	__asm __volatile__("mov %%cr3, %0" : "=r"(__cr3_val) : : "memory");
-	return __cr3_val;
-}
-
-INLINE unsigned __int64 __readcr4() {
-	unsigned __int64 __cr4_val;
-	__asm __volatile__("mov %%cr4, %0" : "=r"(__cr4_val) : : "memory");
-	return __cr4_val;
-}
-
-INLINE unsigned __int64 __readcr0() {
-	unsigned __int64 __cr0_val;
-	__asm __volatile__("mov %%cr0, %0" : "=r"(__cr0_val) : : "memory");
-	return __cr0_val;
-}
-
-INLINE unsigned __int64 __readcr8() {
-	unsigned __int64 __cr8_val;
-	__asm __volatile__("mov %%cr8, %0" : "=r"(__cr8_val) : : "memory");
-	return __cr8_val;
-}
-
-INLINE void __writecr0(unsigned __int64 __cr0_val) {
-	__asm __volatile__("mov %0, %%cr0" : : "r"(__cr0_val) : "memory");
-}
+//
+//INLINE unsigned __int64 __readcr2() {
+//	unsigned __int64 __cr2_val;
+//	__asm __volatile__("mov %%cr2, %0" : "=r"(__cr2_val) : : "memory");
+//	return __cr2_val;
+//}
+//
+//INLINE unsigned __int64 __readcr3() {
+//	unsigned __int64 __cr3_val;
+//	__asm __volatile__("mov %%cr3, %0" : "=r"(__cr3_val) : : "memory");
+//	return __cr3_val;
+//}
+//
+//INLINE unsigned __int64 __readcr4() {
+//	unsigned __int64 __cr4_val;
+//	__asm __volatile__("mov %%cr4, %0" : "=r"(__cr4_val) : : "memory");
+//	return __cr4_val;
+//}
+//
+//INLINE unsigned __int64 __readcr0() {
+//	unsigned __int64 __cr0_val;
+//	__asm __volatile__("mov %%cr0, %0" : "=r"(__cr0_val) : : "memory");
+//	return __cr0_val;
+//}
+//
+//INLINE unsigned __int64 __readcr8() {
+//	unsigned __int64 __cr8_val;
+//	__asm __volatile__("mov %%cr8, %0" : "=r"(__cr8_val) : : "memory");
+//	return __cr8_val;
+//}
+//
+//INLINE void __writecr0(unsigned __int64 __cr0_val) {
+//	__asm __volatile__("mov %0, %%cr0" : : "r"(__cr0_val) : "memory");
+//}
 
 // inl void __writecr2(unsigned __int64 Data)
 // {
@@ -223,82 +223,82 @@ INLINE void __writecr0(unsigned __int64 __cr0_val) {
 // 		: [Data] "q" (Data)
 // 		: "memory");
 // }
-
-INLINE void __writecr3(unsigned __int64 __cr3_val) {
-	__asm __volatile__("mov %0, %%cr3" : : "r"(__cr3_val) : "memory");
-}
-
-INLINE void __writecr4(unsigned __int64 __cr4_val) {
-	__asm __volatile__("mov %0, %%cr4" : : "r"(__cr4_val) : "memory");
-}
-
-INLINE void __writecr8(unsigned __int64 __cr0_val) {
-	__asm __volatile__("mov %0, %%cr8" : : "r"(__cr0_val) : "memory");
-}
-
-INLINE void _disable() {
-	__asm cli
-}
-
-INLINE void _enable() {
-	__asm sti
-}
-
-INLINE void _cli() {
-	__asm cli
-}
-
-INLINE void _sti() {
-	__asm sti
-}
-
-INLINE naked unsigned __int64 _readeflags() {
-	__asm {
-		pushfq
-		pop rax
-		ret
-	}
-}
-
-INLINE naked void _writeeflags(unsigned __int64 a1) {
-	__asm {
-		push rcx
-		popfq
-		ret
-	}
-}
-
-
-INLINE naked unsigned __int64 _readdr7() {
-	__asm {
-		mov rax, dr7
-		ret
-	}
-}
-
-INLINE naked unsigned __int64 _readdr6() {
-	__asm {
-		mov rax, dr6
-		ret
-	}
-}
-
-INLINE naked unsigned __int64 _writedr7(__int64 a1) {
-	__asm {
-		mov dr7, rcx
-		ret
-	}
-}
-
-INLINE bool KeAreInterruptsEnabled()
-{
-	return (_readeflags() & 0x200) != 0;
-}
-
-INLINE unsigned __int64 KeGetCurrentPrcb() 
-{
-	return __readgsqword(0x20);
-}
+//
+//INLINE void __writecr3(unsigned __int64 __cr3_val) {
+//	__asm __volatile__("mov %0, %%cr3" : : "r"(__cr3_val) : "memory");
+//}
+//
+//INLINE void __writecr4(unsigned __int64 __cr4_val) {
+//	__asm __volatile__("mov %0, %%cr4" : : "r"(__cr4_val) : "memory");
+//}
+//
+//INLINE void __writecr8(unsigned __int64 __cr0_val) {
+//	__asm __volatile__("mov %0, %%cr8" : : "r"(__cr0_val) : "memory");
+//}
+//
+//INLINE void _disable() {
+//	__asm cli
+//}
+//
+//INLINE void _enable() {
+//	__asm sti
+//}
+//
+//INLINE void _cli() {
+//	__asm cli
+//}
+//
+//INLINE void _sti() {
+//	__asm sti
+//}
+//
+//INLINE naked unsigned __int64 _readeflags() {
+//	__asm {
+//		pushfq
+//		pop rax
+//		ret
+//	}
+//}
+//
+//INLINE naked void _writeeflags(unsigned __int64 a1) {
+//	__asm {
+//		push rcx
+//		popfq
+//		ret
+//	}
+//}
+//
+//
+//INLINE naked unsigned __int64 _readdr7() {
+//	__asm {
+//		mov rax, dr7
+//		ret
+//	}
+//}
+//
+//INLINE naked unsigned __int64 _readdr6() {
+//	__asm {
+//		mov rax, dr6
+//		ret
+//	}
+//}
+//
+//INLINE naked unsigned __int64 _writedr7(__int64 a1) {
+//	__asm {
+//		mov dr7, rcx
+//		ret
+//	}
+//}
+//
+//INLINE bool KeAreInterruptsEnabled()
+//{
+//	return (_readeflags() & 0x200) != 0;
+//}
+//
+//INLINE unsigned __int64 KeGetCurrentPrcb() 
+//{
+//	return __readgsqword(0x20);
+//}
 
 // 
 // inl void __inbytestring(unsigned short Port, unsigned char* Buffer, unsigned long Count)

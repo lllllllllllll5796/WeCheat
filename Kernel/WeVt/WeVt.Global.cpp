@@ -6,6 +6,15 @@
 
 namespace Global
 {
+	namespace ethread_offset
+	{
+		size_t Tcb;
+		size_t CrossThreadFlags;
+		size_t Cid;
+		size_t RundownProtect;
+	}
+
+
 	PDRIVER_OBJECT g_DriverObject = nullptr;
 	ULONG64 g_DriverBase = 0;
 	ULONG32 g_DriverSize = 0;
@@ -27,13 +36,10 @@ namespace Global
 		NTSTATUS Status = RtlGetVersion(&OsVersion);
 		if (!NT_SUCCESS(Status))
 		{
-			//LOG_DEBUG("[-] RtlGetVersion ʧ��\r\n");
 			return FALSE;
 		}
 
 		g_CurrentWindowsBuildNumber = OsVersion.dwBuildNumber;
-
-		//LOG_DEBUG("[+] ��ǰϵͳ�汾:%d\r\n", g_CurrentWindowsBuildNumber);
 
 		return TRUE;
 	}

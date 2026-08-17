@@ -1,4 +1,4 @@
-#include "WeVt.pch.h"
+ï»¿#include "WeVt.pch.h"
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
 #include "../../Shared/SharedStruct.h"
@@ -7,6 +7,7 @@
 #include "WeVt.vmcs.h"
 #include "WeVt.lde64.h"
 #include "WeVt.hypervisor_routines.h"
+#include "WeVt.AllocateMem.h"
 
 #include "WeVt.Trace.h"
 #include "WeVt.ept.tmh"
@@ -15,13 +16,13 @@ namespace ept
 {
 	/// <summary>
 	/// Build mtrr map to track physical memory type
-	/// ¹¹½¨mtrrÓ³ÉäÒÔ¸ú×ÙÎïÀíÄÚ´æÀàĞÍ(ÓÖ³Æ»º´æÀàĞÍ)
-	/// Ê×ÏÈ£¬ÄúĞèÒªÁË½âMTRR£¨Memory Type Range Registers£©ÊÇÊ²Ã´¡£
-	/// MTRRÊÇÒ»×é¼Ä´æÆ÷£¬ÓÃÓÚ¶¨ÒåÎïÀíÄÚ´æµØÖ··¶Î§µÄ»º´æÀàĞÍ£¨ÀıÈç»ØĞ´»º´æWB¡¢Ö±Ğ´»º´æWTµÈ£©¡£
-	/// È»ºó£¬ÄúĞèÒª»ñÈ¡ÏµÍ³ÖĞµÄMTRRÅäÖÃĞÅÏ¢¡£¿ÉÒÔÍ¨¹ı¶ÁÈ¡ºÍ½âÎöÏµÍ³µÄMTRR¼Ä´æÆ÷À´»ñÈ¡ÕâĞ©ĞÅÏ¢¡£
-	/// ¾ßÌåµÄ·½·¨¿ÉÄÜÒò²Ù×÷ÏµÍ³ºÍÓ²¼şÆ½Ì¨¶øÒì¡£	
-	/// ½âÎöMTRRÅäÖÃĞÅÏ¢²¢¹¹½¨MTRRÓ³Éä¡£Äú¿ÉÒÔ½«MTRRÅäÖÃĞÅÏ¢×ª»»ÎªÒ×ÓÚÀí½âµÄ¸ñÊ½£¬ÀıÈçÊ¹ÓÃÊı¾İ½á¹¹»ò±í¸ñ¡£
-	/// ¸ù¾İMTRRµÄÉèÖÃ£¬½«ÎïÀíÄÚ´æµØÖ··¶Î§Ó³Éäµ½ÏàÓ¦µÄ»º´æÀàĞÍ¡£		
+	/// <summary>
+	/// æ„å»ºmtrræ˜ å°„ä»¥è·Ÿè¸ªç‰©ç†å†…å­˜ç±»å‹(åˆç§°ç¼“å­˜ç±»å‹)
+	/// Build mtrr map to track physical memory type
+	/// æ„å»ºmtrræ˜ å°„ä»¥è·Ÿè¸ªç‰©ç†å†…å­˜ç±»å‹(åˆç§°ç¼“å­˜ç±»å‹)
+	/// é¦–å…ˆï¼Œæ‚¨éœ€è¦äº†è§£MTRRï¼ˆMemory Type Range Registersï¼‰æ˜¯ä»€ä¹ˆã€‚
+	/// MTRRæ˜¯ä¸€ç»„å¯„å­˜å™¨ï¼Œç”¨äºå®šä¹‰ç‰©ç†å†…å­˜åœ°å€èŒƒå›´çš„ç¼“å­˜ç±»å‹ï¼ˆä¾‹å¦‚å›å†™ç¼“å­˜WBã€ç›´å†™ç¼“å­˜WTç­‰ï¼‰ã€‚
+	/// ç„¶åï¼Œæ‚¨éœ€è¦è·å–ç³»ç»Ÿä¸­çš„MTRRé…ç½®ä¿¡æ¯ã€‚å¯ä»¥é€šè¿‡è¯»å–å’Œè§£æç³»ç»Ÿçš„MTRRå¯„å­˜å™¨æ¥è·å–è¿™äº›ä¿¡æ¯ã€‚
 	/// </summary>
 	void build_mtrr_map()
 	{
@@ -32,25 +33,25 @@ namespace ept
 		__mtrr_range_descriptor* descriptor;
 
 		//
-		// ÄÚ´æÀàĞÍ·¶Î§¼Ä´æÆ÷ (MTRR) Ìá¹©ÁËÒ»ÖÖ¹ØÁªÎïÀíÄÚ´æÀàĞÍµÄ»úÖÆ
-		// ÓÃÓÚÖ¸¶¨ÎïÀíÄÚ´æµÄ»º´æÀàĞÍ£¬ÌáÉıCPUĞÔÄÜ¡£
+		//
+		// å†…å­˜ç±»å‹èŒƒå›´å¯„å­˜å™¨ (MTRR) æä¾›äº†ä¸€ç§å…³è”ç‰©ç†å†…å­˜ç±»å‹çš„æœºåˆ¶
 
 		mtrr_cap.all = __readmsr(IA32_MTRRCAP);
 
-		//¶ÔÓÚÃ»ÓĞ±»MTRR¼Ä´æÆ÷º­¸ÇµÄÎïÀíÄÚ´æÇøÓò£¬Ê¹ÓÃIA32_MTRR_DEF_TYPE¼Ä´æÆ÷À´Ö¸¶¨ÆäÄ¬ÈÏÊôĞÔ
+		//å¯¹äºæ²¡æœ‰è¢«MTRRå¯„å­˜å™¨æ¶µç›–çš„ç‰©ç†å†…å­˜åŒºåŸŸï¼Œä½¿ç”¨IA32_MTRR_DEF_TYPEå¯„å­˜å™¨æ¥æŒ‡å®šå…¶é»˜è®¤å±æ€§
 		mtrr_def_type.all = __readmsr(IA32_MTRR_DEF_TYPE);
 
 		if (mtrr_def_type.mtrr_enabled == false)
 		{
-			// ²»¿É»º´æ
-			// MTRRs±»½ûÓÃÕâÒâÎ¶×ÅËùÓĞµÄÎïÀíÄÚ´æ¶¼½«±»ÊÓÎªUC
+			// ä¸å¯ç¼“å­˜
+			// MTRRsè¢«ç¦ç”¨è¿™æ„å‘³ç€æ‰€æœ‰çš„ç‰©ç†å†…å­˜éƒ½å°†è¢«è§†ä¸ºUC
 			g_vmm_context.mtrr_info.default_memory_type = MEMORY_TYPE_UNCACHEABLE;
 			return;
 		}
 
 		g_vmm_context.mtrr_info.default_memory_type = mtrr_def_type.memory_type;
 
-		//ÅĞ¶Ï´¦ÀíÆ÷ÊÇ·ñÖ§³Ösmrr
+		//åˆ¤æ–­å¤„ç†å™¨æ˜¯å¦æ”¯æŒsmrr
 		if (mtrr_cap.smrr_support == true)
 		{
 			current_phys_base.all = __readmsr(IA32_SMRR_PHYSBASE);
@@ -70,9 +71,9 @@ namespace ept
 			}
 		}
 
-		//ÅĞ¶Ï´¦ÀíÆ÷ÊÇ·ñÖ§³Ö¹Ì¶¨·¶Î§MTRR
-		//MTRR »úÖÆÔÊĞíÔÚÎïÀíÄÚ´æÖĞ¶¨Òå¶à¸ö·¶Î§£¬²¢¶¨ÒåÁËÒ»×é(MSR)¼Ä´æÆ÷£¬ÓÃÓÚÖ¸¶¨Ã¿¸ö·¶Î§ÖĞ°üº¬µÄÄÚ´æÀàĞÍ
-		//¹Ì¶¨ÄÚ´æ·¶Î§Ó³ÉäÎª 11 ¸ö¹Ì¶¨·¶Î§¼Ä´æÆ÷£¬Ã¿¸ö¼Ä´æÆ÷ 64 Î»¡£Ã¿¸ö¼Ä´æÆ÷·ÖÎª 8 ¸ö×Ö¶Î£¬ÓÃÓÚÖ¸¶¨¼Ä´æÆ÷¿ØÖÆµÄÃ¿¸ö×Ó·¶Î§µÄÄÚ´æÀàĞÍ£º
+		//åˆ¤æ–­å¤„ç†å™¨æ˜¯å¦æ”¯æŒå›ºå®šèŒƒå›´MTRR
+		//MTRR æœºåˆ¶å…è®¸åœ¨ç‰©ç†å†…å­˜ä¸­å®šä¹‰å¤šä¸ªèŒƒå›´ï¼Œå¹¶å®šä¹‰äº†ä¸€ç»„(MSR)å¯„å­˜å™¨ï¼Œç”¨äºæŒ‡å®šæ¯ä¸ªèŒƒå›´ä¸­åŒ…å«çš„å†…å­˜ç±»å‹
+		//å›ºå®šå†…å­˜èŒƒå›´æ˜ å°„ä¸º 11 ä¸ªå›ºå®šèŒƒå›´å¯„å­˜å™¨ï¼Œæ¯ä¸ªå¯„å­˜å™¨ 64 ä½ã€‚æ¯ä¸ªå¯„å­˜å™¨åˆ†ä¸º 8 ä¸ªå­—æ®µï¼Œç”¨äºæŒ‡å®šå¯„å­˜å™¨æ§åˆ¶çš„æ¯ä¸ªå­èŒƒå›´çš„å†…å­˜ç±»å‹ï¼š
 		if (mtrr_cap.fixed_range_support == true && mtrr_def_type.fixed_range_mtrr_enabled)
 		{
 			constexpr auto k64_base = 0x0;
@@ -82,7 +83,7 @@ namespace ept
 			constexpr auto k4_base = 0xC0000;
 			constexpr auto k4_size = 0x1000; //4KB
 
-			//¼Ä´æÆ÷ IA32_MTRR_FIX64K_00000 ¡ª Ó³Éä 512 KB µØÖ··¶Î§£¬´Ó 0H µ½ 7FFFFH¡£´Ë·¶Î§·ÖÎª8¸ö 64 KB ×Ó·¶Î§¡£
+			//å¯„å­˜å™¨ IA32_MTRR_FIX64K_00000 â€” æ˜ å°„ 512 KB åœ°å€èŒƒå›´ï¼Œä» 0H åˆ° 7FFFFHã€‚æ­¤èŒƒå›´åˆ†ä¸º8ä¸ª 64 KB å­èŒƒå›´ã€‚
 			__mtrr_fixed_range_type k64_types = { __readmsr(IA32_MTRR_FIX64K_00000) };
 
 			for (unsigned int i = 0; i < 8; i++)
@@ -94,8 +95,8 @@ namespace ept
 				descriptor->fixed_range = true;
 			}
 
-			//¼Ä´æÆ÷ IA32_MTRR_FIX16K_80000 ºÍ IA32_MTRR_FIX16K_A0000 ¡ª Ó³ÉäÁ½¸ö 128 KB µØÖ··¶Î§£¬´Ó 80000H µ½ BFFFFH¡£
-			//Ã¿¸ö¼Ä´æÆ÷ 8 ¸ö·¶Î§¡£
+			//å¯„å­˜å™¨ IA32_MTRR_FIX16K_80000 å’Œ IA32_MTRR_FIX16K_A0000 â€” æ˜ å°„ä¸¤ä¸ª 128 KB åœ°å€èŒƒå›´ï¼Œä» 80000H åˆ° BFFFFHã€‚
+			//æ¯ä¸ªå¯„å­˜å™¨ 8 ä¸ªèŒƒå›´ã€‚
 			for (unsigned int i = 0; i < 2; i++)
 			{
 				__mtrr_fixed_range_type k16_types = { __readmsr(IA32_MTRR_FIX16K_80000 + i) };
@@ -110,8 +111,8 @@ namespace ept
 				}
 			}
 
-			//¼Ä´æÆ÷ IA32_MTRR_FIX4K_C0000 ÖÁ IA32_MTRR_FIX4K_F8000 ¡ª Ó³Éä 8 ¸ö 32 KB µØÖ··¶Î§£¬
-			//´Ó C0000H µ½ FFFFFH¡£´Ë·¶Î§·ÖÎª 64 ¸ö 4 KB ×Ó·¶Î§£¬Ã¿¸ö¼Ä´æÆ÷ 8 ¸ö·¶Î§¡£
+			//å¯„å­˜å™¨ IA32_MTRR_FIX4K_C0000 è‡³ IA32_MTRR_FIX4K_F8000 â€” æ˜ å°„ 8 ä¸ª 32 KB åœ°å€èŒƒå›´ï¼Œ
+			//å¯„å­˜å™¨ IA32_MTRR_FIX4K_C0000 è‡³ IA32_MTRR_FIX4K_F8000 â€” æ˜ å°„ 8 ä¸ª 32 KB åœ°å€èŒƒå›´ï¼Œ
 			for (unsigned int i = 0; i < 8; i++)
 			{
 				__mtrr_fixed_range_type k4_types = { __readmsr(IA32_MTRR_FIX4K_C0000 + i) };
@@ -130,47 +131,47 @@ namespace ept
 
 		//Indicates the number of variable ranges
 		//implemented on the processor.
-		//´¦ÀíÆ÷ÖĞ¿É±äMTRRs¼Ä´æÆ÷µÄÊıÁ¿¡£
-		//Pentium 4¡¢Intel Xeon ºÍ P6 ÏµÁĞ´¦ÀíÆ÷ÔÊĞíÈí¼şÎª m ¸ö¿É±ä´óĞ¡µØÖ··¶Î§Ö¸¶¨ÄÚ´æÀàĞÍ£¬Ã¿¸ö·¶Î§Ê¹ÓÃÒ»¶Ô MTRR¡£
-		//Ö§³ÖµÄ·¶Î§Êı m ÔÚ IA32_MTRRCAP MSR µÄÎ» 7:0 ÖĞ¸ø³ö
+		//Indicates the number of variable ranges
+		//implemented on the processor.
+		//å¤„ç†å™¨ä¸­å¯å˜MTRRså¯„å­˜å™¨çš„æ•°é‡ã€‚
 		for (int i = 0; i < mtrr_cap.range_register_number; i++)
 		{
-			// Ã¿¶ÔÖĞµÄµÚÒ»¸öÌõÄ¿£¨IA32_MTRR_PHYSBASEn£©¶¨Òå·¶Î§µÄ»ùµØÖ·ºÍÄÚ´æÀàĞÍ£»
+			// æ¯å¯¹ä¸­çš„ç¬¬ä¸€ä¸ªæ¡ç›®ï¼ˆIA32_MTRR_PHYSBASEnï¼‰å®šä¹‰èŒƒå›´çš„åŸºåœ°å€å’Œå†…å­˜ç±»å‹ï¼›
 			//
 			current_phys_base.all = __readmsr(IA32_MTRR_PHYSBASE0 + (i * 2));
 			current_phys_mask.all = __readmsr(IA32_MTRR_PHYSMASK0 + (i * 2));
 
 			//
 			// If range is enabled
-			// Èç¹ûÆôÓÃ·¶Î§
+			//
 			if (current_phys_mask.valid && current_phys_base.type != mtrr_def_type.memory_type)
 			{
 				descriptor = &g_vmm_context.mtrr_info.memory_range[g_vmm_context.mtrr_info.enabled_memory_ranges++];
 
 				//
 				// Calculate base address, physbase is truncated by 12 bits so we have to left shift it by 12
-				// ¼ÆËã»ùÖ·£¬physbase ±»½Ø¶ÏÁË 12 Î»£¬Òò´ËÎÒÃÇ±ØĞë½«Æä×óÒÆ 12
+				//
 				//
 				descriptor->physcial_base_address = current_phys_base.physbase << PAGE_SHIFT;
 
 				//
 				// Index of first bit set to one determines how much do we have to bit shift to get size of range
 				// physmask is truncated by 12 bits so we have to left shift it by 12
-				// µÚÒ»¸öÉèÖÃÎª 1 µÄÎ»µÄË÷Òı¾ö¶¨ÁËÎÒÃÇĞèÒªÒÆÎ»¶àÉÙÎ»²ÅÄÜµÃµ½·¶Î§ physmask µÄ´óĞ¡£¬
-				// Ëü±»½Ø¶ÏÁË 12 Î»£¬ËùÒÔÎÒÃÇ±ØĞë½«Æä×óÒÆ 12 Î»
+				//
+				// Index of first bit set to one determines how much do we have to bit shift to get size of range
 				//
 				unsigned long bits_in_mask = 0;
 				_BitScanForward64(&bits_in_mask, current_phys_mask.physmask << PAGE_SHIFT);
 
 				//
 				// Calculate the end of range specified by mtrr
-				// ¼ÆËã mtrr Ö¸¶¨µÄ·¶Î§µÄ½áÊøÎ»ÖÃ
+				//
 				//
 				descriptor->physcial_end_address = descriptor->physcial_base_address + ((1ULL << bits_in_mask) - 1ULL);
 
 				//
 				// Get memory type of range
-				// »ñÈ¡·¶Î§µÄÄÚ´æÀàĞÍ
+				//
 				//
 				descriptor->memory_type = (unsigned __int8)current_phys_base.type;
 				descriptor->fixed_range = false;
@@ -180,20 +181,20 @@ namespace ept
 
 	/// <summary>
 	/// Get page cache memory type
-	/// »ñÈ¡Ò³»º´æÄÚ´æÀàĞÍ
+	/// <summary>
 	/// </summary>
 	/// <param name="pfn"></param>
-	/// <param name="is_large_page"></param>  ÊÇ´óÒ³Ãæ
+	/// è·å–é¡µç¼“å­˜å†…å­˜ç±»å‹
 	/// <returns></returns>
 	unsigned __int8 get_memory_type(unsigned __int64 pfn, bool is_large_page)
 	{
 		unsigned __int64 page_start_address = is_large_page == true ? pfn * LARGE_PAGE_SIZE : pfn * PAGE_SIZE;
 		unsigned __int64 page_end_address = is_large_page == true ? (pfn * LARGE_PAGE_SIZE) + (LARGE_PAGE_SIZE - 1) : (pfn * PAGE_SIZE) + (PAGE_SIZE - 1);
 
-		//Î´±» MTRR Ó³ÉäµÄµØÖ··¶Î§Ó¦ÉèÖÃÎªÄ¬ÈÏÀàĞÍ
+		//æœªè¢« MTRR æ˜ å°„çš„åœ°å€èŒƒå›´åº”è®¾ç½®ä¸ºé»˜è®¤ç±»å‹
 		unsigned __int8 memory_type = g_vmm_context.mtrr_info.default_memory_type;
 
-		//ÔÚMTRRÖĞÑ°ÕÒ¸ø¶¨µØÖ·µÄÄÚ´æÀàĞÍ
+		//åœ¨MTRRä¸­å¯»æ‰¾ç»™å®šåœ°å€çš„å†…å­˜ç±»å‹
 		for (unsigned int i = 0; i < g_vmm_context.mtrr_info.enabled_memory_ranges; i++)
 		{
 			if (page_start_address >= g_vmm_context.mtrr_info.memory_range[i].physcial_base_address &&
@@ -201,11 +202,11 @@ namespace ept
 			{
 				memory_type = g_vmm_context.mtrr_info.memory_range[i].memory_type;
 
-				//¹Ì¶¨·¶Î§
+				//å›ºå®šèŒƒå›´
 				if (g_vmm_context.mtrr_info.memory_range[i].fixed_range == true)
 					break;
 
-				if (memory_type == MEMORY_TYPE_UNCACHEABLE)  //²»¿É»º´æ
+				if (memory_type == MEMORY_TYPE_UNCACHEABLE)  //ä¸å¯ç¼“å­˜
 					break;
 			}
 		}
@@ -239,7 +240,7 @@ namespace ept
 
 	/// <summary> 
 	/// Setup page memory type
-	/// ÉèÖÃÒ³ÄÚ´æÀàĞÍ
+	/// <summary> 
 	/// </summary>
 	/// <param name="entry"> Pointer to pml2 entry </param>
 	/// <param name="pfn"> Page frame number </param>
@@ -247,7 +248,7 @@ namespace ept
 	{
 		entry.page_directory_entry.page_frame_number = pfn;
 
-		//ÅĞ¶ÏÊÇ·ñÊÇ´óÒ³Ãæ
+		//åˆ¤æ–­æ˜¯å¦æ˜¯å¤§é¡µé¢
 		if (is_valid_for_large_page(pfn) == true)
 		{
 			entry.page_directory_entry.memory_type = get_memory_type(pfn, true);
@@ -256,8 +257,8 @@ namespace ept
 		}
 		else
 		{
-			//²»ÊÇ´óÒ³ÃæÔò ËµÃ÷ÊÇPTÒ³±í 
-			//·ÖÅäPTÒ³±í
+			//åˆ†é…pté¡µè¡¨
+			//åˆ†é…pté¡µè¡¨
 			void* split_buffer = pool_manager::request_pool<void*>(pool_manager::INTENTION_SPLIT_PML2, true, sizeof(__ept_dynamic_split));
 			if (split_buffer == nullptr)
 			{
@@ -267,14 +268,14 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			return split_pml2(mtrrs, ept_state, split_buffer, pfn * LARGE_PAGE_SIZE);
 		}
 	}
 
 	/// <summary>
 	/// Create ept page table
-	/// ´´½¨eptÒ³±í
+	/// <summary>
 	/// </summary>
 	/// <returns> status </returns>
 	bool create_ept_page_table(__ept_state& ept_state)
@@ -282,7 +283,7 @@ namespace ept
 		PHYSICAL_ADDRESS max_size;
 		max_size.QuadPart = MAXULONG64;
 
-		ept_state.ept_page_table = allocate_pool<__vmm_ept_page_table>();
+		ept_state.ept_page_table = allocate_aligned_pool<__vmm_ept_page_table>();
 		if (ept_state.ept_page_table == NULL)
 		{
 #if ENABLE_TRACE
@@ -296,8 +297,8 @@ namespace ept
 
 		//
 		// Set all pages as rwx to prevent unwanted ept violation
-		// ½«ËùÓĞÒ³ÃæÉèÖÃÎª rwx£¬ÒÔ·ÀÖ¹²»±ØÒªµÄ ept Î¥¹æ
-		// ÉèÖÃµÚÒ»¸ö PML4E£¬Ê¹ÆäÖ¸ÏòÎÒÃÇµÄ PDPT
+		//
+		// Set all pages as rwx to prevent unwanted ept violation
 		//
 		page_table->pml4[0].page_frame_number = GET_PFN(MmGetPhysicalAddress(&page_table->pml3[0]).QuadPart);
 		page_table->pml4[0].read = 1;
@@ -323,13 +324,13 @@ namespace ept
 		pde_template.page_directory_entry.write = 1;
 		pde_template.page_directory_entry.execute = 1;
 
-		pde_template.page_directory_entry.large_page = 1;  //Ê¹ÓÃ´óÒ³Ãæ 2mb
+		pde_template.page_directory_entry.large_page = 1;  //ä½¿ç”¨å¤§é¡µé¢ 2mb
 		pde_template.page_directory_entry.execute_for_usermode = 0;
 
 		__stosq((unsigned __int64*)&page_table->pml2[0], pde_template.all, 512 * 512);
 
 		// MTRR data for setting memory types
-		// ÓÃÓÚÉèÖÃÄÚ´æÀàĞÍµÄ MTRR Êı¾İ
+		// ç”¨äºè®¾ç½®å†…å­˜ç±»å‹çš„ MTRR æ•°æ®
 		auto const mtrrs = hv::read_mtrr_data();
 		g_vmm_context.mtrr_info.mtrrs = mtrrs;
 		for (int i = 0; i < 512; i++)
@@ -354,7 +355,7 @@ namespace ept
 		PHYSICAL_ADDRESS max_size;
 		max_size.QuadPart = MAXULONG64;
 
-		ept_state.ept_page_table = allocate_pool<__vmm_ept_page_table>();
+		ept_state.ept_page_table = allocate_aligned_pool<__vmm_ept_page_table>();
 		if (ept_state.ept_page_table == NULL)
 		{
 #if ENABLE_TRACE
@@ -368,8 +369,8 @@ namespace ept
 
 		//
 		// Set all pages as rwx to prevent unwanted ept violation
-		// ½«ËùÓĞÒ³ÃæÉèÖÃÎª rwx£¬ÒÔ·ÀÖ¹²»±ØÒªµÄ ept Î¥¹æ
-		// ÉèÖÃµÚÒ»¸ö PML4E£¬Ê¹ÆäÖ¸ÏòÎÒÃÇµÄ PDPT
+		//
+		// Set all pages as rwx to prevent unwanted ept violation
 		//
 		page_table->pml4[0].page_frame_number = GET_PFN(MmGetPhysicalAddress(&page_table->pml3[0]).QuadPart);
 		page_table->pml4[0].read = 1;
@@ -382,11 +383,11 @@ namespace ept
 		// TODO: allocate a PT for the fixed MTRRs region so that we can get
 		// more accurate memory typing in that area (as opposed to just
 		// mapping the whole PDE as UC).
-		// Îª¹Ì¶¨ MTRR ÇøÓò·ÖÅäÒ»¸ö PTÒ³±í£¬ÒÔ±ãÎÒÃÇ¿ÉÒÔÔÚ¸ÃÇøÓò»ñµÃ¸ü×¼È·µÄÄÚ´æÀàĞÍ£¨¶ø²»ÊÇ½ö½«Õû¸ö PDE Ó³ÉäÎª UC£©¡£
+		// TODO: allocate a PT for the fixed MTRRs region so that we can get
 
 		for (size_t i = 0; i < EPT_PD_COUNT; ++i) {
 			// point each PDPTE to the corresponding PD
-			// ½«Ã¿¸ö PDPTE Ö¸ÏòÏàÓ¦µÄ PD
+			// point each PDPTE to the corresponding PD
 			auto& pdpte = page_table->pml3[i];
 			pdpte.read = 1;
 			pdpte.write = 1;
@@ -402,12 +403,12 @@ namespace ept
 				pde.page_directory_entry.write = 1;
 				pde.page_directory_entry.execute = 1;
 				pde.page_directory_entry.ignore_pat = 0;
-				pde.page_directory_entry.large_page = 1;  //±íÊ¾pdeÎ´·Ö¸î
+				pde.page_directory_entry.large_page = 1;  //è¡¨ç¤ºpdeæœªåˆ†å‰²
 				pde.page_directory_entry.accessed = 0;
 				pde.page_directory_entry.dirty = 0;
 				pde.page_directory_entry.execute_for_usermode = 1;
 				pde.page_directory_entry.page_frame_number = (i << 9) + j;
-				pde.page_directory_entry.memory_type = hv::calc_mtrr_mem_type(mtrrs, pde.page_directory_entry.page_frame_number << 21/*2mb¶ÔÆë*/, 0x1000 << 9/*2mb´óĞ¡*/);
+				pde.page_directory_entry.memory_type = hv::calc_mtrr_mem_type(mtrrs, pde.page_directory_entry.page_frame_number << 21/*2mbå¯¹é½*/, 0x1000 << 9/*2mbå¤§å°*/);
 			}
 		}
 
@@ -420,7 +421,7 @@ namespace ept
 	/// <returns></returns>
 	bool initialize(__ept_state& ept_state)
 	{
-		__eptp* ept_pointer = allocate_pool<__eptp*>(PAGE_SIZE);
+		__eptp* ept_pointer = allocate_aligned_pool<__eptp*>(PAGE_SIZE);
 		if (ept_pointer == NULL)
 		{
 #if ENABLE_TRACE
@@ -440,15 +441,15 @@ namespace ept
 		}
 
 		//ept_pointer->memory_type = g_vmm_context.mtrr_info.default_memory_type;
-		//µ±Ç° VMX ¼Ü¹¹Ö»Ö§³Ö UCºÍWB
+		//ept_pointer->memory_type = g_vmm_context.mtrr_info.default_memory_type;
 		ept_pointer->memory_type = MEMORY_TYPE_WRITE_BACK;
 
 		// Indicates 4 level paging
-		// Ê¹ÓÃ4¼¶·ÖÒ³
+		// Indicates 4 level paging
 		ept_pointer->page_walk_length = 3;
 
-		//×¢ÒâÒòÎªÎÒÃÇÊÇÓ³ÉäµÄpml4[0]
-		//ËùÒÔÕâÀï&ept_state.ept_page_table->pml4£¬¿ÉÒÔÈ¡µ½pml4[0]µÄµØÖ·
+		//æ³¨æ„å› ä¸ºæˆ‘ä»¬æ˜¯æ˜ å°„çš„pml4[0]
+		//æ³¨æ„å› ä¸ºæˆ‘ä»¬æ˜¯æ˜ å°„çš„pml4[0]
 		ept_pointer->pml4_address = GET_PFN(MmGetPhysicalAddress(&ept_state.ept_page_table->pml4).QuadPart);
 
 		ept_state.ept_pointer = ept_pointer;
@@ -467,8 +468,8 @@ namespace ept
 		unsigned __int64 pml3_index = MASK_EPT_PML3_INDEX(physical_address);
 		unsigned __int64 pml2_index = MASK_EPT_PML2_INDEX(physical_address);
 
-		//pml4_index±ØĞëÎª0£¬ÒòÎªÎÒÃÇÓ³ÉäµÄÊÇept pml4[0],ËùÒÔpml4_index´óÓÚ0µÄÌõÄ¿¶¼ÊÇÎŞĞ§ÌõÄ¿
-		//ÒòÎªeptÄ¿Ç°Ö»Ö§³ÖÓ³ÉäÒ»Ïîpml4e£¬Ò»¸öpml4eÌõÄ¿512GB´óĞ¡
+		//pml4_indexå¿…é¡»ä¸º0ï¼Œå› ä¸ºæˆ‘ä»¬æ˜ å°„çš„æ˜¯ept pml4[0],æ‰€ä»¥pml4_indexå¤§äº0çš„æ¡ç›®éƒ½æ˜¯æ— æ•ˆæ¡ç›®
+		//å› ä¸ºeptç›®å‰åªæ”¯æŒæ˜ å°„ä¸€é¡¹pml4eï¼Œä¸€ä¸ªpml4eæ¡ç›®512GBå¤§å°
 		if (pml4_index > 0)
 		{
 #if ENABLE_TRACE
@@ -477,12 +478,12 @@ namespace ept
 			return nullptr;
 		}
 
-		//´ÓeptÒ³±íÖĞÈ¡pde
+		//ä»epté¡µè¡¨ä¸­å–pde
 		return &ept_state.ept_page_table->pml2[pml3_index][pml2_index];
 	}
 
 	/// <summary>
-	/// ½âÎöGPAÈ¡µÃeptµÄpte
+	/// <summary>
 	/// </summary>
 	/// <param name="physical_address"></param>
 	/// <returns></returns>
@@ -522,7 +523,7 @@ namespace ept
 
 	/// <summary>
 	/// Split pml2 into 512 pml1 entries (From one 2MB page to 512 4KB pages)
-	/// ½«pml2²ğ·ÖÎª512¸öpml1Ïî (´ÓÒ»¸ö2MBÒ³Ãæµ½512¸ö4KBÒ³Ãæ)
+	/// <summary>
 	/// </summary>
 	/// <param name="pre_allocated_buffer"> Pre allocated buffer for split </param>
 	/// <param name="physical_address"></param>
@@ -538,13 +539,13 @@ namespace ept
 			return false;
 		}
 
-		//³õÊ¼»¯ptÒ³±í
+		//åˆå§‹åŒ–pté¡µè¡¨
 		__ept_dynamic_split* new_split = (__ept_dynamic_split*)pre_allocated_buffer;
 		RtlSecureZeroMemory(new_split, sizeof(__ept_dynamic_split));
 
 		//
 		// Set all pages as rwx to prevent unwanted ept violation
-		// ½«ËùÓĞÒ³ÃæÉèÖÃÎª rwx£¬ÒÔ·ÀÖ¹²»±ØÒªµÄ ept Î¥¹æ
+		//
 		//
 		new_split->entry = pde;
 
@@ -559,7 +560,7 @@ namespace ept
 		__stosq((unsigned __int64*)&new_split->pml1[0], entry_template.all, 512);
 		for (int i = 0; i < 512; i++)
 		{
-			//µÈ¼Ûpte.page_frame_number = (pde_2mb->page_frame_number << 9) + i;
+			//ç­‰ä»·pte.page_frame_number = (pde_2mb->page_frame_number << 9) + i;
 			unsigned __int64 pfn = ((pde->page_directory_entry.page_frame_number * LARGE_PAGE_SIZE) >> PAGE_SHIFT) + i;
 			new_split->pml1[i].page_frame_number = pfn;
 			new_split->pml1[i].ept_memory_type = get_memory_type(pfn, false);
@@ -580,15 +581,15 @@ namespace ept
 
 	/// <summary>
 	/// Swap physcial pages and invalidate tlb
-	/// ½»»»ÎïÀíÒ³Ãæ²¢Ë¢ĞÂtlb
+	/// <summary>
 	/// </summary>
 	/// <param name="entry_address"> Pointer to page table entry which we want to change </param>
 	/// <param name="entry_value"> Pointer to page table entry which we want use to change </param>
 	/// <param name="invalidation_type"> Specifiy if we want to invalidate single context or all contexts  </param>
 	void swap_pml1_and_invalidate_tlb(__ept_state& ept_state, __ept_pte* entry_address, __ept_pte entry_value, invept_type invalidation_type)
 	{
-		// ÔçÆÚÉè¼ÆÄ£Ê½ÊÇËùÓĞcpuºË¹²ÓÃÒ»¸öept£¬¹Ê¶øÒªÉÏËø
-		// Ä¿Ç°µÄÉè¼ÆÊÇÃ¿¸öcpu¶ÀÏíÒ»·İeptÒ³±í£¬¹ÊÎŞĞèÉÏËø
+		// æ—©æœŸè®¾è®¡æ¨¡å¼æ˜¯æ‰€æœ‰cpuæ ¸å…±ç”¨ä¸€ä¸ªeptï¼Œæ•…è€Œè¦ä¸Šé”
+		// ç›®å‰çš„è®¾è®¡æ˜¯æ¯ä¸ªcpuç‹¬äº«ä¸€ä»½epté¡µè¡¨ï¼Œæ•…æ— éœ€ä¸Šé”
 		// Acquire the lock
 		//spinlock::lock(&g_vmm_context.pml_lock);
 
@@ -653,13 +654,13 @@ namespace ept
 		*((__int32*)&target_buffer[1]) = jmp_value;
 	}
 
-	//½«vmcallÖ¸ÁîĞ´ÈëÎ±ÔìÒ³  Í¨¹ı´¥·¢vmcallÀ´ÊµÏÖhook
+	//å°†vmcallæŒ‡ä»¤å†™å…¥ä¼ªé€ é¡µ  é€šè¿‡è§¦å‘vmcallæ¥å®ç°hook
 	bool write_vmcall_instruction_to_memory(__ept_hooked_function_info* hooked_function_info, void* target_function, void* proxy_function, void** origin_function)
 	{
 		unsigned __int64 hooked_instructions_size = 0;
 
 		// Get offset of hooked function within page
-		// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
+		// Get offset of hooked function within page
 		unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_function);
 		unsigned __int8* target_buffer = &hooked_function_info->fake_page_contents[page_offset];
 		target_buffer[0] = 0x0f;
@@ -670,18 +671,18 @@ namespace ept
 		//DbgBreakPoint();
 		if (origin_function)
 		{
-			//¼ÆËã±»ĞŞ¸ÄµÄÖ¸ÁîÕ¼ÓÃ¶àÉÙ×Ö½Ú
+			//è®¡ç®—è¢«ä¿®æ”¹çš„æŒ‡ä»¤å ç”¨å¤šå°‘å­—èŠ‚
 			while (hooked_instructions_size < 3)
 				hooked_instructions_size += LDE((unsigned __int8*)target_function + hooked_instructions_size, 64);
 
 			hooked_function_info->hook_size = hooked_instructions_size;
 
 			// Copy overwritten instructions to trampoline buffer
-			// ½«¸²¸ÇµÄÖ¸Áî±¸·İµ½Ìø°å»º³åÇø
+			// Copy overwritten instructions to trampoline buffer
 			RtlCopyMemory(hooked_function_info->first_trampoline_address, target_function, hooked_instructions_size);
 
 			// Add the absolute jump back to the original function.
-			// Ìí¼Ó¾ø¶ÔÌø×ª»Øµ½Ô­À´µÄº¯Êı
+			// Add the absolute jump back to the original function.
 			hook_write_absolute_jump(&hooked_function_info->first_trampoline_address[hooked_instructions_size], (unsigned __int64)target_function + hooked_instructions_size);
 
 			// Return to user address of trampoline to call original function
@@ -691,30 +692,30 @@ namespace ept
 		return true;
 	}
 
-	//½«int3Ö¸ÁîĞ´ÈëÎ±ÔìÒ³  Í¨¹ı´¥·¢int3ÖĞ¶ÏÀ´ÊµÏÖhook
+	//å°†int3æŒ‡ä»¤å†™å…¥ä¼ªé€ é¡µ  é€šè¿‡è§¦å‘int3ä¸­æ–­æ¥å®ç°hook
 	bool write_cc_instruction_to_memory(__ept_hooked_function_info* hooked_function_info, void* target_function, void* proxy_function, void** origin_function)
 	{
 		unsigned __int64 hooked_instructions_size = 1;
 
 		// Get offset of hooked function within page
-		// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
+		// Get offset of hooked function within page
 		unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_function);
 		hooked_function_info->hook_size = hooked_instructions_size;
 		unsigned __int8* target_buffer = &hooked_function_info->fake_page_contents[page_offset];
 		target_buffer[0] = 0xCC;
-		hooked_function_info->handler_function = proxy_function;  //int3µÄ´¦Àíº¯Êı
+		hooked_function_info->handler_function = proxy_function;  //int1çš„å¤„ç†å‡½æ•°
 
 		if (origin_function)
 		{
-			//¼ÆËã±»ĞŞ¸ÄµÄÖ¸ÁîÕ¼ÓÃ¶àÉÙ×Ö½Ú
+			//è®¡ç®—è¢«ä¿®æ”¹çš„æŒ‡ä»¤å ç”¨å¤šå°‘å­—èŠ‚
 			hooked_instructions_size = LDE((unsigned __int8*)target_function, 64);
 
 			// Copy overwritten instructions to trampoline buffer
-			// ½«¸²¸ÇµÄÖ¸Áî¸´ÖÆµ½Ìø°å»º³åÇø
+			// Copy overwritten instructions to trampoline buffer
 			RtlCopyMemory(hooked_function_info->first_trampoline_address, target_function, hooked_instructions_size);
 
 			// Add the absolute jump back to the original function.
-			// Ìí¼Ó¾ø¶ÔÌø×ª»Øµ½Ô­À´µÄº¯Êı
+			// Add the absolute jump back to the original function.
 			hook_write_absolute_jump(&hooked_function_info->first_trampoline_address[hooked_instructions_size], (unsigned __int64)target_function + hooked_instructions_size);
 
 			// Return to user address of trampoline to call original function
@@ -724,30 +725,30 @@ namespace ept
 		return true;
 	}
 
-	//½«int1Ğ´ÈëÎ±Ò³  ½øĞĞhook
+	//å°†int1å†™å…¥ä¼ªé¡µ  è¿›è¡Œhook
 	bool write_int1_instruction_to_memory(__ept_hooked_function_info* hooked_function_info, void* target_function, void* proxy_function, void** origin_function)
 	{
 		unsigned __int64 hooked_instructions_size = 1;
 
 		// Get offset of hooked function within page
-		// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
+		// Get offset of hooked function within page
 		unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_function);
 		hooked_function_info->hook_size = hooked_instructions_size;
 		unsigned __int8* target_buffer = &hooked_function_info->fake_page_contents[page_offset];
 		target_buffer[0] = 0xf1;  //int1
-		hooked_function_info->handler_function = proxy_function;  //int1µÄ´¦Àíº¯Êı
+		hooked_function_info->handler_function = proxy_function;  //int1çš„å¤„ç†å‡½æ•°
 
 		if (origin_function)
 		{
-			//¼ÆËã±»ĞŞ¸ÄµÄÖ¸ÁîÕ¼ÓÃ¶àÉÙ×Ö½Ú
+			//è®¡ç®—è¢«ä¿®æ”¹çš„æŒ‡ä»¤å ç”¨å¤šå°‘å­—èŠ‚
 			hooked_instructions_size = LDE((unsigned __int8*)target_function, 64);
 
 			// Copy overwritten instructions to trampoline buffer
-			// ½«¸²¸ÇµÄÖ¸Áî¸´ÖÆµ½Ìø°å»º³åÇø
+			// Copy overwritten instructions to trampoline buffer
 			RtlCopyMemory(hooked_function_info->first_trampoline_address, target_function, hooked_instructions_size);
 
 			// Add the absolute jump back to the original function.
-			// Ìí¼Ó¾ø¶ÔÌø×ª»Øµ½Ô­À´µÄº¯Êı
+			// Add the absolute jump back to the original function.
 			hook_write_absolute_jump(&hooked_function_info->first_trampoline_address[hooked_instructions_size], (unsigned __int64)target_function + hooked_instructions_size);
 
 			// Return to user address of trampoline to call original function
@@ -770,7 +771,7 @@ namespace ept
 		unsigned __int64 hooked_instructions_size = 0;
 
 		// Get offset of hooked function within page
-		// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
+		// Get offset of hooked function within page
 		unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_function);
 
 		//if (trampoline != 0)
@@ -792,29 +793,29 @@ namespace ept
 		//	// If instructions to hook are on two seperate pages then stop hooking (Hypervisor doesn't support function hooking at page boundaries)
 		//	if ((hooked_instructions_size + 5) > PAGE_SIZE - 1)
 		//	{
-		//		LogError("Ò³Ãæ±ß½ç´¦µÄº¯Êı");
+		//if (trampoline != 0)
 		//		return false;
 		//	}
 
 		//	hooked_function_info->hook_size = hooked_instructions_size;
 
-		//	//ÔÚÎ±ÔìÒ³Àï¹¹ÔìÏà¶ÔÌø×ª
+		//{
 		//	hook_write_relative_jump(&hooked_function_info->fake_page_contents[page_offset], (unsigned __int64)trampoline, (unsigned __int64)target_function);
 
-		//	//Ìø»ØÔ­Ê¼º¯Êı
-		//	//¿½±´Ô´º¯Êı×Ö½Ú
+		//	hooked_instructions_size = 0;
+		//	// If first 5 bytes of function are on 2 separate pages then return (Hypervisor doesn't support function hooking at page boundaries)
 		//	RtlCopyMemory(hooked_function_info->first_trampoline_address, target_function, hooked_instructions_size);
-		//	//¹¹ÔìÌø°å
+		//	if ((page_offset + 5) > PAGE_SIZE - 1)
 		//	hook_write_absolute_jump(&hooked_function_info->first_trampoline_address[hooked_instructions_size], (unsigned __int64)target_function + hooked_instructions_size);
 
-		//	//Ô´º¯Êı
+		//	{
 		//	*origin_function = hooked_function_info->first_trampoline_address;
 
 		//	return hook_function(ept_state, trampoline, proxy_function, nullptr);
 		//}
 
 		// If first 14 bytes of function are on 2 separate pages then return (Hypervisor doesn't support function hooking at page boundaries)
-		// ÅĞ¶ÏÒ³Æ«ÒÆ >4095  ¼´ÅĞ¶ÏÊÇ·ñ¿çÈëµ½ÏÂÒ»¸ö4KÒ³Ãæ
+		//		LogError("Function at page boundary");
 		if ((page_offset + 14) > PAGE_SIZE - 1)
 		{
 #if ENABLE_TRACE
@@ -870,7 +871,7 @@ namespace ept
 	}
 
 
-	//Èç¹ûÊÇÎÒÃÇvmcall hookµÄµØÖ·Ôò×ªµ½´úÀíº¯Êı
+	//å¦‚æœæ˜¯æˆ‘ä»¬vmcall hookçš„åœ°å€åˆ™è½¬åˆ°ä»£ç†å‡½æ•°
 	bool handler_vmcall_rip(__ept_state& ept_state)
 	{
 		unsigned __int64 guest_rip = hv::vmread(GUEST_RIP);
@@ -880,16 +881,16 @@ namespace ept
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
-				//LogInfo("Ò³ÃæÒÑ¹Ò¹³");
+				//LogInfo("é¡µé¢å·²æŒ‚é’©");
 
-				//¼ì²éĞéÄâµØÖ·ÊÇ·ñÒÑ¾­¹Ò¹³
+				//æ£€æŸ¥è™šæ‹Ÿåœ°å€æ˜¯å¦å·²ç»æŒ‚é’©
 				PLIST_ENTRY current_hooked_function = &hooked_page_info->hooked_functions_list;
 				while (&hooked_page_info->hooked_functions_list != current_hooked_function->Flink)
 				{
@@ -907,10 +908,10 @@ namespace ept
 		return false;
 	}
 
-	//Í¨¹ıvmcall½øĞĞhook ½«vmcallÖ¸Áî²åÈëµ½Ä¿±ê´úÂë
+	//é€šè¿‡vmcallè¿›è¡Œhook å°†vmcallæŒ‡ä»¤æ’å…¥åˆ°ç›®æ ‡ä»£ç 
 	bool vmcall_hook_function(__ept_state& ept_state,
-		void* target_function/*±»¹Ò¹³µÄº¯ÊıµØÖ·*/,
-		void* proxy_function/*ĞÂº¯ÊıµØÖ·*/,
+		void* target_function/*è¢«æŒ‚é’©çš„å‡½æ•°åœ°å€*/,
+		void* proxy_function/*æ–°å‡½æ•°åœ°å€*/,
 		void** origin_function,
 		unsigned __int64 target_cr3)
 	{
@@ -918,31 +919,31 @@ namespace ept
 		unsigned __int64 physical_address = MmGetPhysicalAddress(target_function).QuadPart;
 
 		//
-		// ¼ì²â¸Ãº¯ÊıÊÇ·ñ´æÔÚÓÚÎïÀíÄÚ´æÖĞ
-		// Èç¹û¸Ãº¯ÊıµÄÎïÀíµØÖ·Îª¿Õ
-		// ËµÃ÷¸Ãº¯Êı²»´æÔÚÓÚÎïÀíÄÚ´æÖĞ
+		// æ£€æµ‹è¯¥å‡½æ•°æ˜¯å¦å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
+		// å¦‚æœè¯¥å‡½æ•°çš„ç‰©ç†åœ°å€ä¸ºç©º
+		// è¯´æ˜è¯¥å‡½æ•°ä¸å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
 		//
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null"); 
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 				if (hooked_page_info->Options == EPTO_HOOK_FUNCTION)
@@ -955,7 +956,7 @@ namespace ept
 					if (hooked_function_info == nullptr)
 					{
 #if ENABLE_TRACE
-						//¹Ò¹³º¯Êı½á¹¹Ã»ÓĞÔ¤ÏÈ·ÖÅä³ØÄÚ´æ
+						//æŒ‚é’©å‡½æ•°ç»“æ„æ²¡æœ‰é¢„å…ˆåˆ†é…æ± å†…å­˜
 						TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] hooked_function_info is null");
 #endif
 						return false;
@@ -1002,10 +1003,10 @@ namespace ept
 			}
 		}
 
-		//ÅĞ¶Ï2mb pdeÊÇ·ñÒÑ¾­½øĞĞ·Ö¸î
+		//åˆ¤æ–­2mb pdeæ˜¯å¦å·²ç»è¿›è¡Œåˆ†å‰²
 		if (is_page_splitted(ept_state, physical_address) == false)
 		{
-			//·ÖÅäptÒ³±í
+			//åˆ†é…pté¡µè¡¨
 			void* split_buffer = pool_manager::request_pool<void*>(pool_manager::INTENTION_SPLIT_PML2, true, sizeof(__ept_dynamic_split));
 			if (split_buffer == nullptr)
 			{
@@ -1015,7 +1016,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -1026,7 +1027,7 @@ namespace ept
 			}
 		}
 
-		//µÃµ½Ä¿±êÒ³
+		//å¾—åˆ°ç›®æ ‡é¡µ
 		__ept_pte* target_page = get_pml1_entry(ept_state, physical_address);
 		if (target_page == nullptr)
 		{
@@ -1052,7 +1053,7 @@ namespace ept
 		{
 			pool_manager::release_pool(hooked_page_info);
 #if ENABLE_TRACE
-			//hookº¯ÊıÊ±Ô¤·ÖÅäµÄ»º³åÒÑºÄ¾¡
+			//hookå‡½æ•°æ—¶é¢„åˆ†é…çš„ç¼“å†²å·²è€—å°½
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Preallocated buffer exhausted while hooking function");
 #endif
 			return false;
@@ -1080,8 +1081,8 @@ namespace ept
 		hooked_page_info->pfn_of_fake_page_contents = GET_PFN(MmGetPhysicalAddress(hooked_page_info->fake_page_contents).QuadPart);
 		hooked_page_info->entry_address = target_page;
 
-		//ÏÈ¸ÄÔ­Ò³Îª²»¿ÉÖ´ĞĞ »Øµ½guestºóÖ´ĞĞ¾Í´¥·¢vmexit
-		//½øÈëvmmºó½»»»Î±ÔìÒ³
+		//å…ˆæ”¹åŸé¡µä¸ºä¸å¯æ‰§è¡Œ å›åˆ°gueståæ‰§è¡Œå°±è§¦å‘vmexit
+		//è¿›å…¥vmmåäº¤æ¢ä¼ªé€ é¡µ
 		hooked_page_info->entry_address->execute = 0;
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
@@ -1089,12 +1090,12 @@ namespace ept
 		hooked_page_info->original_entry = *target_page;
 		hooked_page_info->changed_entry = *target_page;
 
-		//Î±ÔìÒ³²»µÃ¶ÁĞ´		
+		//ä¼ªé€ é¡µä¸å¾—è¯»å†™		
 		hooked_page_info->changed_entry.read = 0;
 		hooked_page_info->changed_entry.write = 0;
 		hooked_page_info->changed_entry.execute = 1;
 
-		//½«Î±ÔìÒ³»»ÉÏÈ¥
+		//å°†ä¼ªé€ é¡µæ¢ä¸Šå»
 		hooked_page_info->changed_entry.page_frame_number = hooked_page_info->pfn_of_fake_page_contents;
 
 		RtlCopyMemory(&hooked_page_info->fake_page_contents, PAGE_ALIGN(target_function), PAGE_SIZE);
@@ -1104,7 +1105,7 @@ namespace ept
 
 		hooked_function_info->fake_page_contents = hooked_page_info->fake_page_contents;
 
-		//¿ªÊ¼hook
+		//å¼€å§‹hook
 		if (write_vmcall_instruction_to_memory(hooked_function_info, target_function, proxy_function, origin_function) == false)
 		{
 			if (hooked_function_info->first_trampoline_address != nullptr)
@@ -1119,7 +1120,7 @@ namespace ept
 
 		hooked_page_info->Options = EPTO_HOOK_FUNCTION;
 
-		//¼ÇÂ¼hookµÄº¯ÊıºÍÒ³ ÒÔ±ãÈÕºóÊÍ·Å
+		//è®°å½•hookçš„å‡½æ•°å’Œé¡µ ä»¥ä¾¿æ—¥åé‡Šæ”¾
 		// Track all hooked functions
 		InsertHeadList(&hooked_page_info->hooked_functions_list, &hooked_function_info->hooked_function_list);
 
@@ -1131,42 +1132,42 @@ namespace ept
 		return true;
 	}
 
-	//Ğ´Î±ÔìÒ³ÄÚ´æ
+	//å†™ä¼ªé€ é¡µå†…å­˜
 	bool write_fake_page_memory(__ept_hooked_function_info* hooked_function_info, void* target_address, void* buffer, unsigned __int64 buffer_size)
 	{
 		if ((hooked_function_info != NULL) && (target_address != NULL) && (buffer != NULL))
 		{
 			// Get offset of hooked function within page
-			// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
-			// µÃµ½ÓûĞŞ¸ÄµÄÖ¸ÁîÔÚÒ³ÄÚµÄÆ«ÒÆ
+			// Get offset of hooked function within page
+			// è·å¾—çº¿æ€§åœ°å€çš„ä½12ä½ é¡µåç§»
 			unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_address);
 			RtlCopyMemory(&hooked_function_info->fake_page_contents[page_offset], buffer, buffer_size);
 		}
 		return true;
 	}
 
-	//¶ÁÎ±ÔìÒ³ÄÚ´æ
+	//è¯»ä¼ªé€ é¡µå†…å­˜
 	bool read_fake_page_memory(__ept_hooked_function_info* hooked_function_info, void* target_address, void* buffer, unsigned __int64 buffer_size)
 	{
 		if ((hooked_function_info != NULL) && (target_address != NULL) && (buffer != NULL))
 		{
 			// Get offset of hooked function within page
-			// »ñµÃÏßĞÔµØÖ·µÄµÍ12Î» Ò³Æ«ÒÆ
-			// µÃµ½Óû¶ÁÈ¡µÄÖ¸ÁîÔÚÒ³ÄÚµÄÆ«ÒÆ
+			// Get offset of hooked function within page
+			// è·å¾—çº¿æ€§åœ°å€çš„ä½12ä½ é¡µåç§»
 			unsigned __int64 page_offset = MASK_EPT_PML1_OFFSET((unsigned __int64)target_address);
 			RtlCopyMemory(buffer, &hooked_function_info->fake_page_contents[page_offset], buffer_size);
 		}
 		return true;
 	}
 
-	//¶ÁÈ¡ÒşĞÎÈí¼ş¶Ïµã
+	//è¯»å–éšå½¢è½¯ä»¶æ–­ç‚¹
 	bool get_hide_software_breakpoint(__ept_state& ept_state, PVT_BREAK_POINT vmcallinfo)
 	{
 		VT_BREAK_POINT tmp_vmcallinfo = { 0 };
 
 		if (sizeof(VT_BREAK_POINT) != hv::read_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(VT_BREAK_POINT)))
 		{
-			//¶ÁÈ¡Êı¾İ¿ÉÄÜ²»ÍêÕû
+			//è¯»å–æ•°æ®å¯èƒ½ä¸å®Œæ•´
 			return false;
 		}
 
@@ -1174,11 +1175,11 @@ namespace ept
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//åˆ¤æ–­ç›®æ ‡åœ°å€æ˜¯å¦æ˜¯è¢«æŒ‚é’©çš„é¡µ
+			//ä»…æ¯”è¾ƒé¡µå¸§å·
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(tmp_vmcallinfo.PhysicalAddress))
 			{
 				if (hooked_page_info->Options == EPTO_VIRTUAL_BREAKPOINT)
@@ -1190,10 +1191,10 @@ namespace ept
 					int offset = tmp_vmcallinfo.VirtualAddress & 0xFFF;
 					memcpy(&tmp_vmcallinfo.buffer[0], &hooked_page_info->fake_page_contents[offset], tmp_vmcallinfo.Size);
 
-					//·µ»Ø¸øµ÷ÊÔÆ÷
+					//è¿”å›ç»™è°ƒè¯•å™¨
 					if (sizeof(VT_BREAK_POINT) != hv::write_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(VT_BREAK_POINT)))
 					{
-						//Ğ´ÈëÊı¾İ¿ÉÄÜ²»ÍêÕû
+						//å†™å…¥æ•°æ®å¯èƒ½ä¸å®Œæ•´
 						return false;
 					}
 
@@ -1205,20 +1206,20 @@ namespace ept
 		//cr3 guest_cr3;
 		//guest_cr3.flags = tmp_vmcallinfo.cr3;
 
-		////¶ÁÄ¿±ê½ø³ÌµÄÄÚ´æ
+		////è¯»ç›®æ ‡è¿›ç¨‹çš„å†…å­˜
 		//if (tmp_vmcallinfo.Size != hv::read_guest_virtual_memory(guest_cr3, 
 		//	(PVOID)tmp_vmcallinfo.VirtualAddress, 
 		//	&tmp_vmcallinfo.buffer[0], 
 		//	tmp_vmcallinfo.Size))
 		//{
-		//	//¶ÁÈ¡Êı¾İ¿ÉÄÜ²»ÍêÕû
+		//	//è¯»å–æ•°æ®å¯èƒ½ä¸å®Œæ•´
 		//	return false;
 		//}
 
 		return false;
 	}
 
-	//Òş²Øcc¶Ïµã
+	//éšè—ccæ–­ç‚¹
 	bool hide_cc_breakpoint(__ept_state& ept_state,
 		VT_BREAK_POINT vmcallinfo,
 		unsigned __int64 physical_address,
@@ -1227,24 +1228,24 @@ namespace ept
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 				if (hooked_page_info->Options == EPTO_VIRTUAL_BREAKPOINT)
@@ -1253,7 +1254,7 @@ namespace ept
 					TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "[+] page is hooked");
 #endif
 
-					//Ğ´Èëcc¶Ïµã
+					//å†™å…¥ccæ–­ç‚¹
 					int offset = vmcallinfo.VirtualAddress & 0xFFF;
 					hooked_page_info->fake_page_contents[offset] = 0xCC;
 
@@ -1262,10 +1263,10 @@ namespace ept
 			}
 		}
 
-		//ÅĞ¶Ï2mb pdeÊÇ·ñÒÑ¾­½øĞĞ·Ö¸î
+		//åˆ¤æ–­2mb pdeæ˜¯å¦å·²ç»è¿›è¡Œåˆ†å‰²
 		if (is_page_splitted(ept_state, physical_address) == false)
 		{
-			//·ÖÅäptÒ³±í
+			//åˆ†é…pté¡µè¡¨
 			void* split_buffer = pool_manager::request_pool<void*>(pool_manager::INTENTION_SPLIT_PML2, true, sizeof(__ept_dynamic_split));
 			if (split_buffer == nullptr)
 			{
@@ -1275,7 +1276,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -1286,7 +1287,7 @@ namespace ept
 			}
 		}
 
-		//µÃµ½Ä¿±êÒ³
+		//å¾—åˆ°ç›®æ ‡é¡µ
 		__ept_pte* target_page = get_pml1_entry(ept_state, physical_address);
 		if (target_page == nullptr)
 		{
@@ -1311,20 +1312,20 @@ namespace ept
 		hooked_page_info->pfn_of_fake_page_contents = GET_PFN(MmGetPhysicalAddress(hooked_page_info->fake_page_contents).QuadPart);
 		hooked_page_info->entry_address = target_page;
 
-		//½«Ô­Ò³ĞŞ¸ÄÎª²»¿ÉÖ´ĞĞ
+		//è¿˜åŸepté¡µçš„å±æ€§ï¼Œè®©guestç¨‹åºèƒ½æ­£å¸¸æ‰§è¡Œï¼Œæ­£å¸¸è¯»å†™
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
 		hooked_page_info->entry_address->execute = 0;
 
-		hooked_page_info->original_entry = *target_page;  //Ö¸ÏòÔ­
+		hooked_page_info->original_entry = *target_page;  //æŒ‡å‘åŸ
 		hooked_page_info->changed_entry = *target_page;
 
-		//Î±Ò³²»¿É¶ÁĞ´
+		//ä¼ªé€ é¡µä¸å¾—è¯»å†™		
 		hooked_page_info->changed_entry.read = 0;
 		hooked_page_info->changed_entry.write = 0;
 		hooked_page_info->changed_entry.execute = 1;
 
-		//Ö¸ÏòÎ±Ò³pfn
+		//å°†ä¼ªé€ é¡µæ¢ä¸Šå»
 		hooked_page_info->changed_entry.page_frame_number = hooked_page_info->pfn_of_fake_page_contents;
 
 		hooked_page_info->Options = EPTO_VIRTUAL_BREAKPOINT;
@@ -1332,14 +1333,14 @@ namespace ept
 		cr3 guest_cr3;
 		guest_cr3.flags = vmcallinfo.cr3;
 
-		//±¸·İÄ¿±ê½ø³ÌÔ­Ò³ÄÚÈİ
+		//å¤‡ä»½ç›®æ ‡è¿›ç¨‹åŸé¡µå†…å®¹
 		if (PAGE_SIZE != hv::read_guest_virtual_memory(guest_cr3, PAGE_ALIGN(vmcallinfo.VirtualAddress), &hooked_page_info->fake_page_contents, PAGE_SIZE))
 		{
-			//¶ÁÈ¡Êı¾İ¿ÉÄÜ²»ÍêÕû
+			//è¯»å–æ•°æ®å¯èƒ½ä¸å®Œæ•´
 			return false;
 		}
 
-		//Ğ´Èëcc¶Ïµã
+		//å†™å…¥ccæ–­ç‚¹
 		int offset = vmcallinfo.VirtualAddress & 0xFFF;
 		hooked_page_info->fake_page_contents[offset] = 0xCC;
 
@@ -1349,7 +1350,7 @@ namespace ept
 		return true;
 	}
 
-	//ÉèÖÃÒşĞÎÈí¼ş¶Ïµã
+	//è®¾ç½®éšå½¢è½¯ä»¶æ–­ç‚¹
 	bool set_hide_software_breakpoint(PVT_BREAK_POINT vmcallinfo)
 	{
 		int status = 0;
@@ -1357,17 +1358,17 @@ namespace ept
 
 		if (sizeof(VT_BREAK_POINT) != hv::read_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(VT_BREAK_POINT)))
 		{
-			//¶ÁÈ¡Êı¾İ¿ÉÄÜ²»ÍêÕû
+			//è¯»å–æ•°æ®å¯èƒ½ä¸å®Œæ•´
 			return false;
 		}
 
-		//»ñÈ¡Ä¿±ê½ø³ÌµÄÎïÀíµØÖ·
+		//è·å–ç›®æ ‡è¿›ç¨‹çš„ç‰©ç†åœ°å€
 		unsigned __int64 physical_address = hv::get_physical_address(tmp_vmcallinfo.cr3, (PVOID)tmp_vmcallinfo.VirtualAddress);
 
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâµØÖ·Ã»ÓĞÓ³ÉäµÄÎïÀíµØÖ·
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
@@ -1375,23 +1376,23 @@ namespace ept
 
 		spinlock::lock(&eptWatchList_lock);
 
-		//»ñÈ¡¿ÕÏĞµÄ¼àÊÓid
+		//è·å–ç©ºé—²çš„ç›‘è§†id
 		int ID = hv::getIdleWatchID();
 
 		if (ID == -1)
 		{
-			//Ã»ÓĞ¿ÉÓÃ¿Õ¼ä
+			//æ²¡æœ‰å¯ç”¨ç©ºé—´
 			spinlock::unlock(&eptWatchList_lock);
 			return false;
 		}
 
 
-		//ÅĞ¶ÏÊÇ·ñ¿çÒ³ÁË£¬²»Ö§³Ö¿çÒ³ÏÂ¶Ï£¬Ö»»áÉèÖÃµ±Ç°Ò³Ãæ
+		//åˆ¤æ–­æ˜¯å¦è·¨é¡µäº†ï¼Œä¸æ”¯æŒè·¨é¡µä¸‹æ–­ï¼Œåªä¼šè®¾ç½®å½“å‰é¡µé¢
 		unsigned __int64 tmp = physical_address + tmp_vmcallinfo.Size;
 		if (GET_PFN(tmp) != GET_PFN(physical_address))
-			eptWatchList[ID].Size = 0x1000 - (physical_address & 0xfff);  //Èç¹û¿çÒ³£¬ÔòÖ»»áÉèÖÃµ±Ç°Ò³Ãæ£¬¼ÆËãµ±Ç°Ò³ÃæÖĞĞèÒªÉèÖÃµÄ×Ö½ÚÊı´óĞ¡
+			eptWatchList[ID].Size = 0x1000 - (physical_address & 0xfff);  //å¦‚æœè·¨é¡µï¼Œåˆ™åªä¼šè®¾ç½®å½“å‰é¡µé¢ï¼Œè®¡ç®—å½“å‰é¡µé¢ä¸­éœ€è¦è®¾ç½®çš„å­—èŠ‚æ•°å¤§å°
 		else
-			eptWatchList[ID].Size = tmp_vmcallinfo.Size; //ĞèÒªÉèÖÃ¶ÏµãµÄ×Ö½ÚÊı´óĞ¡
+			eptWatchList[ID].Size = tmp_vmcallinfo.Size; //éœ€è¦è®¾ç½®æ–­ç‚¹çš„å­—èŠ‚æ•°å¤§å°
 
 		eptWatchList[ID].cr3 = tmp_vmcallinfo.cr3;
 		eptWatchList[ID].VirtualAddress = tmp_vmcallinfo.VirtualAddress;
@@ -1406,7 +1407,7 @@ namespace ept
 		eptWatchList[ID].inuse = 1;
 
 
-		//ÎªÃ¿¸öcpuÉèÖÃ¼àÊÓ
+		//ä¸ºæ¯ä¸ªcpuè®¾ç½®ç›‘è§†
 		for (int i = 0; i < tmp_vmcallinfo.CPUCount; i++)
 		{
 			__vcpu* vcpu = &g_vmm_context.vcpu[i];
@@ -1417,17 +1418,17 @@ namespace ept
 		}
 		if (status == tmp_vmcallinfo.CPUCount)
 		{
-			tmp_vmcallinfo.watchid = ID;  //¼ÇÂ¼Õâ¸öid£¬Ğ¶ÔØ¼àÊÓµÄÊ±ºòĞèÒª
+			tmp_vmcallinfo.watchid = ID;  //è®°å½•è¿™ä¸ªidï¼Œå¸è½½ç›‘è§†çš„æ—¶å€™éœ€è¦
 			tmp_vmcallinfo.PhysicalAddress = physical_address;
 
 			if (sizeof(VT_BREAK_POINT) != hv::write_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(VT_BREAK_POINT)))
 			{
-				//Ğ´ÈëÊı¾İ¿ÉÄÜ²»ÍêÕû
+				//å†™å…¥æ•°æ®å¯èƒ½ä¸å®Œæ•´
 				spinlock::unlock(&eptWatchList_lock);
 				return false;
 			}
 
-			invept_all_contexts_func(); //ÔÚÕâÀïË¢ĞÂÈ«²¿Âß¼­´¦ÀíÆ÷µÄeptp¼Ä´æÆ÷
+			invept_all_contexts_func(); //åœ¨è¿™é‡Œåˆ·æ–°å…¨éƒ¨é€»è¾‘å¤„ç†å™¨çš„eptpå¯„å­˜å™¨
 			spinlock::unlock(&eptWatchList_lock);
 
 			return true;
@@ -1437,36 +1438,36 @@ namespace ept
 	}
 
 	//int3 hook
-	bool cc_hook_function(__ept_state& ept_state, void* target_function/*±»¹Ò¹³µÄº¯ÊıµØÖ·*/, void* proxy_function/*ĞÂº¯ÊıµØÖ·*/, void** origin_function)
+	bool cc_hook_function(__ept_state& ept_state, void* target_function/*è¢«æŒ‚é’©çš„å‡½æ•°åœ°å€*/, void* proxy_function/*æ–°å‡½æ•°åœ°å€*/, void** origin_function)
 	{
 		unsigned __int64 physical_address = MmGetPhysicalAddress(target_function).QuadPart;
 
 		//
-		// ¼ì²â¸Ãº¯ÊıÊÇ·ñ´æÔÚÓÚÎïÀíÄÚ´æÖĞ
-		// Èç¹û¸Ãº¯ÊıµÄÎïÀíµØÖ·Îª¿Õ
-		// ËµÃ÷¸Ãº¯Êı²»´æÔÚÓÚÎïÀíÄÚ´æÖĞ
+		// æ£€æµ‹è¯¥å‡½æ•°æ˜¯å¦å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
+		// å¦‚æœè¯¥å‡½æ•°çš„ç‰©ç†åœ°å€ä¸ºç©º
+		// è¯´æ˜è¯¥å‡½æ•°ä¸å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
 		//
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâµØÖ·Ã»ÓĞÓ³ÉäµÄÎïÀíµØÖ·
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 #if ENABLE_TRACE
@@ -1477,7 +1478,7 @@ namespace ept
 				if (hooked_function_info == nullptr)
 				{
 #if ENABLE_TRACE
-					//¹Ò¹³º¯Êı½á¹¹Ã»ÓĞÔ¤ÏÈ·ÖÅä³ØÄÚ´æ
+					//æŒ‚é’©å‡½æ•°ç»“æ„æ²¡æœ‰é¢„å…ˆåˆ†é…æ± å†…å­˜
 					TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] hooked_function_info is null");
 #endif
 					return false;
@@ -1534,7 +1535,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -1570,7 +1571,7 @@ namespace ept
 		{
 			pool_manager::release_pool(hooked_page_info);
 #if ENABLE_TRACE
-			//hookº¯ÊıÊ±Ô¤·ÖÅäµÄ»º³åÒÑºÄ¾¡
+			//hookå‡½æ•°æ—¶é¢„åˆ†é…çš„ç¼“å†²å·²è€—å°½
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Preallocated buffer exhausted while hooking function");
 #endif
 			return false;
@@ -1598,8 +1599,8 @@ namespace ept
 		hooked_page_info->pfn_of_fake_page_contents = GET_PFN(MmGetPhysicalAddress(hooked_page_info->fake_page_contents).QuadPart);
 		hooked_page_info->entry_address = target_page;
 
-		//ÏÈ¸ÄÔ­Ò³Îª²»¿ÉÖ´ĞĞ »Øµ½guestºóÖ´ĞĞ¾Í´¥·¢vmexit
-		//½øÈëvmmºó½»»»Î±ÔìÒ³
+		//å…ˆæ”¹åŸé¡µä¸ºä¸å¯æ‰§è¡Œ å›åˆ°gueståæ‰§è¡Œå°±è§¦å‘vmexit
+		//è¿›å…¥vmmåäº¤æ¢ä¼ªé€ é¡µ
 		hooked_page_info->entry_address->execute = 0;
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
@@ -1607,12 +1608,12 @@ namespace ept
 		hooked_page_info->original_entry = *target_page;
 		hooked_page_info->changed_entry = *target_page;
 
-		//Î±ÔìÒ³²»µÃ¶ÁĞ´		
+		//ä¼ªé€ é¡µä¸å¾—è¯»å†™		
 		hooked_page_info->changed_entry.read = 0;
 		hooked_page_info->changed_entry.write = 0;
 		hooked_page_info->changed_entry.execute = 1;
 
-		//½«Î±ÔìÒ³»»ÉÏÈ¥
+		//å°†ä¼ªé€ é¡µæ¢ä¸Šå»
 		hooked_page_info->changed_entry.page_frame_number = hooked_page_info->pfn_of_fake_page_contents;
 
 		RtlCopyMemory(&hooked_page_info->fake_page_contents, PAGE_ALIGN(target_function), PAGE_SIZE);
@@ -1622,7 +1623,7 @@ namespace ept
 
 		hooked_function_info->fake_page_contents = hooked_page_info->fake_page_contents;
 
-		//¿ªÊ¼hook
+		//å¼€å§‹hook
 		if (write_cc_instruction_to_memory(hooked_function_info, target_function, proxy_function, origin_function) == false)
 		{
 			if (hooked_function_info->first_trampoline_address != nullptr)
@@ -1635,7 +1636,7 @@ namespace ept
 			return false;
 		}
 
-		//¼ÇÂ¼hookµÄº¯ÊıºÍÒ³ ÒÔ±ãÈÕºóÊÍ·Å
+		//è®°å½•hookçš„å‡½æ•°å’Œé¡µ ä»¥ä¾¿æ—¥åé‡Šæ”¾
 		// Track all hooked functions
 		InsertHeadList(&hooked_page_info->hooked_functions_list, &hooked_function_info->hooked_function_list);
 
@@ -1648,36 +1649,36 @@ namespace ept
 	}
 
 	//#DB hook
-	bool int1_hook_function(__ept_state& ept_state, void* target_function/*±»¹Ò¹³µÄº¯ÊıµØÖ·*/, void* proxy_function/*ĞÂº¯ÊıµØÖ·*/, void** origin_function)
+	bool int1_hook_function(__ept_state& ept_state, void* target_function/*è¢«æŒ‚é’©çš„å‡½æ•°åœ°å€*/, void* proxy_function/*æ–°å‡½æ•°åœ°å€*/, void** origin_function)
 	{
 		unsigned __int64 physical_address = MmGetPhysicalAddress(target_function).QuadPart;
 
 		//
-		// ¼ì²â¸Ãº¯ÊıÊÇ·ñ´æÔÚÓÚÎïÀíÄÚ´æÖĞ
-		// Èç¹û¸Ãº¯ÊıµÄÎïÀíµØÖ·Îª¿Õ
-		// ËµÃ÷¸Ãº¯Êı²»´æÔÚÓÚÎïÀíÄÚ´æÖĞ
+		// æ£€æµ‹è¯¥å‡½æ•°æ˜¯å¦å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
+		// å¦‚æœè¯¥å‡½æ•°çš„ç‰©ç†åœ°å€ä¸ºç©º
+		// è¯´æ˜è¯¥å‡½æ•°ä¸å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
 		//
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 #if ENABLE_TRACE
@@ -1688,7 +1689,7 @@ namespace ept
 				if (hooked_function_info == nullptr)
 				{
 #if ENABLE_TRACE
-					//¹Ò¹³º¯Êı½á¹¹Ã»ÓĞÔ¤ÏÈ·ÖÅä³ØÄÚ´æ
+					//æŒ‚é’©å‡½æ•°ç»“æ„æ²¡æœ‰é¢„å…ˆåˆ†é…æ± å†…å­˜
 					TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] hooked_function_info is null");
 #endif
 					return false;
@@ -1745,7 +1746,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -1781,7 +1782,7 @@ namespace ept
 		{
 			pool_manager::release_pool(hooked_page_info);
 #if ENABLE_TRACE
-			//hookº¯ÊıÊ±Ô¤·ÖÅäµÄ»º³åÒÑºÄ¾¡
+			//hookå‡½æ•°æ—¶é¢„åˆ†é…çš„ç¼“å†²å·²è€—å°½
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Preallocated buffer exhausted while hooking function");
 #endif
 			return false;
@@ -1809,8 +1810,8 @@ namespace ept
 		hooked_page_info->pfn_of_fake_page_contents = GET_PFN(MmGetPhysicalAddress(hooked_page_info->fake_page_contents).QuadPart);
 		hooked_page_info->entry_address = target_page;
 
-		//ÏÈ¸ÄÔ­Ò³Îª²»¿ÉÖ´ĞĞ »Øµ½guestºóÖ´ĞĞ¾Í´¥·¢vmexit
-		//½øÈëvmmºó½»»»Î±ÔìÒ³
+		//å…ˆæ”¹åŸé¡µä¸ºä¸å¯æ‰§è¡Œ å›åˆ°gueståæ‰§è¡Œå°±è§¦å‘vmexit
+		//è¿›å…¥vmmåäº¤æ¢ä¼ªé€ é¡µ
 		hooked_page_info->entry_address->execute = 0;
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
@@ -1818,12 +1819,12 @@ namespace ept
 		hooked_page_info->original_entry = *target_page;
 		hooked_page_info->changed_entry = *target_page;
 
-		//Î±ÔìÒ³²»µÃ¶ÁĞ´		
+		//ä¼ªé€ é¡µä¸å¾—è¯»å†™		
 		hooked_page_info->changed_entry.read = 0;
 		hooked_page_info->changed_entry.write = 0;
 		hooked_page_info->changed_entry.execute = 1;
 
-		//½«Î±ÔìÒ³»»ÉÏÈ¥
+		//å°†ä¼ªé€ é¡µæ¢ä¸Šå»
 		hooked_page_info->changed_entry.page_frame_number = hooked_page_info->pfn_of_fake_page_contents;
 
 		RtlCopyMemory(&hooked_page_info->fake_page_contents, PAGE_ALIGN(target_function), PAGE_SIZE);
@@ -1833,7 +1834,7 @@ namespace ept
 
 		hooked_function_info->fake_page_contents = hooked_page_info->fake_page_contents;
 
-		//¿ªÊ¼hook
+		//å¼€å§‹hook
 		if (write_int1_instruction_to_memory(hooked_function_info, target_function, proxy_function, origin_function) == false)
 		{
 			if (hooked_function_info->first_trampoline_address != nullptr)
@@ -1846,7 +1847,7 @@ namespace ept
 			return false;
 		}
 
-		//¼ÇÂ¼hookµÄº¯ÊıºÍÒ³ ÒÔ±ãÈÕºóÊÍ·Å
+		//è®°å½•hookçš„å‡½æ•°å’Œé¡µ ä»¥ä¾¿æ—¥åé‡Šæ”¾
 		// Track all hooked functions
 		InsertHeadList(&hooked_page_info->hooked_functions_list, &hooked_function_info->hooked_function_list);
 
@@ -1867,36 +1868,36 @@ namespace ept
 	/// <param name="(Optional) trampoline">Address of code cave which is located in 2gb range of target function (Use only if you need smaller trampoline)</param>
 	/// <param name="origin_function"> Address used to call original function </param>
 	/// <returns></returns>
-	bool hook_function(__ept_state& ept_state, void* target_function/*±»¹Ò¹³µÄº¯ÊıµØÖ·*/, void* proxy_function/*ĞÂº¯ÊıµØÖ·*/, void** origin_function)
+	bool hook_function(__ept_state& ept_state, void* target_function/*è¢«æŒ‚é’©çš„å‡½æ•°åœ°å€*/, void* proxy_function/*æ–°å‡½æ•°åœ°å€*/, void** origin_function)
 	{
 		unsigned __int64 physical_address = MmGetPhysicalAddress(target_function).QuadPart;
 
 		//
-		// ¼ì²â¸Ãº¯ÊıÊÇ·ñ´æÔÚÓÚÎïÀíÄÚ´æÖĞ
-		// Èç¹û¸Ãº¯ÊıµÄÎïÀíµØÖ·Îª¿Õ
-		// ËµÃ÷¸Ãº¯Êı²»´æÔÚÓÚÎïÀíÄÚ´æÖĞ
+		// æ£€æµ‹è¯¥å‡½æ•°æ˜¯å¦å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
+		// å¦‚æœè¯¥å‡½æ•°çš„ç‰©ç†åœ°å€ä¸ºç©º
+		// è¯´æ˜è¯¥å‡½æ•°ä¸å­˜åœ¨äºç‰©ç†å†…å­˜ä¸­
 		//
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 #if ENABLE_TRACE
@@ -1907,7 +1908,7 @@ namespace ept
 				if (hooked_function_info == nullptr)
 				{
 #if ENABLE_TRACE
-					//¹Ò¹³º¯Êı½á¹¹Ã»ÓĞÔ¤ÏÈ·ÖÅä³ØÄÚ´æ
+					//æŒ‚é’©å‡½æ•°ç»“æ„æ²¡æœ‰é¢„å…ˆåˆ†é…æ± å†…å­˜
 					TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] hooked_function_info is null");
 #endif
 					return false;
@@ -1963,7 +1964,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -2026,8 +2027,8 @@ namespace ept
 		hooked_page_info->pfn_of_fake_page_contents = GET_PFN(MmGetPhysicalAddress(hooked_page_info->fake_page_contents).QuadPart);
 		hooked_page_info->entry_address = target_page;
 
-		//ÏÈ¸ÄÔ­Ò³Îª²»¿ÉÖ´ĞĞ »Øµ½guestºóÖ´ĞĞ¾Í´¥·¢vmexit
-		//½øÈëvmmºó½»»»Î±ÔìÒ³
+		//å…ˆæ”¹åŸé¡µä¸ºä¸å¯æ‰§è¡Œ å›åˆ°gueståæ‰§è¡Œå°±è§¦å‘vmexit
+		//è¿›å…¥vmmåäº¤æ¢ä¼ªé€ é¡µ
 		hooked_page_info->entry_address->execute = 0;
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
@@ -2035,12 +2036,12 @@ namespace ept
 		hooked_page_info->original_entry = *target_page;
 		hooked_page_info->changed_entry = *target_page;
 
-		//Î±ÔìÒ³²»µÃ¶ÁĞ´		
+		//ä¼ªé€ é¡µä¸å¾—è¯»å†™		
 		hooked_page_info->changed_entry.read = 0;
 		hooked_page_info->changed_entry.write = 0;
 		hooked_page_info->changed_entry.execute = 1;
 
-		//½«Î±ÔìÒ³»»ÉÏÈ¥
+		//å°†ä¼ªé€ é¡µæ¢ä¸Šå»
 		hooked_page_info->changed_entry.page_frame_number = hooked_page_info->pfn_of_fake_page_contents;
 
 		RtlCopyMemory(&hooked_page_info->fake_page_contents, PAGE_ALIGN(target_function), PAGE_SIZE);
@@ -2049,7 +2050,7 @@ namespace ept
 
 		hooked_function_info->fake_page_contents = hooked_page_info->fake_page_contents;
 
-		//¿ªÊ¼hook
+		//å¼€å§‹hook
 		if (hook_instruction_memory(ept_state, hooked_function_info, target_function, proxy_function, origin_function) == false)
 		{
 			if (hooked_function_info->first_trampoline_address != nullptr)
@@ -2064,7 +2065,7 @@ namespace ept
 
 		hooked_page_info->Options = EPTO_HOOK_FUNCTION;
 
-		//¼ÇÂ¼hookµÄº¯ÊıºÍÒ³ ÒÔ±ãÈÕºóÊÍ·Å
+		//è®°å½•hookçš„å‡½æ•°å’Œé¡µ ä»¥ä¾¿æ—¥åé‡Šæ”¾
 		// Track all hooked functions
 		InsertHeadList(&hooked_page_info->hooked_functions_list, &hooked_function_info->hooked_function_list);
 
@@ -2178,7 +2179,7 @@ namespace ept
 			}
 
 			// Restore original pte value
-			// »Ö¸´Ô­Ò³µÄÖ´ĞĞÊôĞÔ
+			// Restore original pte value
 			hooked_entry->original_entry.execute = 1;
 			swap_pml1_and_invalidate_tlb(ept_state, hooked_entry->entry_address, hooked_entry->original_entry, invept_single_context);
 
@@ -2192,20 +2193,20 @@ namespace ept
 
 	void set_ept_watch(__ept_hooked_page_info* hooked_page_info, unsigned __int64 Type)
 	{
-		if (Type == EPTW_WRITE)  //¼àÊÓĞ´
+		if (Type == EPTW_WRITE)  //ç›‘è§†å†™
 		{
 			hooked_page_info->entry_address->write = 0;
 		}
-		//else if (Type == EPTW_READ) //¼àÊÓ¶Á
+		//else if (Type == EPTW_READ)  //æ’¤é”€è¯»ç›‘è§†
 		//{
 		//	hooked_page_info->entry_address->read = 0;
 		//}
-		else if (Type == EPTW_READWRITE) //¼àÊÓ¶ÁĞ´
+		else if (Type == EPTW_READWRITE) //ç›‘è§†è¯»å†™
 		{
 			hooked_page_info->entry_address->read = 0;
 			hooked_page_info->entry_address->write = 0;
 		}
-		else if (Type == EPTW_EXECUTE)  //¼àÊÓÖ´ĞĞ
+		else if (Type == EPTW_EXECUTE)  //ç›‘è§†æ‰§è¡Œ
 		{
 			hooked_page_info->entry_address->execute = 0;
 		}
@@ -2217,24 +2218,24 @@ namespace ept
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			return false;
 		}
 
 		//
-		// ¼ì²éÒ³ÃæÊÇ·ñÉĞÎ´¹Ò¹³
+		//
 		//
 		PLIST_ENTRY current = &ept_state.hooked_page_list;
 		while (&ept_state.hooked_page_list != current->Flink)
 		{
 			current = current->Flink;
-			//´ÓÁĞ±íÖĞÈ¡³ö¹Ò¹³Ò³
+			//ä»åˆ—è¡¨ä¸­å–å‡ºæŒ‚é’©é¡µ
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current, __ept_hooked_page_info, hooked_page_list);
 
-			//ÅĞ¶ÏÄ¿±êµØÖ·ÊÇ·ñÊÇ±»¹Ò¹³µÄÒ³
-			//½ö±È½ÏÒ³Ö¡ºÅ
+			//
+			// æ£€æŸ¥å‡½æ•° pfn æ˜¯å¦ç­‰äºæŒ‚é’©é¡µé¢ä¿¡æ¯ä¸­ä¿å­˜çš„ pfn
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 				if (hooked_page_info->Options == EPTO_VIRTUAL_BREAKPOINT)
@@ -2250,10 +2251,10 @@ namespace ept
 			}
 		}
 
-		//ÅĞ¶Ï2mb pdeÊÇ·ñÒÑ¾­½øĞĞ·Ö¸î
+		//åˆ¤æ–­2mb pdeæ˜¯å¦å·²ç»è¿›è¡Œåˆ†å‰²
 		if (is_page_splitted(ept_state, physical_address) == false)
 		{
-			//·ÖÅäptÒ³±í
+			//åˆ†é…pté¡µè¡¨
 			void* split_buffer = pool_manager::request_pool<void*>(pool_manager::INTENTION_SPLIT_PML2, true, sizeof(__ept_dynamic_split));
 			if (split_buffer == nullptr)
 			{
@@ -2263,7 +2264,7 @@ namespace ept
 				return false;
 			}
 
-			//½«2MBÒ³Ãæ·Ö¸îÎª512¸ö4KBÒ³Ãæ
+			//å°†2MBé¡µé¢åˆ†å‰²ä¸º512ä¸ª4KBé¡µé¢
 			if (split_pml2(g_vmm_context.mtrr_info.mtrrs, ept_state, split_buffer, physical_address) == false)
 			{
 				pool_manager::release_pool(split_buffer);
@@ -2274,7 +2275,7 @@ namespace ept
 			}
 		}
 
-		//µÃµ½Ä¿±êÒ³
+		//å¾—åˆ°ç›®æ ‡é¡µ
 		__ept_pte* target_page = get_pml1_entry(ept_state, physical_address);
 		if (target_page == nullptr)
 		{
@@ -2295,7 +2296,7 @@ namespace ept
 
 		InitializeListHead(&hooked_page_info->hooked_functions_list);
 
-		hooked_page_info->pfn_of_hooked_page = GET_PFN(physical_address);  //»ñÈ¡guestÎïÀíÒ³ÃæµÄÒ³Ö¡ºÅ
+		hooked_page_info->pfn_of_hooked_page = GET_PFN(physical_address);  //è·å–guestç‰©ç†é¡µé¢çš„é¡µå¸§å·
 		hooked_page_info->entry_address = target_page; //ept_pte
 
 		set_ept_watch(hooked_page_info, Type);
@@ -2308,13 +2309,13 @@ namespace ept
 
 	bool ept_watch_activate(VT_BREAK_POINT vmcallinfo, unsigned __int64 Type, int* outID, int& errorCode)
 	{
-		//»ñÈ¡guestµÄÎïÀíµØÖ·
+		//è·å–guestçš„ç‰©ç†åœ°å€
 		unsigned __int64 physical_address = hv::get_physical_address(vmcallinfo.cr3, (PVOID)vmcallinfo.VirtualAddress);
 
 		if (physical_address == NULL)
 		{
 #if ENABLE_TRACE
-			//ÇëÇóµÄĞéÄâÄÚ´æÔÚÎïÀíÄÚ´æÖĞ²»´æÔÚ
+			//è¯·æ±‚çš„è™šæ‹Ÿå†…å­˜åœ¨ç‰©ç†å†…å­˜ä¸­ä¸å­˜åœ¨
 			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] physical_address is null");
 #endif
 			errorCode = 100;
@@ -2325,24 +2326,24 @@ namespace ept
 
 		spinlock::lock(&eptWatchList_lock);
 
-		//»ñÈ¡¿ÕÏĞµÄ¼àÊÓid
+		//è·å–ç©ºé—²çš„ç›‘è§†id
 		int ID = hv::getIdleWatchID();
 
 		if (ID == -1)
 		{
-			//Ã»ÓĞ¿ÉÓÃ¿Õ¼ä
+			//æ²¡æœ‰å¯ç”¨ç©ºé—´
 			spinlock::unlock(&eptWatchList_lock);
 			errorCode = 101;
 			return false;
 		}
 
 
-		//ÅĞ¶ÏÊÇ·ñ¿çÒ³ÁË£¬²»Ö§³Ö¿çÒ³ÏÂ¶Ï£¬Ö»»áÉèÖÃµ±Ç°Ò³Ãæ
+		//åˆ¤æ–­æ˜¯å¦è·¨é¡µäº†ï¼Œä¸æ”¯æŒè·¨é¡µä¸‹æ–­ï¼Œåªä¼šè®¾ç½®å½“å‰é¡µé¢
 		unsigned __int64 tmp = physical_address + vmcallinfo.Size;
 		if (GET_PFN(tmp) != GET_PFN(physical_address))
-			eptWatchList[ID].Size = 0x1000 - (physical_address & 0xfff);  //Èç¹û¿çÒ³£¬ÔòÖ»»áÉèÖÃµ±Ç°Ò³Ãæ£¬¼ÆËãµ±Ç°Ò³ÃæÖĞĞèÒªÉèÖÃµÄ×Ö½ÚÊı´óĞ¡
+			eptWatchList[ID].Size = 0x1000 - (physical_address & 0xfff);  //å¦‚æœè·¨é¡µï¼Œåˆ™åªä¼šè®¾ç½®å½“å‰é¡µé¢ï¼Œè®¡ç®—å½“å‰é¡µé¢ä¸­éœ€è¦è®¾ç½®çš„å­—èŠ‚æ•°å¤§å°
 		else
-			eptWatchList[ID].Size = vmcallinfo.Size; //ĞèÒªÉèÖÃ¶ÏµãµÄ×Ö½ÚÊı´óĞ¡
+			eptWatchList[ID].Size = vmcallinfo.Size; //éœ€è¦è®¾ç½®æ–­ç‚¹çš„å­—èŠ‚æ•°å¤§å°
 
 		eptWatchList[ID].cr3 = vmcallinfo.cr3;
 		eptWatchList[ID].PhysicalAddress = physical_address;
@@ -2355,7 +2356,7 @@ namespace ept
 		eptWatchList[ID].inuse = 1;
 
 
-		//ÎªÃ¿¸öcpuÉèÖÃ¼àÊÓ
+		//è®¾ç½®æ¯ä¸ªcpu
 		for (int i = 0; i < vmcallinfo.CPUCount; i++)
 		{
 			__vcpu* vcpu = &g_vmm_context.vcpu[i];
@@ -2366,10 +2367,10 @@ namespace ept
 		}
 		if (status == vmcallinfo.CPUCount)
 		{
-			//Ò»ÇĞÕı³££¬·µ»Ø³É¹¦£º
-			*outID = ID;  //¼ÇÂ¼Õâ¸öid£¬Ğ¶ÔØ¼àÊÓµÄÊ±ºòĞèÒª			
+			//ä¸€åˆ‡æ­£å¸¸ï¼Œè¿”å›æˆåŠŸï¼š
+			*outID = ID;  //è®°å½•è¿™ä¸ªidï¼Œå¸è½½ç›‘è§†çš„æ—¶å€™éœ€è¦			
 			spinlock::unlock(&eptWatchList_lock);
-			invept_all_contexts_func(); //ÔÚÕâÀïË¢ĞÂÈ«²¿Âß¼­´¦ÀíÆ÷µÄeptp¼Ä´æÆ÷
+			invept_all_contexts_func(); //åœ¨è¿™é‡Œåˆ·æ–°å…¨éƒ¨é€»è¾‘å¤„ç†å™¨çš„eptpå¯„å­˜å™¨
 			return true;
 		}
 
@@ -2378,7 +2379,7 @@ namespace ept
 		return false;
 	}
 
-	//È¡Ïû¼àÊÓÒ³
+	//å–æ¶ˆç›‘è§†é¡µ
 	bool ept_watch_deactivate_internal(__ept_state& ept_state,
 		unsigned __int64 VirtualAddress,
 		unsigned __int64 physical_address,
@@ -2397,7 +2398,7 @@ namespace ept
 			__ept_hooked_page_info* hooked_page_info = CONTAINING_RECORD(current_hooked_page, __ept_hooked_page_info, hooked_page_list);
 
 			//
-			// ¼ì²éº¯Êı pfn ÊÇ·ñµÈÓÚ¹Ò¹³Ò³ÃæĞÅÏ¢ÖĞ±£´æµÄ pfn
+			//
 			if (hooked_page_info->pfn_of_hooked_page == GET_PFN(physical_address))
 			{
 				if (hooked_page_info->Options == EPTO_VIRTUAL_BREAKPOINT)
@@ -2408,10 +2409,10 @@ namespace ept
 						int offset = VirtualAddress & 0xFFF;
 						hooked_page_info->fake_page_contents[offset] = OriginalByte;
 
-						if (has == 0) //Èç¹ûhasÎª0ÔòËµÃ÷Ã»ÓĞ´æÔÚÆäËûµÄ¼àÊÓ¶Ïµã£¬ÄÇÃ´ÎÒÃÇ¿ÉÒÔ½«Ò³½øĞĞ»ØÊÕ
+						if (has == 0) //å¦‚æœhasä¸º0åˆ™è¯´æ˜æ²¡æœ‰å­˜åœ¨å…¶ä»–çš„ç›‘è§†æ–­ç‚¹ï¼Œé‚£ä¹ˆæˆ‘ä»¬å¯ä»¥å°†é¡µè¿›è¡Œå›æ”¶
 						{
 							hooked_page_info->original_entry.execute = 1;
-							//»»»ØÔ­Ò³
+							//æ¢å›åŸé¡µ
 							//hooked_page_info->entry_address->all = hooked_page_info->original_entry.all;
 
 							swap_pml1_and_invalidate_tlb(ept_state,
@@ -2422,31 +2423,31 @@ namespace ept
 					}
 					else
 					{
-						if (Type == EPTW_WRITE)  //³·ÏúĞ´¼àÊÓ
+						if (Type == EPTW_WRITE)  //æ’¤é”€å†™ç›‘è§†
 						{
 							hooked_page_info->entry_address->write = 1;
 						}
-						//else if (Type == EPTW_READ)  //³·Ïú¶Á¼àÊÓ
+						//else if (Type == EPTW_READ)  //æ’¤é”€è¯»ç›‘è§†
 						//{
 						//	if (bpType == 3)  //int3
 						//	{
-						//		//»»»ØÔ­Ò³
+						//else if (Type == EPTW_READ)  //æ’¤é”€è¯»ç›‘è§†
 						//		hooked_page_info->entry_address->all = hooked_page_info->original_entry.all;
 						//	}
 						//	hooked_page_info->entry_address->read = 1;
 						//}
-						else if (Type == EPTW_READWRITE) //³·Ïú¶ÁĞ´¼àÊÓ
+						else if (Type == EPTW_READWRITE) //æ’¤é”€è¯»å†™ç›‘è§†
 						{
 							hooked_page_info->entry_address->read = 1;
 							hooked_page_info->entry_address->write = 1;
 						}
-						else if (Type == EPTW_EXECUTE)  //³·ÏúÖ´ĞĞ¼àÊÓ
+						else if (Type == EPTW_EXECUTE)  //æ’¤é”€æ‰§è¡Œç›‘è§†
 						{
 							hooked_page_info->entry_address->execute = 1;
 						}
 					}
 
-					if (has == 0) //Èç¹ûhasÎª0ÔòËµÃ÷Ã»ÓĞ´æÔÚÆäËûµÄ¼àÊÓ¶Ïµã£¬ÄÇÃ´ÎÒÃÇ¿ÉÒÔ½«Ò³½øĞĞ»ØÊÕ
+					if (has == 0) //å¦‚æœhasä¸º0åˆ™è¯´æ˜æ²¡æœ‰å­˜åœ¨å…¶ä»–çš„ç›‘è§†æ–­ç‚¹ï¼Œé‚£ä¹ˆæˆ‘ä»¬å¯ä»¥å°†é¡µè¿›è¡Œå›æ”¶
 					{
 						RemoveEntryList(current_hooked_page);
 						pool_manager::release_pool(hooked_page_info);
@@ -2480,19 +2481,19 @@ namespace ept
 		{
 			if ((i != ID) && ept_isWatchPage(GET_PFN(eptWatchList[ID].PhysicalAddress), i))
 			{
-				has = 1;  //ÊôÓÚÍ¬Ò»Ò³£¬´æÔÚÆäËû¼àÊÓ¶Ïµã
+				has = 1;  //å±äºåŒä¸€é¡µï¼Œå­˜åœ¨å…¶ä»–ç›‘è§†æ–­ç‚¹
 				if (eptWatchList[i].Type == eptWatchList[ID].Type)
 				{
-					has = 2;  //²»ÄÜ³·Ïú
+					has = 2;  //ä¸èƒ½æ’¤é”€
 					break;
 				}
 			}
 		}
 
-		//Ã»ÓĞÆäËûµÄ¼àÊÓ¶ÏµãÁË£¬ÏÖÔÚ¿ÉÒÔ°ÑÒ³³·ÏúÁË
+		//æ²¡æœ‰å…¶ä»–çš„ç›‘è§†æ–­ç‚¹äº†ï¼Œç°åœ¨å¯ä»¥æŠŠé¡µæ’¤é”€äº†
 		if ((has != 2) || (eptWatchList[ID].bpType == 3))
 		{
-			//ÉèÖÃÃ¿¸öcpu
+			//è®¾ç½®æ¯ä¸ªcpu
 			for (int i = 0; i < vmcallinfo.CPUCount; i++)
 			{
 				__vcpu* vcpu = &g_vmm_context.vcpu[i];
@@ -2509,7 +2510,7 @@ namespace ept
 			}
 			if (status == vmcallinfo.CPUCount)
 			{
-				invept_all_contexts_func(); //ÔÚÕâÀïË¢ĞÂÈ«²¿Âß¼­´¦ÀíÆ÷µÄeptp¼Ä´æÆ÷			
+				invept_all_contexts_func(); //åœ¨è¿™é‡Œåˆ·æ–°å…¨éƒ¨é€»è¾‘å¤„ç†å™¨çš„eptpå¯„å­˜å™¨			
 			}
 			else
 			{
@@ -2519,14 +2520,14 @@ namespace ept
 		}
 		else
 		{
-			//»¹´æÔÚÆäËûµÄ¶Ïµã£¬ËùÒÔ»¹²»ÄÜ°ÑÒ³È¡Ïû
+			//è¿˜å­˜åœ¨å…¶ä»–çš„æ–­ç‚¹ï¼Œæ‰€ä»¥è¿˜ä¸èƒ½æŠŠé¡µå–æ¶ˆ
 		}
-		eptWatchList[ID] = { 0 };  //½«µ±Ç°entryµÄinuse±ê¼ÇÎªÎ´Ê¹ÓÃ
+		eptWatchList[ID] = { 0 };  //å°†å½“å‰entryçš„inuseæ ‡è®°ä¸ºæœªä½¿ç”¨
 		spinlock::unlock(&eptWatchList_lock);
 		return 0;
 	}
 
-	//Ìî³äÒ³ÊÂ¼şËùĞèĞÅÏ¢
+	//å¡«å……é¡µäº‹ä»¶æ‰€éœ€ä¿¡æ¯
 	void fillPageEventBasic(PageEventBasic* peb, guest_context* guest_registers)
 	{
 		peb->VirtualAddress = hv::vmread(GUEST_LINEAR_ADDRESS);
@@ -2570,15 +2571,15 @@ namespace ept
 
 	void RestoreEptPageProperties(__ept_hooked_page_info* hooked_page_info, int ID)
 	{
-		//»¹Ô­eptÒ³µÄÊôĞÔ£¬ÈÃguest³ÌĞòÄÜÕı³£Ö´ĞĞ£¬Õı³£¶ÁĞ´
+		//è¿˜åŸepté¡µçš„å±æ€§ï¼Œè®©guestç¨‹åºèƒ½æ­£å¸¸æ‰§è¡Œï¼Œæ­£å¸¸è¯»å†™
 		hooked_page_info->entry_address->read = 1;
 		hooked_page_info->entry_address->write = 1;
 		hooked_page_info->entry_address->execute = 1;
 		hooked_page_info->ID = ID;
-		hv::set_mtf(true);  //¿ªÆômtf
+		hv::set_mtf(true);  //å¼€å¯mtf
 	}
 
-	//ÅĞ¶ÏÊÇ·ñÊÇ¼àÊÓµÄµØÖ·
+	//åˆ¤æ–­æ˜¯å¦æ˜¯ç›‘è§†çš„åœ°å€
 	int ept_isWatchAddress(unsigned __int64 guest_physical_adddress, int ID)
 	{
 		return ((eptWatchList[ID].inuse) &&
@@ -2589,10 +2590,10 @@ namespace ept
 			);
 	}
 
-	//ÅĞ¶ÏÊÇ·ñÊÇ¼àÊÓµÄÒ³
+	//åˆ¤æ–­æ˜¯å¦æ˜¯ç›‘è§†çš„é¡µ
 	int ept_isWatchPage(unsigned __int64 pfn, int ID)
 	{
-		//±È½ÏÒ³Ö¡
+		//æ¯”è¾ƒé¡µå¸§
 		return ((eptWatchList[ID].inuse) && (GET_PFN(eptWatchList[ID].PhysicalAddress) == pfn));
 	}
 
@@ -2600,11 +2601,11 @@ namespace ept
 		/*
 		 * returns -1 if not in a page being watched
 		 * Note that there can be multiple active on the same page
-		 * Èç¹û²»ÔÚ±»¼àÊÓµÄÒ³ÃæÖĞÔò·µ»Ø -1
-		 * ×¢ÒâÍ¬Ò»Ò³ÃæÉÏ¿ÉÒÔÓĞ¶à¸ö»î¶¯
+		 * å¦‚æœä¸åœ¨è¢«ç›‘è§†çš„é¡µé¢ä¸­åˆ™è¿”å› -1
+		 * æ³¨æ„åŒä¸€é¡µé¢ä¸Šå¯ä»¥æœ‰å¤šä¸ªæ´»åŠ¨
 		 */
 	{
-		unsigned __int64 pfn = GET_PFN(guest_physical_adddress);  //»ñÈ¡Ò³Ö¡
+		unsigned __int64 pfn = GET_PFN(guest_physical_adddress);  //è·å–é¡µå¸§
 		for (int i = 0; i < EPTWATCHLISTSIZE; i++)
 			if (ept_isWatchPage(pfn, i))
 				return i;
@@ -2612,7 +2613,7 @@ namespace ept
 		return -1;
 	}
 
-	//´¦Àí¶Ïµã¼àÊÓÊÂ¼ş
+	//å¤„ç†æ–­ç‚¹ç›‘è§†äº‹ä»¶
 	bool ept_handleWatchEvent(__vcpu* vcpu,
 		__ept_violation ept_violation,
 		__ept_hooked_page_info* hooked_page_info,
@@ -2620,7 +2621,7 @@ namespace ept
 		int& bpType)
 	{
 
-		//ÅĞ¶ÏÊÇ·ñÊÇ±»¼àÊÓµÄÒ³Ãæ
+		//åˆ¤æ–­æ˜¯å¦æ˜¯è¢«ç›‘è§†çš„é¡µé¢
 		if (hooked_page_info->pfn_of_hooked_page == GET_PFN(guest_physical_adddress))
 		{
 			hooked_page_info->ID = -1;
@@ -2638,7 +2639,7 @@ namespace ept
 
 			if (eptWatchList[ID].bpType == 3) //int3
 			{
-				//Èç¹û¶Áµ½µÄÊÇint3¼àÊÓÒ³Ôò½øĞĞ»»Ò³
+				//å¦‚æœè¯»åˆ°çš„æ˜¯int3ç›‘è§†é¡µåˆ™è¿›è¡Œæ¢é¡µ
 				bpType = 3;
 				hooked_page_info->ID = ID;
 				spinlock::unlock(&eptWatchList_lock);
@@ -2647,24 +2648,24 @@ namespace ept
 
 
 
-			//È·¶¨ÕæÕıµÄ·ÃÎÊÔ­Òò£¨Èç¹ûÍ¬Ò»Ò³ÃæÉÏÓĞ¶à¸ö·ÃÎÊ£©
+			//ç¡®å®šçœŸæ­£çš„è®¿é—®åŸå› ï¼ˆå¦‚æœåŒä¸€é¡µé¢ä¸Šæœ‰å¤šä¸ªè®¿é—®ï¼‰
 			for (int i = ID; i < EPTWATCHLISTSIZE; i++)
 			{
-				if (ept_isWatchPage(GET_PFN(guest_physical_adddress), i)) //ÅĞ¶ÏÊÇ·ñÔÚ¼àÊÓµÄÒ³Àï
+				if (ept_isWatchPage(GET_PFN(guest_physical_adddress), i)) //åˆ¤æ–­æ˜¯å¦åœ¨ç›‘è§†çš„é¡µé‡Œ
 				{
 					if (eptWatchList[i].Type == EPTW_WRITE)
 					{
-						if (ept_violation.write_access)  //Ö»Ğ´
+						if (ept_violation.write_access)  //åªå†™
 						{
 							ID = i;
 
-							if (ept_isWatchAddress(guest_physical_adddress, i)) //ÅĞ¶ÏÊÇ·ñÊÇ¼àÊÓµÄµØÖ·
+							if (ept_isWatchAddress(guest_physical_adddress, i)) //åˆ¤æ–­æ˜¯å¦æ˜¯ç›‘è§†çš„åœ°å€
 								break;
 						}
 					}
 					else if (eptWatchList[i].Type == EPTW_READWRITE)
 					{
-						if (ept_violation.read_access || ept_violation.write_access)  //¶Á»òĞ´
+						if (ept_violation.read_access || ept_violation.write_access)  //è¯»æˆ–å†™
 						{
 							ID = i;
 							if (ept_isWatchAddress(guest_physical_adddress, i))
@@ -2673,7 +2674,7 @@ namespace ept
 					}
 					else
 					{
-						if (ept_violation.execute_access) //Ö´ĞĞ
+						if (ept_violation.execute_access) //æ‰§è¡Œ
 						{
 							ID = i;
 
@@ -2685,30 +2686,30 @@ namespace ept
 			}
 
 
-			//ÅĞ¶ÏÊÇ·ñÊÇĞéÄâ»¯¶Ïµã
+			//åˆ¤æ–­æ˜¯å¦æ˜¯è™šæ‹ŸåŒ–æ–­ç‚¹
 			if ((eptWatchList[ID].Options & EPTO_VIRTUAL_BREAKPOINT) &&
 				(guest_physical_adddress >= eptWatchList[ID].PhysicalAddress) &&
 				(guest_physical_adddress < eptWatchList[ID].PhysicalAddress + eptWatchList[ID].Size))
 			{
 				//if (eptWatchList[ID].bpType == 3) //int3
 				//{
-				//	//Èç¹û¶Áµ½µÄÊÇint3µØÖ·Ôò½øĞĞ»»Ò³
+				//if (eptWatchList[ID].bpType == 3) //int3
 				//	bpType = 3;
 				//	hooked_page_info->ID = ID;
 
 				//	cr3 guest_cr3;
 				//	guest_cr3.flags = eptWatchList[ID].cr3;
 
-				//	//Í¬²½Ô­Ò³ÄÚÈİµ½Î±Ò³
+				//{
 				//	//if (PAGE_SIZE != hv::read_guest_virtual_memory(guest_cr3, PAGE_ALIGN(eptWatchList[ID].VirtualAddress), &hooked_page_info->fake_page_contents, PAGE_SIZE))
 				//	//{
-				//	//	//¶ÁÈ¡Êı¾İ¿ÉÄÜ²»ÍêÕû
+				//	//å¦‚æœè¯»åˆ°çš„æ˜¯int3åœ°å€åˆ™è¿›è¡Œæ¢é¡µ
 				//	//	spinlock::unlock(&eptWatchList_lock);
 				//	//	return false;
 				//	//}
 
-				//	int offset = eptWatchList[ID].VirtualAddress & 0xFFF;  //»ñµÃccµÄÎ»ÖÃ
-				//	hooked_page_info->fake_page_contents[offset] = eptWatchList[ID].OriginalByte; //»Ö¸´Ô­×Ö½Ú
+				//	//å¦‚æœè¯»åˆ°çš„æ˜¯int3åœ°å€åˆ™è¿›è¡Œæ¢é¡µ
+				//	//åŒæ­¥åŸé¡µå†…å®¹åˆ°ä¼ªé¡µ
 				//	spinlock::unlock(&eptWatchList_lock);
 				//	return true;
 				//}
@@ -2718,25 +2719,25 @@ namespace ept
 
 				//This is the specific address that was being requested
 				//if the current state has interrupts disabled or masked (cr8<>0) then skip (todo: step until it is)
-				//ÕâÊÇ±»ÇëÇóµÄÌØ¶¨µØÖ·£¬Èç¹ûµ±Ç°×´Ì¬ÒÑ½ûÓÃ»òÆÁ±ÎÖĞ¶Ï£¨cr8<>0£©£¬ÔòÌø¹ı£¨todo£ºÖğ²½Ö´ĞĞÖ±µ½Íê³É£©
+				//	bpType = 3;
 
 				//Task Priority Register (CR8)
-				//ÏµÍ³Èí¼ş¿ÉÒÔÊ¹ÓÃ TPR ¼Ä´æÆ÷ÔİÊ±×èÖ¹µÍÓÅÏÈ¼¶ÖĞ¶Ï£¬ÖĞ¶Ï¸ßÓÅÏÈ¼¶ÈÎÎñ¡£
-				//ÕâÊÇÍ¨¹ı½«Òª×èÖ¹µÄ×î¸ßÓÅÏÈ¼¶ÖĞ¶ÏµÄÖµ¼ÓÔØµ½ TPR À´ÊµÏÖµÄ¡£ÀıÈç£¬½« TPR µÄÖµ¼ÓÔØÎª 9 (1001b)
-				//½«×èÖ¹ÓÅÏÈ¼¶Îª 9 »ò¸üµÍµÄËùÓĞÖĞ¶Ï£¬Í¬Ê±ÔÊĞíÊ¶±ğÓÅÏÈ¼¶Îª 10 »ò¸ü¸ßµÄËùÓĞÖĞ¶Ï¡£½« TPR ¼ÓÔØÎª 0 ¿ÉÆôÓÃËùÓĞÍâ²¿ÖĞ¶Ï¡£½« TPR ¼ÓÔØÎª
-				//15 (1111b) ¿É½ûÓÃËùÓĞÍâ²¿ÖĞ¶Ï¡£
+				//	hooked_page_info->ID = ID;
+				//	cr3 guest_cr3;
+				//	guest_cr3.flags = eptWatchList[ID].cr3;
+				//	//åŒæ­¥åŸé¡µå†…å®¹åˆ°ä¼ªé¡µ
 				unsigned __int64 CR8 = __readcr8();
 				rflags rflags;
 				rflags.flags = hv::vmread(GUEST_RFLAGS);
 				__vmx_interruptibility_state is = { hv::vmread(GUEST_INTERRUPTIBILITY_STATE) };
-				int canBreak = (CR8 == 0) && (rflags.interrupt_enable_flag); //ÅĞ¶ÏÖĞ¶ÏÊÇ·ñ¿ªÆô
+				int canBreak = (CR8 == 0) && (rflags.interrupt_enable_flag); //åˆ¤æ–­ä¸­æ–­æ˜¯å¦å¼€å¯
 				canBreak = canBreak && ((is.all & (1 << 0)) == 0);
 
-				if (canBreak) //ÅĞ¶ÏÄÜ·ñ½øĞĞÖĞ¶Ï
+				if (canBreak) //åˆ¤æ–­èƒ½å¦è¿›è¡Œä¸­æ–­
 				{
 					int kernelmode = 0;
 
-					//ÅĞ¶Ï´¥·¢eptÎ¥ÀıÖ®Ç°µÄÄ£Ê½ÊÇÄÚºË»¹ÊÇÓÃ»§Ä£Ê½
+					//åˆ¤æ–­è§¦å‘eptè¿ä¾‹ä¹‹å‰çš„æ¨¡å¼æ˜¯å†…æ ¸è¿˜æ˜¯ç”¨æˆ·æ¨¡å¼
 					kernelmode = hv::get_guest_cpl() == 0;
 
 					unsigned __int64 newRIP = kernelmode ? 0 : eptWatchList[ID].LoopUserMode;
@@ -2744,8 +2745,8 @@ namespace ept
 					if (newRIP)
 					{
 						hooked_page_info->isBp = true;
-						//·µ»Øµ½guestºó½«×èÈûÖĞ¶Ï£¬È·±£ÄÜ³É¹¦Ö´ĞĞÍêGUEST_RIP´¦µÄÖ¸Áî
-						hv::vmwrite(GUEST_INTERRUPTIBILITY_STATE, 1);  //blocking by STI ×èÈû
+						//è¿”å›åˆ°gueståå°†é˜»å¡ä¸­æ–­ï¼Œç¡®ä¿èƒ½æˆåŠŸæ‰§è¡Œå®ŒGUEST_RIPå¤„çš„æŒ‡ä»¤
+						hv::vmwrite(GUEST_INTERRUPTIBILITY_STATE, 1);  //blocking by STI é˜»å¡
 					}
 				}
 			}

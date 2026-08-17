@@ -31,13 +31,13 @@ INLINE Ret CallPtr(PVOID Fn, ArgT... Args) {
 
 //kernel memory utils
 INLINE PVOID KAlloc(ULONG Size, bool exec = true) {
-	PVOID Buff = ImpCall(ExAllocatePool, exec ? NonPagedPool : NonPagedPoolNx, Size);
+	PVOID Buff = ExAllocatePool2(exec ? NonPagedPool : NonPagedPoolNx, Size, 'yc');
 	MemZero(Buff, Size);
 	return Buff;
 }
 
 INLINE void KFree(PVOID Ptr) {
-	ImpCall(ExFreePool, Ptr);
+	ExFreePool(Ptr);
 }
 
 //basic utils
@@ -53,7 +53,7 @@ PUCHAR FindPatternSect2(PVOID ModBase, const char* SectName, const char* Pattern
 
 bool readByte(PVOID addr, UCHAR* ret);
 
-//Õâ¸öº¯ÊýÎÞÄ£¿éÓÐÕ¨ÁÑµÄ¿ÉÄÜ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ÑµÄ¿ï¿½ï¿½ï¿½
 //ALWAYS_INLINE
 PUCHAR FindPatternSect(PVOID ModBase, const char* SectName, const char* Pattern);
 
@@ -65,7 +65,7 @@ NOINLINE PVOID GetProcAdress(PVOID ModBase, const char* Name);
 
 INLINE void Sleep(LONG64 MSec) {
 	LARGE_INTEGER Delay; Delay.QuadPart = -MSec * 10000;
-	ImpCall(KeDelayExecutionThread, KernelMode, false, &Delay);
+	KeDelayExecutionThread(KernelMode, false, &Delay);
 }
 
 //process utils
@@ -73,19 +73,19 @@ INLINE PEPROCESS AttachToProcess(HANDLE PID)
 {
 	//get eprocess
 	PEPROCESS Process = nullptr;
-	if (ImpCall(PsLookupProcessByProcessId, PID, &Process) || !Process)
+	if (PsLookupProcessByProcessId(PID, &Process) || !Process)
 		return nullptr;
 
 	//take process lock
-	if (ImpCall(PsAcquireProcessExitSynchronization, Process))
+	if (PsAcquireProcessExitSynchronization(Process))
 	{
 		//process lock failed
-		ImpCall(ObfDereferenceObject, Process);
+		ObfDereferenceObject(Process);
 		return nullptr;
 	}
 
 	//attach to process
-	ImpCall(KeAttachProcess, Process);
+	KeAttachProcess(Process);
 	return Process;
 }
 
@@ -95,11 +95,11 @@ INLINE void DetachFromProcess(PEPROCESS Process)
 	if (Process != nullptr)
 	{
 		//de-attach to process
-		ImpCall(KeDetachProcess);
+		KeDetachProcess();
 
 		//cleanup & process unlock
-		ImpCall(ObfDereferenceObject, Process);
-		ImpCall(PsReleaseProcessExitSynchronization, Process);
+		ObfDereferenceObject(Process);
+		PsReleaseProcessExitSynchronization(Process);
 	}
 }
 
@@ -113,7 +113,7 @@ INLINE PVOID UAlloc(ULONG Size, ULONG Protect = PAGE_READWRITE, bool load = true
 	PVOID AllocBase = nullptr; SIZE_T SizeUL = SizeAlign(Size);
 #define LOCK_VM_IN_RAM 2
 #define LOCK_VM_IN_WORKING_SET 1
-	if (!ImpCall(ZwAllocateVirtualMemory, ZwCurrentProcess(), &AllocBase, 0, &SizeUL, MEM_COMMIT, Protect)) {
+	if (!ZwAllocateVirtualMemory(ZwCurrentProcess(), &AllocBase, 0, &SizeUL, MEM_COMMIT, Protect)) {
 		//ZwLockVirtualMemory(ZwCurrentProcess(), &AllocBase, &SizeUL, LOCK_VM_IN_WORKING_SET | LOCK_VM_IN_RAM);
 		if (load)
 			MemZero(AllocBase, SizeUL);
@@ -123,7 +123,7 @@ INLINE PVOID UAlloc(ULONG Size, ULONG Protect = PAGE_READWRITE, bool load = true
 
 INLINE void UFree(PVOID Ptr) {
 	SIZE_T SizeUL = 0;
-	ImpCall(ZwFreeVirtualMemory, ZwCurrentProcess(), &Ptr, &SizeUL, MEM_RELEASE);
+	ZwFreeVirtualMemory(ZwCurrentProcess(), &Ptr, &SizeUL, MEM_RELEASE);
 }
 
 //kernel utils
@@ -150,7 +150,7 @@ template<typename ReadType>
 __forceinline ReadType Read(PVOID Addr)
 {
 	ReadType ReadData{};
-	if (Addr && ImpCall(MmIsAddressValid, (PVOID)Addr)) {
+	if (Addr && MmIsAddressValid((PVOID)Addr)) {
 		ReadData = *(ReadType*)Addr;
 	}
 
@@ -159,7 +159,7 @@ __forceinline ReadType Read(PVOID Addr)
 
 __forceinline bool ReadArr(PVOID Addr, PVOID Buff, ULONG Size)
 {
-	if (ImpCall(MmIsAddressValid, (PVOID)Addr)) {
+	if (MmIsAddressValid((PVOID)Addr)) {
 		MemCpy(Buff, (PVOID)Addr, Size);
 		return true;
 	}
@@ -170,13 +170,13 @@ __forceinline bool ReadArr(PVOID Addr, PVOID Buff, ULONG Size)
 template<typename WriteType>
 __forceinline void Write(PVOID Addr, WriteType Data)
 {
-	if (ImpCall(MmIsAddressValid, (PVOID)Addr)) {
+	if (MmIsAddressValid((PVOID)Addr)) {
 		*(WriteType*)Addr = Data;
 	}
 }
 
 __forceinline void WriteArr(PVOID Addr, PVOID Buff, ULONG Size){
-	if (ImpCall(MmIsAddressValid, (PVOID)Addr)) {
+	if (MmIsAddressValid((PVOID)Addr)) {
 		MemCpy((PVOID)Addr, Buff, Size);
 	}
 }
@@ -190,13 +190,13 @@ __forceinline bool WriteProt(PVOID Addr, /*const*/ WriteType/*&*/ Data)
 	//hp(Addr1);
 
 	ULONG oldProt;
-	if (!ImpCall(ZwProtectVirtualMemory, ZwCurrentProcess(), &Addr1, &Size1, PAGE_EXECUTE_READWRITE, &oldProt))
+	if (!ZwProtectVirtualMemory(ZwCurrentProcess(), &Addr1, &Size1, PAGE_EXECUTE_READWRITE, &oldProt))
 	{
 		auto data1 = Data;
 		MemCpy((PVOID)Addr, &data1, sizeof(WriteType));
 
 		//hp(Addr1);
-		ImpCall(ZwProtectVirtualMemory, ZwCurrentProcess(), &Addr1, &Size1, oldProt, &oldProt);
+		ZwProtectVirtualMemory(ZwCurrentProcess(), &Addr1, &Size1, oldProt, &oldProt);
 
 		return true;
 	}
@@ -233,16 +233,16 @@ INLINE BOOL SafeCopy(PVOID dest, PVOID src, SIZE_T size, PEPROCESS Process = NUL
 
 	if (Process == nullptr)
 	{
-		Process = ImpCall(IoGetCurrentProcess);
+		Process = IoGetCurrentProcess();
 	}
 
 	SIZE_T returnSize = 0;
 
 	if (NT_SUCCESS(
-		ImpCall(MmCopyVirtualMemory,
+		MmCopyVirtualMemory(
 			Process,
 			src,
-			ImpCall(IoGetCurrentProcess),
+			IoGetCurrentProcess(),
 			dest, size, KernelMode, &returnSize)
 	))
 	{
@@ -259,13 +259,12 @@ INLINE BOOL SafeCopyRe(PVOID dest, PVOID src, SIZE_T size, PEPROCESS Process)
 {
 	if (Process == nullptr)
 	{
-		Process = ImpCall(IoGetCurrentProcess);
+		Process = IoGetCurrentProcess();
 	}
 	SIZE_T returnSize = 0;
-	if (
-		NT_SUCCESS(
-			ImpCall(MmCopyVirtualMemory, 
-				ImpCall(IoGetCurrentProcess),
+	if (NT_SUCCESS(
+			MmCopyVirtualMemory(
+				IoGetCurrentProcess(),
 				src,
 				Process,
 				dest,  size, KernelMode, &returnSize)
@@ -281,15 +280,15 @@ INLINE BOOL SafeCopyRe(PVOID dest, PVOID src, SIZE_T size, PEPROCESS Process)
 
 //VOID TestFunction()
 //{
-//	ImpCall(DbgPrint, ("===================== \r\n"));
-//	ImpCall(DbgPrint, ("TestFunction \r\n"));
-//	ImpCall(DbgPrint, ("===================== \r\n"));
+//	DbgPrint(("===================== \r\n"));
+//	DbgPrint(("TestFunction \r\n"));
+//	DbgPrint(("===================== \r\n"));
 //}
 
-//(À¶ÆÁÕ¨ÁÑ)
+//(ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½)
 ULONG SearchControlPid();
 
-//(À¶ÆÁ±¬Õ¨)
+//(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨)
 BOOL GiveControlProcessSystemToken();
 
 ULONG GetSystemBuildVersion();
@@ -311,13 +310,13 @@ PVOID FindPatternImage(PCHAR base, PCHAR pattern, PCHAR mask);
 
 INT64 GetPiDDBCacheTableAddr();
 
-//Çå³ýÇý¶¯PiDDBµÄÐÅÏ¢
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PiDDBï¿½ï¿½ï¿½ï¿½Ï¢
 VOID ClearPiDDBCacheTable(PDRIVER_OBJECT pDriverObject);
 
-//Çå³ýÇý¶¯Ð¶ÔØÐÅÏ¢
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Ï¢
 VOID ClearMmUnloaderDriver(PDRIVER_OBJECT pDriverObject);
 
-//Çå³ýÒ»Ð©Çý¶¯¼ÓÔØÐÅÏ¢
+//ï¿½ï¿½ï¿½Ò»Ð©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 VOID ClearDriverInstallMark(PDRIVER_OBJECT pDriverObject);
 
 PVOID GetNtOsKernelBase();

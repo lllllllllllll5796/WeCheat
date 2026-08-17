@@ -43,14 +43,14 @@ bool MakeValid(PVOID addr)
 	auto VirtualQuery = [](PVOID Addr, wdk::MEMORY_BASIC_INFORMATION* MemInfo) {
 		size_t outSz;
 
-		auto ret = !ImpCall(ZwQueryVirtualMemory, (HANDLE)-1, Addr,
+		auto ret = !ZwQueryVirtualMemory((HANDLE)-1, Addr,
 			(::MEMORY_INFORMATION_CLASS)0,
 			MemInfo, sizeof(wdk::MEMORY_BASIC_INFORMATION), &outSz);
 
 		return ret;
 	};
 
-	if (!ImpCall(MmIsAddressValid, addr)) {
+	if (!MmIsAddressValid(addr)) {
 		//SIZE_T RetSize;
 		wdk::MEMORY_BASIC_INFORMATION MemInfo{};
 		if (VirtualQuery((PVOID)addr, &MemInfo))
@@ -63,7 +63,7 @@ bool MakeValid(PVOID addr)
 				//sp("ok!");
 
 				//return 0;
-				return ImpCall(MmIsAddressValid, addr);
+				return MmIsAddressValid(addr);
 			}
 
 			else
@@ -94,7 +94,7 @@ bool FixUserMemory(PVOID ModBase, ULONG RegSize /*= 0*/)
 	ql.MaximumWorkingSetSize = 0x200000000; //8GB
 
 	QUOTA_LIMITS ql2{};
-	ImpCall(ZwQueryInformationProcess, (HANDLE)-1i64, ProcessQuotaLimits, &ql2, sizeof(ql2), NULL);
+	ZwQueryInformationProcess((HANDLE)-1i64, ProcessQuotaLimits, &ql2, sizeof(ql2), NULL);
 
 	//hp(ql2.MinimumWorkingSetSize);
 	//hp(ql2.MaximumWorkingSetSize);
@@ -105,7 +105,7 @@ bool FixUserMemory(PVOID ModBase, ULONG RegSize /*= 0*/)
 	//fix mod pages
 	for (size_t i = 0; i < RegSize; i += PAGE_SIZE) {
 		PVOID v4 = (PVOID)((ULONG64)ModBase + i); size_t v5 = PAGE_SIZE;
-		if (!NT_SUCCESS(ImpCall(ZwLockVirtualMemory, (HANDLE)-1i64, &v4, &v5, LOCK_VM_IN_WORKING_SET | LOCK_VM_IN_RAM)))
+		if (!NT_SUCCESS(ZwLockVirtualMemory((HANDLE)-1i64, &v4, &v5, LOCK_VM_IN_WORKING_SET | LOCK_VM_IN_RAM)))
 			return false;
 	}
 	//sp("ok!");
@@ -259,7 +259,7 @@ PVOID NQSI(SYSTEM_INFORMATION_CLASS Class)
 {
 	ULONG ret_size = 1024 * 1024;
 	PVOID pInfo = KAlloc(ret_size);
-	ImpCall(ZwQuerySystemInformation, Class, pInfo, ret_size, &ret_size);
+	ZwQuerySystemInformation(Class, pInfo, ret_size, &ret_size);
 	return pInfo;
 }
 
@@ -293,7 +293,7 @@ NOINLINE PVOID GetProcAdress(PVOID ModBase, const char* Name)
 
 PVOID GetUserModuleBase(PEPROCESS Process, const char* ModName, ULONG* ModSize /*= 0*/, bool force64 /*= 0*/)
 {
-	PPEB32 pPeb32 = (PPEB32)ImpCall(PsGetProcessWow64Process, Process);
+	PPEB32 pPeb32 = (PPEB32)PsGetProcessWow64Process(Process);
 
 	if (pPeb32 && !force64)
 	{
@@ -319,7 +319,7 @@ PVOID GetUserModuleBase(PEPROCESS Process, const char* ModName, ULONG* ModSize /
 
 	else
 	{
-		PPEB64 PEB = (PPEB64)ImpCall(PsGetProcessPeb, Process);
+		PPEB64 PEB = (PPEB64)PsGetProcessPeb(Process);
 		if (!PEB->Ldr)
 			return nullptr;
 
@@ -346,7 +346,7 @@ PVOID GetUserModuleBase(PEPROCESS Process, const char* ModName, ULONG* ModSize /
 PVOID GetUserModuleBase1(PEPROCESS Process, const char* ModName)
 {
 	//get peb & ldr
-	PPEB64 PEB = (PPEB64)ImpCall(PsGetProcessPeb, Process);
+	PPEB64 PEB = (PPEB64)PsGetProcessPeb(Process);
 
 	if (!PEB || !PEB->Ldr) return nullptr;
 
@@ -368,7 +368,7 @@ DWORD Protect(PVOID addr, DWORD Prot)
 {
 	DWORD oldProt;
 	auto addr2 = addr; SIZE_T SizeUL = 1;
-	ImpCall(ZwProtectVirtualMemory, (HANDLE)-1, &addr2, &SizeUL, Prot, &oldProt);
+	ZwProtectVirtualMemory((HANDLE)-1, &addr2, &SizeUL, Prot, &oldProt);
 	return oldProt;
 }
 
@@ -382,7 +382,7 @@ PEPROCESS GetProcessWModule(const char* ProcName, const char* ModName, PVOID* Wa
 	{
 		//get process name
 		const wchar_t* ProcessName = pInfoCur->ImageName.Buffer;
-		if (ImpCall(MmIsAddressValid, (PVOID)ProcessName))
+		if (MmIsAddressValid((PVOID)ProcessName))
 		{
 			//check process name
 			if (StrICmp(ProcName, ProcessName, true))
@@ -508,47 +508,47 @@ BOOLEAN MemoryMapperReadMemorySafeByPte(PVOID SourceVA, PHYSICAL_ADDRESS PaAddre
 	PAGE_ENTRY OldPageEntry;
 	PPAGE_ENTRY Pte = (PPAGE_ENTRY)PteVaAddress;
 
-	//ÏÂÃæ´úÂëÖ÷ÒªÊÇ°Ñ×Ô¼º½¨Á¢µÄpte¿½±´µ½ PageEntry£¬È»ºó½ÓÏÂÈ¥×Ô¼º¸ÄÊôÐÔ
-	// È»ºó°ÑÒª¶ÁÐ´µÄÄÚ´æµÄÎïÀíµØÖ·µÄPFNÌæ»»µ½ÎÒÃÇ×Ô¼º×÷µÄÒ³±íÉÏÀ´ ½øÐÐÐ´²Ù×÷
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ç°ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pteï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PageEntryï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// È»ï¿½ï¿½ï¿½Òªï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½PFNï¿½æ»»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½
 
 	//
 	// Copy the previous entry into the new entry
 	//
 	PageEntry.Flags = Pte->Flags;
 
-	//±£´æÏÂÀÏµÄÎÒÃÇ×Ô¼ºµÄpteµÄÊôÐÔ£¬Ö®ºó»¹Ô­
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½pteï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½Ö®ï¿½ï¿½Ô­
 	OldPageEntry.Flags = Pte->Flags;
 
 	PageEntry.Present = 1;
 
-	//Ð´Ò²¸ø1
+	//Ð´Ò²ï¿½ï¿½1
 	PageEntry.Write = 1;
 
-	// ÉèÖÃÈ«¾ÖÎ»£¬·ÀÖ¹cr3ÇÐ»»µÄÊ±ºòË¢ÐÂtlb
+	// ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½Ö¹cr3ï¿½Ð»ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ë¢ï¿½ï¿½tlb
 	// Do not flush this page from the TLB on CR3 switch, by setting the
 	// global bit in the PTE.
 	//
 	PageEntry.Global = 1;
 
-	// °ÑÒª¶ÁÐ´µÄÄÚ´æµÄÎïÀíµØÖ·µÄPFNÌæ»»µ½ÎÒÃÇ×Ô¼º×÷µÄÒ³±íÉÏÀ´
+	// ï¿½ï¿½Òªï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½PFNï¿½æ»»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	// Set the PFN of this PTE to that of the provided physical address.
 	//
 	PageEntry.PageFrameNumber = PaAddressToRead.QuadPart >> 12;
 
-	// °ÑÁÙÊ±µÄPageEntryÖØÐÂÐ´µÀÎÒÃÇ×Ô¼º½¨Á¢µÄpteÉÏÈ¥
+	// ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½PageEntryï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pteï¿½ï¿½È¥
 	// Apply the page entry in a single instruction
 	//
 	Pte->Flags = PageEntry.Flags;
 
-	// ¸øÎÒÃÇ×Ô¼º½¨ÔìµÄpteµÄÐéÄâµØÖ·Ë¢ÐÂÏÂ»º´æ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pteï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·Ë¢ï¿½ï¿½ï¿½Â»ï¿½ï¿½ï¿½
 	KernelIntrin__invlpg(Va);
 
 	//
 	// Compute the address
 	//
-	//ÄÃµ½¾ßÌåµÄ offset=pa&0xfff
+	//ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ offset=pa&0xfff
 	unsigned long Offset = PAGE_4KB_OFFSET & PaAddressToRead.QuadPart;
-	//¼ÆËã¶ÔÓ¦µÄvaµØÖ·=va+offset
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½vaï¿½ï¿½Ö·=va+offset
 	NewAddress = (PVOID)((UINT64)Va + Offset);
 
 	//
@@ -557,11 +557,11 @@ BOOLEAN MemoryMapperReadMemorySafeByPte(PVOID SourceVA, PHYSICAL_ADDRESS PaAddre
 	memcpy(SourceVA, NewAddress, SizeToRead);
 
 	//
-	//  ÕâÀï¸Ä³É»¹Ô­Ö®Ç°ÀÏµÄ£¬²»Çå¿Õ
+	//  ï¿½ï¿½ï¿½ï¿½Ä³É»ï¿½Ô­Ö®Ç°ï¿½ÏµÄ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	//
 	Pte->Flags = OldPageEntry.Flags;
 
-	//¼ÇµÃË¢ÐÂ»º´æ
+	//ï¿½Çµï¿½Ë¢ï¿½Â»ï¿½ï¿½ï¿½
 	KernelIntrin__invlpg(Va);
 
 	return TRUE;
@@ -580,7 +580,7 @@ BOOLEAN MemoryMapperWriteMemorySafeByPte(PVOID SourceVA, PHYSICAL_ADDRESS PaAddr
 	//
 	PageEntry.Flags = Pte->Flags;
 
-	//±£´æÏÂÀÏµÄÎÒÃÇ×Ô¼ºµÄpteµÄÊôÐÔ£¬Ö®ºó»¹Ô­
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½pteï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½Ö®ï¿½ï¿½Ô­
 	OldPageEntry.Flags = Pte->Flags;
 
 	PageEntry.Present = 1;
@@ -622,12 +622,12 @@ BOOLEAN MemoryMapperWriteMemorySafeByPte(PVOID SourceVA, PHYSICAL_ADDRESS PaAddr
 	memcpy(NewAddress, SourceVA, SizeToWrite);
 
 	//
-	//  ÕâÀï¸Ä³É»¹Ô­Ö®Ç°ÀÏµÄ£¬²»Çå¿Õ
+	//  ï¿½ï¿½ï¿½ï¿½Ä³É»ï¿½Ô­Ö®Ç°ï¿½ÏµÄ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	//
 	Pte->Flags = OldPageEntry.Flags;
 
 
-	//¼ÇµÃË¢ÐÂ»º´æ
+	//ï¿½Çµï¿½Ë¢ï¿½Â»ï¿½ï¿½ï¿½
 	KernelIntrin__invlpg(Va);
 
 	return TRUE;
@@ -647,7 +647,7 @@ PACCESS_TOKEN GetProceesTokenAddress(ULONG_PTR Address)
 	ULONG_PTR Value = 0;
 	//const ULONG_PTR Value = *reinterpret_cast<ULONG_PTR *>(Address);
 
-	if (ImpCall(MmIsAddressValid, (PVOID)Address))
+	if (MmIsAddressValid((PVOID)Address))
 	{
 		SafeCopy(&Value, (PVOID)Address, sizeof(Value), NULL);
 
@@ -664,11 +664,11 @@ ULONG SearchControlPid()
 	PEPROCESS PrivageProcess = NULL;
 	while (pid < 0xFFFFFF)
 	{
-		if (NT_SUCCESS(ImpCall(PsLookupProcessByProcessId, (HANDLE)pid, &PrivageProcess)))
+		if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)pid, &PrivageProcess)))
 		{
 			g_ControlProcess = PrivageProcess;
 
-			PPEB64 ControlPeb = (PPEB64)ImpCall(PsGetProcessPeb, PrivageProcess);
+			PPEB64 ControlPeb = (PPEB64)PsGetProcessPeb(PrivageProcess);
 			PVOID TargetAddress = (PVOID)((ULONG64)ControlPeb + 0x4);
 
 			if (TargetAddress && SafeCopy(&MagicCode, TargetAddress, 4, PrivageProcess))
@@ -676,15 +676,14 @@ ULONG SearchControlPid()
 				/*ULONG64 FunctionAddr = (ULONG64)TestFunction;
 				ULONG64 ControlProcessAddress = 0;
 				SafeCopy(&ControlProcessAddress, (PVOID)((ULONG64)ControlPeb + 0x6F8), 8, PrivageProcess);
-				ImpCall(DbgPrint, "ControlProcessAddress: 0x%llX \r\n", ControlProcessAddress);
+				DbgPrint("ControlProcessAddress: 0x%llX \r\n", ControlProcessAddress);
 				SafeCopyRe((PVOID)ControlProcessAddress, &FunctionAddr, 8, PrivageProcess);*/
 				if (MagicCode == (uint32_t)(0xDEADDEAD))
 				{
 					ULONG Buffer = 0;
 					SIZE_T numberOfBytesWritten = 0;
 
-					ImpCall(MmCopyVirtualMemory,
-						ImpCall(IoGetCurrentProcess),
+					MmCopyVirtualMemory(IoGetCurrentProcess(),
 						&Buffer,
 						PrivageProcess,
 						TargetAddress,
@@ -693,13 +692,13 @@ ULONG SearchControlPid()
 						&numberOfBytesWritten
 					);
 
-					ImpCall(ObfDereferenceObject, PrivageProcess);
-					//LOG_DEBUG("½ø³ÌÌáÈ¨ PID:%d\r\n", pid);
+					ObfDereferenceObject(PrivageProcess);
+					//LOG_DEBUG("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ PID:%d\r\n", pid);
 					return pid;
 				}
 			}
 
-			ImpCall(ObfDereferenceObject, PrivageProcess);
+			ObfDereferenceObject(PrivageProcess);
 		}
 
 		pid += 4;
@@ -717,19 +716,19 @@ BOOL GiveControlProcessSystemToken()
 
 	if (ProcessID > 0)
 	{
-		if (NT_SUCCESS(ImpCall(PsLookupProcessByProcessId, (HANDLE)ProcessID, &PrivageProcess)))
+		if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)ProcessID, &PrivageProcess)))
 		{
 			g_ControlProcess = PrivageProcess;
 
-			//LOG_DEBUG("ÕÒµ½Í¨ÐÅ½ø³Ì PID:%d\r\n", ProcessID);
+			//LOG_DEBUG("ï¿½Òµï¿½Í¨ï¿½Å½ï¿½ï¿½ï¿½ PID:%d\r\n", ProcessID);
 
-			PACCESS_TOKEN PrivageToken = ImpCall(PsReferencePrimaryToken, PrivageProcess);
-			PACCESS_TOKEN SystemToken = ImpCall(PsReferencePrimaryToken, (PEPROCESS)(/**(ULONG64*)*/PsInitialSystemProcessFn));
+			PACCESS_TOKEN PrivageToken = PsReferencePrimaryToken(PrivageProcess);
+			PACCESS_TOKEN SystemToken = PsReferencePrimaryToken((PEPROCESS)(PsInitialSystemProcess));
 
 			if (PrivageToken && SystemToken)
 			{
 				ULONG uSize = sizeof(PVOID) * 0xB0;
-				//(À¶ÆÁ±¬Õ¨)
+				//(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨)
 				for (ULONG Offset = 0ul; Offset < uSize; Offset += sizeof(PVOID))
 				{
 					// Is this address stores token?
@@ -746,7 +745,7 @@ BOOL GiveControlProcessSystemToken()
 									// Found the field, replace the contents with the SYSTEM token
 									auto TokenAddress = reinterpret_cast<PACCESS_TOKEN*>(TestAddress);
 									//*TokenAddress = SystemToken;
-									if (ImpCall(MmIsAddressValid, (PVOID)TokenAddress) && ImpCall(MmIsAddressValid,(PVOID)SystemToken))
+									if (MmIsAddressValid((PVOID)TokenAddress) && MmIsAddressValid((PVOID)SystemToken))
 									{
 										SafeCopy((PVOID)TokenAddress, (PVOID)&SystemToken, sizeof(SystemToken), NULL);
 										SuccessLoaded = TRUE;
@@ -758,11 +757,11 @@ BOOL GiveControlProcessSystemToken()
 					}
 				}
 
-				ImpCall(PsDereferencePrimaryToken, PrivageToken);
-				ImpCall(PsDereferencePrimaryToken, SystemToken);
+				PsDereferencePrimaryToken( PrivageToken);
+				PsDereferencePrimaryToken( SystemToken);
 			}
 
-			ImpCall(ObfDereferenceObject, PrivageProcess);
+			ObfDereferenceObject(PrivageProcess);
 		}
 	}
 
@@ -774,7 +773,7 @@ ULONG GetSystemBuildVersion()
 	NTSTATUS status = STATUS_SUCCESS;
 	RTL_OSVERSIONINFOW  version;
 
-	status = ImpCall(RtlGetVersion, &version);
+	status = RtlGetVersion(&version);
 	if (status != STATUS_SUCCESS)
 	{
 		return 0;
@@ -898,9 +897,9 @@ Exit:
 PLDR_DATA_TABLE_ENTRY GetModuleByName(PEPROCESS process, PWCHAR moduleName)
 {
 	UNICODE_STRING moduleNameStr = { 0 };
-	ImpCall(RtlInitUnicodeString, &moduleNameStr, moduleName);
+	RtlInitUnicodeString(&moduleNameStr, moduleName);
 
-	PPEB64 PEB = (PPEB64)ImpCall(PsGetProcessPeb, process);
+	PPEB64 PEB = (PPEB64)PsGetProcessPeb(process);
 
 	PLIST_ENTRY64 list = (PLIST_ENTRY64)(&(((PPEB_LDR_DATA64)(PEB->Ldr)))->InLoadOrderModuleList);
 
@@ -908,7 +907,7 @@ PLDR_DATA_TABLE_ENTRY GetModuleByName(PEPROCESS process, PWCHAR moduleName)
 	{
 		PLDR_DATA_TABLE_ENTRY64 module = (PLDR_DATA_TABLE_ENTRY64)CONTAINING_RECORD(entry, LDR_DATA_TABLE_ENTRY64, InLoadOrderLinks);
 
-		if (ImpCall(RtlCompareUnicodeString, (PCUNICODE_STRING)(&module->BaseDllName), &moduleNameStr, TRUE) == 0)
+		if (RtlCompareUnicodeString((PCUNICODE_STRING)(&module->BaseDllName), &moduleNameStr, TRUE) == 0)
 		{
 			return module;
 		}
@@ -925,13 +924,13 @@ NTSTATUS RtlSuperCopyMemory(_In_ VOID UNALIGNED* Destination, _In_ VOID UNALIGNE
 	KIRQL oldIrql;
 	KeRaiseIrql(DISPATCH_LEVEL, &oldIrql);
 
-	PMDL mdl = ImpCall(IoAllocateMdl, (PVOID)Destination, Length, FALSE, FALSE, nullptr);
+	PMDL mdl = IoAllocateMdl((PVOID)Destination, Length, FALSE, FALSE, nullptr);
 	if (mdl == nullptr) {
 		KeLowerIrql(oldIrql);
 		return STATUS_NO_MEMORY;
 	}
 
-	ImpCall(MmBuildMdlForNonPagedPool, mdl);
+	MmBuildMdlForNonPagedPool(mdl);
 	// Hack: prevent bugcheck from Driver Verifier and possible future version of Windows
 #pragma prefast(push)
 	// Disables the warnings specified in a given warning list.
@@ -941,21 +940,21 @@ NTSTATUS RtlSuperCopyMemory(_In_ VOID UNALIGNED* Destination, _In_ VOID UNALIGNE
 	mdl->MdlFlags &= ~MDL_SOURCE_IS_NONPAGED_POOL;
 
 	// Map pages and do the copy
-	PVOID mapped = ImpCall(MmMapLockedPagesSpecifyCache, mdl, KernelMode, MmCached, nullptr, FALSE, HighPagePriority);
+	PVOID mapped = MmMapLockedPagesSpecifyCache(mdl, KernelMode, MmCached, nullptr, FALSE, HighPagePriority);
 	if (mapped == nullptr) {
 		mdl->MdlFlags = flags;
-		ImpCall(IoFreeMdl, mdl);
+		IoFreeMdl(mdl);
 		KeLowerIrql(oldIrql);
 		return STATUS_NONE_MAPPED;
 	}
 
 	RtlCopyMemory(mapped, (const void*)Source, Length);
 
-	ImpCall(MmUnmapLockedPages, mapped, mdl);
+	MmUnmapLockedPages(mapped, mdl);
 	mdl->MdlFlags = flags;
 #pragma prefast(pop)
 
-	ImpCall(IoFreeMdl, mdl);
+	IoFreeMdl(mdl);
 	KeLowerIrql(oldIrql);
 
 	return STATUS_SUCCESS;
@@ -970,18 +969,18 @@ VOID GetSystemModuleBase(CHAR* ModuleName, ULONG64* pModuleBase, ULONG* pBufferS
 	wdk::PRTL_PROCESS_MODULES v_modules;
 	do
 	{
-		pBuffer = ImpCall(ExAllocatePool, PagedPool, BufferSize);
+		pBuffer = ExAllocatePool(PagedPool, BufferSize);
 		if (pBuffer == nullptr)
 			return;
-		v_ret_status = ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, pBuffer, BufferSize, &NeedSize);
+		v_ret_status = ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, pBuffer, BufferSize, &NeedSize);
 		if (v_ret_status == STATUS_INFO_LENGTH_MISMATCH)
 		{
-			ImpCall(ExFreePool, pBuffer);
+			ExFreePool(pBuffer);
 			BufferSize *= 2;
 		}
 		else if (!NT_SUCCESS(v_ret_status))
 		{
-			ImpCall(ExFreePool, pBuffer);
+			ExFreePool(pBuffer);
 			return;
 		}
 	} while (v_ret_status == STATUS_INFO_LENGTH_MISMATCH);
@@ -1003,7 +1002,7 @@ VOID GetSystemModuleBase(CHAR* ModuleName, ULONG64* pModuleBase, ULONG* pBufferS
 		}
 	}
 exit_sub:
-	ImpCall(ExFreePool, pBuffer);
+	ExFreePool(pBuffer);
 }
 
 BOOLEAN CheckMask(PCHAR base, PCHAR pattern, PCHAR mask)
@@ -1062,11 +1061,11 @@ PVOID GetNtOsKernelBase()
 	UNICODE_STRING apiname = { 0 };
 	PVOID apiaddr = NULL;
 
-	ImpCall(RtlInitUnicodeString, &apiname, oxorany(L"NtCreateFile"));
+	RtlInitUnicodeString(&apiname, oxorany(L"NtCreateFile"));
 
-	apiaddr = ImpCall(MmGetSystemRoutineAddress, &apiname);
+	apiaddr = MmGetSystemRoutineAddress(&apiname);
 
-	ImpCall(RtlPcToFileHeader, (PVOID)apiaddr, &pret);
+	RtlPcToFileHeader((PVOID)apiaddr, &pret);
 
 	return pret;
 }
@@ -1123,13 +1122,13 @@ VOID ClearPiDDBCacheTable(PDRIVER_OBJECT pDriverObject)
 	TimeDateStamp = g_pNTHeader->FileHeader.TimeDateStamp;
 
 	PRTL_AVL_TABLE table = (PRTL_AVL_TABLE)GetPiDDBCacheTableAddr();
-	if (!table || !ImpCall(MmIsAddressValid, table) || !ImpCall(MmIsAddressValid, &table->BalancedRoot))
+	if (!table || !MmIsAddressValid(table) || !MmIsAddressValid(&table->BalancedRoot))
 	{
 		return;
 	}
 
 	PPiDDBCacheEntry PPiDDCacheEntryRoot = (PPiDDBCacheEntry)((ULONG64)(table->BalancedRoot.RightChild) + sizeof(RTL_BALANCED_LINKS));
-	if (!PPiDDCacheEntryRoot || !ImpCall(MmIsAddressValid, PPiDDCacheEntryRoot))
+	if (!PPiDDCacheEntryRoot || !MmIsAddressValid(PPiDDCacheEntryRoot))
 	{
 		return;
 	}
@@ -1138,12 +1137,12 @@ VOID ClearPiDDBCacheTable(PDRIVER_OBJECT pDriverObject)
 	{
 		PPiDDBCacheEntry PPiDDCacheEntry = (PPiDDBCacheEntry)(link);
 
-		if (!PPiDDCacheEntry || !ImpCall(MmIsAddressValid, PPiDDCacheEntry))
+		if (!PPiDDCacheEntry || !MmIsAddressValid(PPiDDCacheEntry))
 		{
 			continue;
 		}
 
-		if (!ImpCall(MmIsAddressValid, &PPiDDCacheEntry->DriverName) || !ImpCall(MmIsAddressValid, PPiDDCacheEntry->DriverName.Buffer))
+		if (!MmIsAddressValid(&PPiDDCacheEntry->DriverName) || !MmIsAddressValid(PPiDDCacheEntry->DriverName.Buffer))
 		{
 			continue;
 		}
@@ -1153,11 +1152,11 @@ VOID ClearPiDDBCacheTable(PDRIVER_OBJECT pDriverObject)
 			continue;
 		}
 
-		PPiDDBCacheEntry FindTable = (PPiDDBCacheEntry)ImpCall(RtlLookupElementGenericTableAvl, table, PPiDDCacheEntry);
+		PPiDDBCacheEntry FindTable = (PPiDDBCacheEntry)RtlLookupElementGenericTableAvl(table, PPiDDCacheEntry);
 		if (!FindTable) return;
 
 		RemoveEntryList(&FindTable->List);
-		ImpCall(RtlDeleteElementGenericTableAvl, table, FindTable);
+		RtlDeleteElementGenericTableAvl(table, FindTable);
 		//LOG_DEBUG("RtlDeleteElementGenericTableAvl %wZ\n", FindTable->DriverName);
 		break;
 	}
@@ -1166,9 +1165,9 @@ VOID ClearPiDDBCacheTable(PDRIVER_OBJECT pDriverObject)
 VOID ClearMmUnloaderDriver(PDRIVER_OBJECT pDriverObject)
 {
 	/*
-	MiRememberUnloadedDriverÖÐ»áÑéÖ¤Õâ¸öBaseDllNameµÄ³¤¶È
-	Èç¹ûÎª0£¬ÄÇÃ´¸ù±¾¾Í²»»áÌí¼Óµ½MmUnloaderDriverÀïÃæÈ¥
-	´ËÎª×î¼òµ¥µÄÏû³ý°ì·¨
+	MiRememberUnloadedDriverï¿½Ð»ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½BaseDllNameï¿½Ä³ï¿½ï¿½ï¿½
+	ï¿½ï¿½ï¿½Îª0ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½MmUnloaderDriverï¿½ï¿½ï¿½ï¿½È¥
+	ï¿½ï¿½Îªï¿½ï¿½òµ¥µï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì·¨
 	*/
 	((wdk::PLDR_DATA_TABLE_ENTRY)(pDriverObject->DriverSection))->BaseDllName.Length = 0;
 }

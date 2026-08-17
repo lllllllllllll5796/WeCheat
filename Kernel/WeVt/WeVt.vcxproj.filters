@@ -52,6 +52,15 @@
     <ClCompile Include="WeVt.vmcs.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WeVt.vmexit_handler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.invalid_vpid.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeVt.vmcall_handler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WeVt.pch.h">
@@ -131,6 +140,24 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WeVt.segment.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.invalid_vpid.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmcall_handler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmcall_reason.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.vmx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.invalid_pcid.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeVt.AllocateMem.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,7 +11,7 @@ KernelStlRaiseException(ULONG bug_check_code)
 	KdBreakPoint();
 #pragma warning(push)
 #pragma warning(disable : 28159)
-	ImpCall(KeBugCheck,bug_check_code);
+	KeBugCheck(bug_check_code);
 #pragma warning(pop)
 }
 
@@ -22,7 +22,7 @@ DECLSPEC_NORETURN void __cdecl _invalid_parameter_noinfo_noreturn()
 
 namespace std
 {
-	// VS2019需要加
+	// VS2019锟斤拷要锟斤拷
 	//https://bbs.kanxue.com/thread-263906.htm
 	_CRTIMP2_PURE_IMPORT _Prhand _Raise_handler;
 
@@ -151,7 +151,7 @@ operator delete[](_In_ void* p, size_t size)
 	}
 }
 
-// lua 需要的(其实是eastl)
+// lua 锟斤拷要锟斤拷(锟斤拷实锟斤拷eastl)
 void* operator new[](size_t size, const char*, int, unsigned, const char*, int)
 {
 	return malloc(size);

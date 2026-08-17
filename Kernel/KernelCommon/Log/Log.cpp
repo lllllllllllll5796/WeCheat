@@ -33,7 +33,7 @@
  * @date 8/30/2018
  */
 #include "KernelCommon.pch.h"
-#if defined(ENABLE_LOG)
+#if (ENABLE_LOG)
 
 #include "Log.h"
 //#include "ntapi.h"

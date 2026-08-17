@@ -64,60 +64,20 @@ NTSTATUS MapSelf(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryString)
 
 	g_KernelBase = (PVOID)KernelBase;
 
-	ImpSet(DbgPrint);
-	ImpSet(DbgPrintEx);
-
-	ImpSet(ExAllocatePool);
-	ImpSet(ExAllocatePoolWithTag);
-	ImpSet(ExFreePoolWithTag);
-	ImpSet(ExFreePool);
-
-	ImpSet(IoGetCurrentProcess);
-
-	ImpSet(MmGetVirtualForPhysical);
-	ImpSet(MmIsAddressValid);
-	ImpSet(MmCopyVirtualMemory);
-
-	ImpSet(ObfDereferenceObject);
-
-	ImpSet(PsLookupProcessByProcessId);
-	ImpSet(PsReferencePrimaryToken);
-	ImpSet(PsDereferencePrimaryToken);
-	ImpSet(PsInitialSystemProcess);
-	ImpSet(PsGetProcessPeb);
-
-	ImpSet(MmGetSystemRoutineAddress);
-								 
-	ImpSet(RtlLookupElementGenericTableAvl);
-	ImpSet(RtlDeleteElementGenericTableAvl);
-	ImpSet(RtlGetVersion);
-	ImpSet(RtlInitUnicodeString);
-	ImpSet(RtlPcToFileHeader);
-
-	ImpSet(ZwCreateFile);
-	ImpSet(ZwQueryInformationFile);
-	ImpSet(ZwReadFile);
-	ImpSet(ZwClose);
-	ImpSet(ZwOpenFile);
-	ImpSet(ZwCreateSection);
-	ImpSet(ZwMapViewOfSection);
-	ImpSet(ZwQuerySystemInformation);
-	ImpSet(ZwQueryVirtualMemory);
-
-
+	
 	PVOID BaseAddr = NULL;
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 
 	PVOID JmpRdiAddress = FindPatternSect(g_KernelBase, oxorany(".text"), oxorany("FF 27"));
 	if (JmpRdiAddress == nullptr)
 	{
-		ImpCall(DbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("Not Found JmpRdiAddress\n"));
+		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("Not Found JmpRdiAddress\n"));
 		return STATUS_NOT_SUPPORTED;
 	}
 
-	//ImpCall(DbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "Ìø°åµØÖ·:0x%p\n", JmpRdiAddress);
+	//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ï¿½ï¿½ï¿½ï¿½ï¿½Ö·:0x%p\n", JmpRdiAddress);
 
-	SetFuckStackStub(JmpRdiAddress);  //µÚÒ»Ê±¼äÉèÖÃÕâ¸öÌø°å
+	SetFuckStackStub(JmpRdiAddress);  //ï¿½ï¿½Ò»Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	BaseAddr = DumpDriverToMemory(pDriverObject);
 	if (BaseAddr == NULL) {
@@ -130,14 +90,14 @@ NTSTATUS MapSelf(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryString)
 
 	if (BaseAddr == NULL)
 	{
-		ImpCall(DbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("MapDriver Failed BaseAddr = %p\n"), BaseAddr);
+		DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("MapDriver Failed BaseAddr = %p\n"), BaseAddr);
 		return status;
 	}
 
-	//ImpCall(DbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "EntryPoint = %p\n", BaseAddr);
+	//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "EntryPoint = %p\n", BaseAddr);
 
 
-	//ÒÔ´ËÎª±ê¼Ç£¬Èç¹ûlengthÎª0£¬´ú±í´ËÇý¶¯ÒÑ±»¼ÓÔØ¹ý
+	//ï¿½Ô´ï¿½Îªï¿½ï¿½Ç£ï¿½ï¿½ï¿½ï¿½lengthÎª0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ±ï¿½ï¿½ï¿½ï¿½Ø¹ï¿½
 	pRegistryString->Length = 0;
 
 
@@ -146,7 +106,7 @@ NTSTATUS MapSelf(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryString)
 
 	MyEntry = (MyDriverEntry)BaseAddr;
 
-	//ImpCall(DbgPrintEx, DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "µ÷ÓÃ MyEntry = %p\n", MyEntry);
+	//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "ï¿½ï¿½ï¿½ï¿½ MyEntry = %p\n", MyEntry);
 
 	status = MyEntry(pDriverObject, pRegistryString);
 
@@ -164,10 +124,10 @@ HANDLE KLoadLibrary(const wchar_t* full_dll_path)
 	IO_STATUS_BLOCK iosb;
 
 
-	ImpCall(RtlInitUnicodeString, &dllName, full_dll_path);
+	RtlInitUnicodeString(&dllName, full_dll_path);
 
 	//_asm int 3;
-	stat = ImpCall(ZwOpenFile, &hFile, FILE_EXECUTE | SYNCHRONIZE, &oa, &iosb, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT);
+	stat = ZwOpenFile(&hFile, FILE_EXECUTE | SYNCHRONIZE, &oa, &iosb, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT);
 
 	if (!NT_SUCCESS(stat)) {
 		return 0;
@@ -175,13 +135,13 @@ HANDLE KLoadLibrary(const wchar_t* full_dll_path)
 
 	oa.ObjectName = 0;
 
-	stat = ImpCall(ZwCreateSection, &hSection, SECTION_ALL_ACCESS, &oa, 0, PAGE_EXECUTE, 0x1000000, hFile);
+	stat = ZwCreateSection(&hSection, SECTION_ALL_ACCESS, &oa, 0, PAGE_EXECUTE, 0x1000000, hFile);
 
 	if (!NT_SUCCESS(stat)) {
 		return 0;
 	}
 
-	stat = ImpCall(ZwMapViewOfSection, hSection, NtCurrentProcess(), &BaseAddress, 0, 1000, 0,
+	stat = ZwMapViewOfSection(hSection, NtCurrentProcess(), &BaseAddress, 0, 1000, 0,
 		&size, (SECTION_INHERIT)1, MEM_TOP_DOWN, PAGE_READWRITE);
 
 
@@ -190,8 +150,8 @@ HANDLE KLoadLibrary(const wchar_t* full_dll_path)
 	}
 
 
-	ImpCall(ZwClose, hSection);
-	ImpCall(ZwClose, hFile);
+	ZwClose(hSection);
+	ZwClose(hFile);
 
 	return BaseAddress;
 }
@@ -208,30 +168,30 @@ PVOID DumpDriverToMemory(PDRIVER_OBJECT pDriverObject)
 	PIMAGE_OPTIONAL_HEADER pOptionalHeader = (PIMAGE_OPTIONAL_HEADER)((INT64)pNtHeader + sizeof(IMAGE_FILE_HEADER));
 	PIMAGE_SECTION_HEADER pSectionGroup = (PIMAGE_SECTION_HEADER)((PCHAR)pNtHeader + sizeof(IMAGE_NT_HEADERS));
 
-	//1¡¢»ñÈ¡NewFileBufferµÄÄÚ´æ´óÐ¡
-	NewFileBufferSize += pOptionalHeader->SizeOfHeaders;//PEÍ·´óÐ¡
+	//1ï¿½ï¿½ï¿½ï¿½È¡NewFileBufferï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ð¡
+	NewFileBufferSize += pOptionalHeader->SizeOfHeaders;//PEÍ·ï¿½ï¿½Ð¡
 	for (int i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++)
 	{
-		NewFileBufferSize += pSectionGroup[i].SizeOfRawData;//½ÚÇø´óÐ¡
+		NewFileBufferSize += pSectionGroup[i].SizeOfRawData;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡
 	}
 
-	//2¡¢ÎªpNewFileBuffer·ÖÅäÄÚ´æ¿Õ¼ä
-	pNewFileBuffer = ImpCall(ExAllocatePool, NonPagedPoolNx, NewFileBufferSize);//ImpCall(ExAllocatePool, NonPagedPool, NewFileBufferSize);
+	//2ï¿½ï¿½ÎªpNewFileBufferï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Õ¼ï¿½
+	pNewFileBuffer = ExAllocatePool(NonPagedPoolNx, NewFileBufferSize);//ExAllocatePool(NonPagedPool, NewFileBufferSize);
 	if (pNewFileBuffer == NULL)
 	{
 		pNewFileBuffer = NULL;
 		NewFileBufferSize = 0;
-		//ImpCall(KeAttachProcess, NULL);
+		//KeAttachProcess(NULL);
 		//DbgPrint("Too Long CanNot Allocate 0x%lX\r\n", NewFileBufferSize);
 		return 0;
 	}
 	MemZero(pNewFileBuffer, NewFileBufferSize);
 
-	//3¡¢½«ImageBufferµÄÊý¾Ý¿½±´µ½NewFileBufferÖÐ
-	//		ÎÄ¼þÍ·Ö±½Ó¿½±´
+	//3ï¿½ï¿½ï¿½ï¿½ImageBufferï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½NewFileBufferï¿½ï¿½
+	//		ï¿½Ä¼ï¿½Í·Ö±ï¿½Ó¿ï¿½ï¿½ï¿½
 	MemCpy(pNewFileBuffer, (PVOID)BaseAddr, pOptionalHeader->SizeOfHeaders);
 
-	//		½ÚÇøÑ­»·¿½±´
+	//		ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for (int i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++)
 	{
 		MemCpy((PVOID)((INT64)pNewFileBuffer + pSectionGroup[i].PointerToRawData),
@@ -252,19 +212,18 @@ PVOID LoadFileToMemory(PWCHAR FullPath, PSIZE_T psBufferLength)
 	FILE_STANDARD_INFORMATION fsi = { 0 };
 
 
-	ImpCall(RtlInitUnicodeString, &UstrDllPath, FullPath);
+	RtlInitUnicodeString(&UstrDllPath, FullPath);
 
-	//²ÎÊýÐ£Ñé
+	//ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½
 	if (psBufferLength == NULL)
 	{
 		//KdPrint(("%s %d: Parameter error\n", __FUNCTION__, __LINE__));
 		goto End;
 	}
 
-	//´ò¿ªÎÄ¼þ
+	//ï¿½ï¿½ï¿½Ä¼ï¿½
 	InitializeObjectAttributes(&objectAttributes, &UstrDllPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 0, 0);
-	ntStatus = ImpCall(ZwCreateFile,
-		&hFile,
+	ntStatus = ZwCreateFile(&hFile,
 		GENERIC_READ,
 		&objectAttributes,
 		&ioStatusBlock,
@@ -282,9 +241,8 @@ PVOID LoadFileToMemory(PWCHAR FullPath, PSIZE_T psBufferLength)
 		goto End;
 	}
 
-	//»ñÈ¡ÎÄ¼þ´óÐ¡*psBufferLength
-	ntStatus = ImpCall(ZwQueryInformationFile,
-		hFile,
+	//ï¿½ï¿½È¡ï¿½Ä¼ï¿½ï¿½ï¿½Ð¡*psBufferLength
+	ntStatus = ZwQueryInformationFile(hFile,
 		&ioStatusBlock,
 		&fsi,
 		sizeof(FILE_STANDARD_INFORMATION),
@@ -297,18 +255,17 @@ PVOID LoadFileToMemory(PWCHAR FullPath, PSIZE_T psBufferLength)
 	}
 	*psBufferLength = (SIZE_T)fsi.EndOfFile.QuadPart;
 
-	//·ÖÅäÄÚ´æ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
 
-	pBuffer = ImpCall(ExAllocatePool, NonPagedPool, *psBufferLength);//ImpCall(ExAllocatePool, NonPagedPool, *psBufferLength);
+	pBuffer = ExAllocatePool(NonPagedPool, *psBufferLength);//ExAllocatePool(NonPagedPool, *psBufferLength);
 	if (pBuffer == NULL)
 	{
 		//KdPrint(("%s %d: ExAllocatePool failed\n", __FUNCTION__, __LINE__));
 		goto End;
 	}
 
-	//½«ÎÄ¼þ¶ÁÈëÄÚ´æ
-	ntStatus = ImpCall(ZwReadFile,
-		hFile,
+	//ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
+	ntStatus = ZwReadFile(hFile,
 		NULL,
 		NULL,
 		NULL,
@@ -321,15 +278,15 @@ PVOID LoadFileToMemory(PWCHAR FullPath, PSIZE_T psBufferLength)
 	if (!NT_SUCCESS(ntStatus))
 	{
 		//KdPrint(("%s %d: ZwReadFile failed 0x%x\n", __FUNCTION__, __LINE__, ntStatus));
-		ImpCall(ExFreePoolWithTag, pBuffer, 'skvp');
+		ExFreePoolWithTag(pBuffer, 'skvp');
 		goto End;
 	}
 
 End:
-	//¹Ø±ÕÎÄ¼þ¾ä±ú
+	//ï¿½Ø±ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
 	if (hFile != NULL)
 	{
-		ImpCall(ZwClose, hFile);
+		ZwClose(hFile);
 	}
 
 	return pBuffer;
@@ -350,7 +307,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 
 		//size_t BinaryImageSize = ntHd.OptionalHeader.SizeOfImage;
 		//bool IsRelocatable = (ntHd.OptionalHeader.DllCharacteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE);
-		//LOG_DEBUG("ÎÄ¼þ´óÐ¡:%d IsRelocatable:%d\r\n", BinaryImageSize, IsRelocatable);
+		//LOG_DEBUG("ï¿½Ä¼ï¿½ï¿½ï¿½Ð¡:%d IsRelocatable:%d\r\n", BinaryImageSize, IsRelocatable);
 
 		//------------------------------------------------
 
@@ -363,40 +320,40 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 
 	//===============================
 	//===============================
-	//·ÖÅä·Ç·ÖÒ³ÄÚ´æ
+	//ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Ò³ï¿½Ú´ï¿½
 	//===============================
 	//===============================
 
 	//pMemory = KLoadLibrary(L"\\DosDevices\\C:\\Users\\Administrator\\Desktop\\JackRead.sys");
 
-	//³¢ÊÔÐÔ¶ÁÄÚ´æ£¬ÈÃËû¼ÓÔØµ½ÄÚ´æÉÏ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½Ú´æ£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½Ú´ï¿½ï¿½ï¿½
 	/*__try {
 		RtlCopyMemory(pBuffer, pMemory, 0x5000);
 	}
 	__except(1){
 	}*/
 
-	// ÕâÀïÓÐÐ©ÏµÍ³»á³öÏÖÅ¼¶û·ÖÅä²»µ½µÄÇé¿ö £¬ÕâÀïÎÒÃÇ¸øËû2´Î»ú»á
-	pMemory = GetMmAllocateIndependentPages(tSize);//ImpCall(ExAllocatePoolWithTag, NonPagedPool, tSize, 'skvp');//ImpCall(ExAllocatePool, NonPagedPool, tSize);//utils::GetMmAllocateIndependentPages(tSize); //ExAllocatePool(NonPagedPool, tSize);
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½Å¼ï¿½ï¿½ï¿½ï¿½ï¿½ä²»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½2ï¿½Î»ï¿½ï¿½ï¿½
+	pMemory = GetMmAllocateIndependentPages(tSize);//ExAllocatePoolWithTag(NonPagedPool, tSize, 'skvp');//ExAllocatePool(NonPagedPool, tSize);//utils::GetMmAllocateIndependentPages(tSize); //ExAllocatePool(NonPagedPool, tSize);
 	if (pMemory == NULL)
 	{
 		pMemory = GetMmAllocateIndependentPages(tSize);
 	}
-	// ÄÇ¾Í¹Òµô°É
+	// ï¿½Ç¾Í¹Òµï¿½ï¿½ï¿½
 	if (pMemory == NULL) {
 		//KdPrint(("AllocNonPagedPool failed..\n"));
 		return NULL;
 	}
-	// ×ÔÓ³Éä³õÊ¼»¯
+	// ï¿½ï¿½Ó³ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 	InitializePteBase(__readcr3());
-	//ImpCall(DbgPrint, "===================== \r\n");
-	//ImpCall(DbgPrint, "g_pxe_base: 0x%llX \r\n", g_pxe_base);
-	//ImpCall(DbgPrint, "g_ppe_base: 0x%llX \r\n", g_ppe_base);
-	//ImpCall(DbgPrint, "g_pde_base: 0x%llX \r\n", g_pde_base);
-	//ImpCall(DbgPrint, "g_pte_base: 0x%llX \r\n", g_pte_base);
-	//ImpCall(DbgPrint, "===================== \r\n");
+	//DbgPrint("===================== \r\n");
+	//DbgPrint("g_pxe_base: 0x%llX \r\n", g_pxe_base);
+	//DbgPrint("g_ppe_base: 0x%llX \r\n", g_ppe_base);
+	//DbgPrint("g_pde_base: 0x%llX \r\n", g_pde_base);
+	//DbgPrint("g_pte_base: 0x%llX \r\n", g_pte_base);
+	//DbgPrint("===================== \r\n");
 
-	// ÕâÀïÎÒÃÇ¸ø¿ÉÖ´ÐÐÈ¨ÏÞ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½Ö´ï¿½ï¿½È¨ï¿½ï¿½
 	SetMemoryExecute((ULONG64)pMemory, tSize);
 
 	//LOG_DEBUG("DriverWorking: 0x%llX size: 0x%llX\r\n", pMemory, tSize);
@@ -405,7 +362,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 
 	//===============================
 	//===============================
-	//Ó³Éä½ÚÇø
+	//Ó³ï¿½ï¿½ï¿½ï¿½ï¿½
 	//===============================
 	//===============================
 	INT64 imgBase = 0;
@@ -418,7 +375,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 		g_pNTHeader->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER);
 
 	PVOID   pSectionAddress = NULL;
-	//¸´ÖÆÍ·ºÍ¶ÎÐÅÏ¢
+	//ï¿½ï¿½ï¿½ï¿½Í·ï¿½Í¶ï¿½ï¿½ï¿½Ï¢
 	MemCpy((PVOID)imgBase, pBuffer, nMoveSize);
 
 	//KdPrint(("SectionName\t\tROV\t\tAddress\n"));
@@ -428,10 +385,10 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 		{
 			continue;
 		}
-		//¸´ÖÆÃ¿¸ö½Ú
-		// ¶¨Î»¸Ã½ÚÔÚÄÚ´æÖÐµÄÎ»ÖÃ
+		//ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½
+		// ï¿½ï¿½Î»ï¿½Ã½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ðµï¿½Î»ï¿½ï¿½
 		pSectionAddress = (PVOID)(imgBase + g_pSectionHeader[i].VirtualAddress);
-		// ¸´ÖÆ¶ÎÊý¾Ýµ½ÐéÄâÄÚ´æ
+		// ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
 		MemCpy(pSectionAddress, ((PCHAR)pBuffer +
 			g_pSectionHeader[i].PointerToRawData), g_pSectionHeader[i].SizeOfRawData);
 
@@ -441,23 +398,23 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 	}
 
 	/*
-		ÓÃÍêÖ®ºó°ÑÖ®Ç°µÄÄÚ´æÊÍ·Åµô
+		ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½Ö®Ç°ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Í·Åµï¿½
 	*/
-	ImpCall(ExFreePoolWithTag, pBuffer, 'skvp');
+	ExFreePoolWithTag(pBuffer, 'skvp');
 
 
-	//ÐÞÕýÖ¸Õë£¬Ö¸ÏòÐÂ·ÖÅäµÄÄÚ´æ
-	//ÐÂµÄdosÍ·
+	//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ë£¬Ö¸ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
+	//ï¿½Âµï¿½dosÍ·
 	g_pDosHeader = (PIMAGE_DOS_HEADER)imgBase;
-	//ÐÂµÄpeÍ·µØÖ·
+	//ï¿½Âµï¿½peÍ·ï¿½ï¿½Ö·
 	g_pNTHeader = (PIMAGE_NT_HEADERS)((PCHAR)imgBase + (g_pDosHeader->e_lfanew));
-	//ÐÂµÄ½Ú±íµØÖ·
+	//ï¿½ÂµÄ½Ú±ï¿½ï¿½ï¿½Ö·
 	g_pSectionHeader = (PIMAGE_SECTION_HEADER)((PCHAR)g_pNTHeader + sizeof(IMAGE_NT_HEADERS64));
 
 
 	//===============================
 	//===============================
-	//µØÖ·ÖØ¶¨Î»
+	//ï¿½ï¿½Ö·ï¿½Ø¶ï¿½Î»
 	//===============================
 	//===============================
 
@@ -484,10 +441,10 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 		{
 			relAddr = imgBase + pRelocation->VirtualAddress;
 
-			//¼ÆËãÔÚµ±Ç°¿éÖÐµÄÊý¾Ý¸öÊý
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½
 			relNum = (pRelocation->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / 2;
 
-			//Ö¸ÏòÊý¾Ý¿é
+			//Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 			pReloc = (PUSHORT)(PIMAGE_RELOC)((INT64)pRelocation + sizeof(IMAGE_BASE_RELOCATION));
 
 			while (relNum--)
@@ -524,7 +481,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 
 	//===============================
 	//===============================
-	//ÐÞ¸´µ¼Èë±í Ã»ÓÐµ¼Èë±í ×ÔÈ»²»ÐèÒªÐÞ¸´
+	//ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã»ï¿½Ðµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½Òªï¿½Þ¸ï¿½
 	//===============================
 	//===============================
 	INT64 libAddr = 0;
@@ -535,7 +492,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 	PIMAGE_THUNK_DATA64           pOriginalIAT = NULL;
 	INT64 temp1 = (INT64) & (((PIMAGE_NT_HEADERS)((PCHAR)imgBase + (g_pDosHeader->e_lfanew)))->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]);
 
-	//µÚÒ»¸öµ¼Èë±í½Úµã
+	//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½
 	pImportDes = (PIMAGE_IMPORT_DESCRIPTOR)(imgBase + ((PIMAGE_DATA_DIRECTORY)temp1)->VirtualAddress);
 	PCHAR pName = NULL;
 
@@ -545,13 +502,13 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 	{
 		pName = (PCHAR)(imgBase + pImportDes->Name);
 
-		if (!ImpCall(MmIsAddressValid, pName))
+		if (!MmIsAddressValid(pName))
 		{
 			//LOG_DEBUG("Repail ImportTable Failed\n");
 			return 0;
 		}
 
-		//»ñÈ¡Çý¶¯Ä£¿é»ùÖ·
+		//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ö·
 		libAddr = (INT64)KernelBase;
 		if (libAddr == 0)
 		{
@@ -564,11 +521,11 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 		pOriginalIAT = (PIMAGE_THUNK_DATA64)(imgBase + pImportDes->FirstThunk);
 		while (pRealIAT->u1.ForwarderString)
 		{
-			//µÃµ½PIMAGE_IMPORT_BY_NAME
+			//ï¿½Ãµï¿½PIMAGE_IMPORT_BY_NAME
 			temp1 = imgBase + pRealIAT->u1.AddressOfData;
-			//È¡µÃº¯ÊýµÄµØÖ·
-			//r3Ê¹ÓÃGetProcAddress¿ÉÒÔÖ±½Ó»ñÈ¡º¯ÊýµØÖ·
-			//ÕâÀïÎÒÃÇÐèÒªÃ¶¾Ùµ¼³ö±íÈ¡µÃº¯ÊýµØÖ·
+			//È¡ï¿½Ãºï¿½ï¿½ï¿½ï¿½Äµï¿½Ö·
+			//r3Ê¹ï¿½ï¿½GetProcAddressï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó»ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÃ¶ï¿½Ùµï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½Ö·
 			funcAddr = GetFuncAddrFromExportTable((PVOID)libAddr, ((PIMAGE_IMPORT_BY_NAME)temp1)->Name);
 			if (funcAddr)
 			{
@@ -577,14 +534,14 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 			}
 			else
 			{
-				//LOG_DEBUG("²éÕÒ%sµ¼Èëº¯ÊýÊ§°Ü\r\n", ((PIMAGE_IMPORT_BY_NAME)temp1)->Name);
+				//LOG_DEBUG("ï¿½ï¿½ï¿½ï¿½%sï¿½ï¿½ï¿½ëº¯ï¿½ï¿½Ê§ï¿½ï¿½\r\n", ((PIMAGE_IMPORT_BY_NAME)temp1)->Name);
 			}
 			//
-			//µ½ÏÂÒ»¸ö½Úµã
+			//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµï¿½
 			pRealIAT++;
 			pFuncIAT++;
 		}
-		//µ½ÏÂÒ»¸öµ¼Èë±í
+		//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		pImportDes++;
 	}
 	//======================================
@@ -593,7 +550,7 @@ PVOID MapDriver(PVOID pBuffer, PVOID KernelBase)
 
 	//LOG_DEBUG("AddressOfEntryPoint %p\n", EntryPoint);
 
-	//·µ»ØÈë¿Úµã callÒ»ÏÂ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ callÒ»ï¿½ï¿½
 	return (PVOID)EntryPoint;
 }
 
@@ -606,23 +563,23 @@ ULONG GetIndexFromExportTable(PVOID pBaseAddress, PCCHAR pszFunctionName)
 	PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((PUCHAR)pDosHeader + pDosHeader->e_lfanew);
 	// Export Table
 	PIMAGE_EXPORT_DIRECTORY pExportTable = (PIMAGE_EXPORT_DIRECTORY)((PUCHAR)pDosHeader + pNtHeaders->OptionalHeader.DataDirectory[0].VirtualAddress);
-	// ÓÐÃû³ÆµÄµ¼³öº¯Êý¸öÊý
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ÆµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	ULONG ulNumberOfNames = pExportTable->NumberOfNames;
-	// µ¼³öº¯ÊýÃû³ÆµØÖ·±í
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½Ö·ï¿½ï¿½
 	PULONG lpNameArray = (PULONG)((PUCHAR)pDosHeader + pExportTable->AddressOfNames);
 	PCHAR lpName = NULL;
-	// ¿ªÊ¼±éÀúµ¼³ö±í
+	// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for (ULONG i = 0; i < ulNumberOfNames; i++)
 	{
 		lpName = (PCHAR)((PUCHAR)pDosHeader + lpNameArray[i]);
-		// ÅÐ¶ÏÊÇ·ñ²éÕÒµÄº¯Êý
+		// ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ÒµÄºï¿½ï¿½ï¿½
 		if (StrICmp(pszFunctionName, lpName, true))
 		{
-			// »ñÈ¡µ¼³öº¯ÊýµØÖ·
+			// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
 			USHORT uHint = *(USHORT*)((PUCHAR)pDosHeader + pExportTable->AddressOfNameOrdinals + 2 * i);
 			ULONG ulFuncAddr = *(PULONG)((PUCHAR)pDosHeader + pExportTable->AddressOfFunctions + 4 * uHint);
 			PVOID lpFuncAddr = (PVOID)((PUCHAR)pDosHeader + ulFuncAddr);
-			// »ñÈ¡ SSDT º¯Êý Index
+			// ï¿½ï¿½È¡ SSDT ï¿½ï¿½ï¿½ï¿½ Index
 			ulFunctionIndex = *(ULONG*)((PUCHAR)lpFuncAddr + 4);
 			break;
 		}
@@ -640,20 +597,20 @@ INT64 GetFuncAddrFromExportTable(PVOID pBaseAddress, PCCHAR pszFunctionName)
 	PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((PUCHAR)pDosHeader + pDosHeader->e_lfanew);
 	// Export Table
 	PIMAGE_EXPORT_DIRECTORY pExportTable = (PIMAGE_EXPORT_DIRECTORY)((PUCHAR)pDosHeader + pNtHeaders->OptionalHeader.DataDirectory[0].VirtualAddress);
-	// ÓÐÃû³ÆµÄµ¼³öº¯Êý¸öÊý
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ÆµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	ULONG ulNumberOfNames = pExportTable->NumberOfNames;
-	// µ¼³öº¯ÊýÃû³ÆµØÖ·±í
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½Ö·ï¿½ï¿½
 	PULONG lpNameArray = (PULONG)((PUCHAR)pDosHeader + pExportTable->AddressOfNames);
 	PCHAR lpName = NULL;
-	// ¿ªÊ¼±éÀúµ¼³ö±í
+	// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for (ULONG i = 0; i < ulNumberOfNames; i++)
 	{
 		lpName = (PCHAR)((PUCHAR)pDosHeader + lpNameArray[i]);
-		// ÅÐ¶ÏÊÇ·ñ²éÕÒµÄº¯Êý
+		// ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ÒµÄºï¿½ï¿½ï¿½
 		//if (0 == _strnicmp(pszFunctionName, lpName, strlen(pszFunctionName)))
 		if (StrICmp(pszFunctionName, lpName, true))
 		{
-			// »ñÈ¡µ¼³öº¯ÊýµØÖ·
+			// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
 			USHORT uHint = *(USHORT*)((PUCHAR)pDosHeader + pExportTable->AddressOfNameOrdinals + 2 * i);
 			ULONG ulFuncAddr = *(PULONG)((PUCHAR)pDosHeader + pExportTable->AddressOfFunctions + 4 * uHint);
 			PVOID lpFuncAddr = (PVOID)((PUCHAR)pDosHeader + ulFuncAddr);

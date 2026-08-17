@@ -2,6 +2,14 @@
 
 namespace Global
 {
+	namespace ethread_offset
+	{
+		extern size_t Tcb;
+		extern size_t CrossThreadFlags;
+		extern size_t Cid;
+		extern size_t RundownProtect;
+	}
+
 	BOOLEAN Initialize_Global();
 	VOID UnInitialize_Global();
 

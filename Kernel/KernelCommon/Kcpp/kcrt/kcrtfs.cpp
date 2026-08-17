@@ -16,20 +16,20 @@ char _CRT_CWD[260] = {0};
 
 extern pfn_vsnprintf g_vsnprintf;
 
-EXTERN_C POBJECT_TYPE *IoDriverObjectType;
+//EXTERN_C POBJECT_TYPE *IoDriverObjectType;
 
-EXTERN_C
-NTKERNELAPI
-NTSTATUS
-ObReferenceObjectByName(
-    IN PUNICODE_STRING ObjectName,
-    IN ULONG Attributes,
-    IN PACCESS_STATE PassedAccessState OPTIONAL,
-    IN ACCESS_MASK DesiredAccess OPTIONAL,
-    IN POBJECT_TYPE ObjectType OPTIONAL,
-    IN KPROCESSOR_MODE AccessMode,
-    IN OUT PVOID ParseContext OPTIONAL,
-    OUT PVOID *Object);
+//EXTERN_C
+//NTKERNELAPI
+//NTSTATUS
+//ObReferenceObjectByName(
+//    IN PUNICODE_STRING ObjectName,
+//    IN ULONG Attributes,
+//    IN PACCESS_STATE PassedAccessState OPTIONAL,
+//    IN ACCESS_MASK DesiredAccess OPTIONAL,
+//    IN POBJECT_TYPE ObjectType OPTIONAL,
+//    IN KPROCESSOR_MODE AccessMode,
+//    IN OUT PVOID ParseContext OPTIONAL,
+//    OUT PVOID *Object);
 
 #define KCRTFS_POOL_DEFAULT_TAG 'sfck' // kcrt
 
@@ -42,11 +42,11 @@ _get_cwd()
 void
 _set_cwd(const char *path)
 {
-    ImpCall(strncpy, _CRT_CWD, path, _countof(_CRT_CWD));
+    strncpy(_CRT_CWD, path, _countof(_CRT_CWD));
 }
 
 BOOLEAN
-_init_cwd() //Ò»°ãÀ´ËµÊÇÄÃµÄC:\Windows
+_init_cwd() //Ò»ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ãµï¿½C:\Windows
 {
     BOOLEAN ok;
     NTSTATUS st;
@@ -62,9 +62,9 @@ _init_cwd() //Ò»°ãÀ´ËµÊÇÄÃµÄC:\Windows
                        L'e',  L'n', L't', L'V', L'e',  L'r', L's', L'i', L'o',  L'n',  0,     0};
 
     ok = FALSE;
-    ImpCall(RtlInitUnicodeString, &KeyPath, wpath);
+    RtlInitUnicodeString(&KeyPath, wpath);
     InitializeObjectAttributes(&oa, &KeyPath, OBJ_CASE_INSENSITIVE, NULL, NULL);
-    st = ImpCall(ZwOpenKey, &KeyHandle, KEY_READ, &oa);
+    st = ZwOpenKey(&KeyHandle, KEY_READ, &oa);
 
     if (NT_SUCCESS(st))
     {
@@ -85,37 +85,37 @@ _init_cwd() //Ò»°ãÀ´ËµÊÇÄÃµÄC:\Windows
                           0,
                           0};
 
-        ImpCall(RtlInitUnicodeString, &ValueName, wval);
-        ImpCall(ZwQueryValueKey, KeyHandle, &ValueName, KeyValuePartialInformation, NULL, 0, &nRes);
+        RtlInitUnicodeString(&ValueName, wval);
+        ZwQueryValueKey(KeyHandle, &ValueName, KeyValuePartialInformation, NULL, 0, &nRes);
         if (nRes > 0)
         {
             KEY_VALUE_PARTIAL_INFORMATION *kvpi;
-            kvpi = (KEY_VALUE_PARTIAL_INFORMATION *)ImpCall(ExAllocatePoolWithTag, PagedPool, nRes, 'sfc_');
+            kvpi = (KEY_VALUE_PARTIAL_INFORMATION *)ExAllocatePoolWithTag(PagedPool, nRes, 'sfc_');
 
             if (kvpi)
             {
-                st = ImpCall(ZwQueryValueKey, KeyHandle, &ValueName, KeyValuePartialInformation, kvpi, nRes, &nRes);
+                st = ZwQueryValueKey(KeyHandle, &ValueName, KeyValuePartialInformation, kvpi, nRes, &nRes);
 
                 if (NT_SUCCESS(st) && (kvpi->Type == REG_SZ))
                 {
                     ANSI_STRING ValueDataA;
                     UNICODE_STRING ValueDataW;
 
-                    ImpCall(RtlInitUnicodeString, &ValueDataW, (PWSTR)kvpi->Data);
-                    st = ImpCall(RtlUnicodeStringToAnsiString, &ValueDataA, &ValueDataW, TRUE);
+                    RtlInitUnicodeString(&ValueDataW, (PWSTR)kvpi->Data);
+                    st = RtlUnicodeStringToAnsiString(&ValueDataA, &ValueDataW, TRUE);
 
                     if (NT_SUCCESS(st))
                     {
                         _set_cwd(ValueDataA.Buffer);
-                        ImpCall(RtlFreeAnsiString, &ValueDataA);
+                        RtlFreeAnsiString(&ValueDataA);
                     }
                 }
 
-                ImpCall(ExFreePoolWithTag, kvpi, 'sfc_');
+                ExFreePoolWithTag(kvpi, 'sfc_');
             }
         }
 
-        ImpCall(ZwClose, KeyHandle);
+        ZwClose(KeyHandle);
     }
 
     return ok;
@@ -173,9 +173,9 @@ GetNtfsDevice()
                       L's',
                       0,
                       0};
-    ImpCall(RtlInitUnicodeString, &ntfsName, wval);
+    RtlInitUnicodeString(&ntfsName, wval);
 
-    status = ImpCall(ObReferenceObjectByName,
+    status = ObReferenceObjectByName(
         &ntfsName, OBJ_CASE_INSENSITIVE, 0, 0, *IoDriverObjectType, KernelMode, 0, (PVOID *)&drvObj);
     if (NT_SUCCESS(status) && drvObj)
     {
@@ -185,7 +185,7 @@ GetNtfsDevice()
     return devObj;
 }
 
-// ´Ëº¯Êý´«ÈëµÄÂ·¾¶±ØÐëÊÇ\\??\\c:\\ÀàËÆÕâÑùµÄ
+// ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\??\\c:\\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 static PDEVICE_OBJECT
 GetBaseDevByPath(PUNICODE_STRING Path)
 {
@@ -221,16 +221,15 @@ GetBaseDevByPath(PUNICODE_STRING Path)
         {
             break;
         }
-        // ½«ÅÌ·ûÌæ»»µ½*
+        // ï¿½ï¿½ï¿½Ì·ï¿½ï¿½æ»»ï¿½ï¿½*
         tmp[12] = Path->Buffer[4];
 
-        ImpCall(RtlInitUnicodeString, &devName, tmp);
+        RtlInitUnicodeString(&devName, tmp);
 
         InitializeObjectAttributes(&oa, &devName, OBJ_KERNEL_HANDLE, NULL, NULL);
 
-        // ´ò¿ªÅÌ·ûÎÄ¼þ
-        status = ImpCall(IoCreateFile,
-            &fileHandle,
+        // ï¿½ï¿½ï¿½Ì·ï¿½ï¿½Ä¼ï¿½
+        status = IoCreateFile(&fileHandle,
             GENERIC_READ | SYNCHRONIZE,
             &oa,
             &iosb,
@@ -249,24 +248,23 @@ GetBaseDevByPath(PUNICODE_STRING Path)
         {
             break;
         }
-        // »ñÈ¡ÎÄ¼þ¶ÔÏó
-        status = ImpCall(ObReferenceObjectByHandle,
-            fileHandle, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&fileObject, 0);
+        // ï¿½ï¿½È¡ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+        status = ObReferenceObjectByHandle(fileHandle, FILE_READ_ACCESS, *IoFileObjectType, KernelMode, (PVOID *)&fileObject, 0);
         if (!NT_SUCCESS(status) || !fileObject)
         {
             break;
         }
 
-        devObj = ImpCall(IoGetBaseFileSystemDeviceObject, fileObject);
+        devObj = IoGetBaseFileSystemDeviceObject(fileObject);
 
     } while (0);
     if (fileObject)
     {
-        ImpCall(ObfDereferenceObject, fileObject);
+        ObfDereferenceObject(fileObject);
     }
     if (fileHandle)
     {
-        ImpCall(ZwClose, fileHandle);
+        ZwClose(fileHandle);
     }
 
     return devObj;
@@ -300,22 +298,22 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
 
         const char *mode = _Mode;
 
-        if (!ImpCall(strcmp, mode, c_r) || !ImpCall(strcmp, mode, c_rb))
+        if (!strcmp(mode, c_r) || !strcmp(mode, c_rb))
         {
             AccessMask = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
             CreateDisposition = FILE_OPEN;
         }
-        else if (!ImpCall(strcmp, mode, c_w) || !ImpCall(strcmp, mode, c_wb))
+        else if (!strcmp(mode, c_w) || !strcmp(mode, c_wb))
         {
             AccessMask = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
             CreateDisposition = FILE_SUPERSEDE;
         }
-        else if (!ImpCall(strcmp, mode, c_rw) || !ImpCall(strcmp, mode, c_rwb))
+        else if (!strcmp(mode, c_rw) || !strcmp(mode, c_rwb))
         {
             AccessMask = FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
             CreateDisposition = FILE_OPEN_IF;
         }
-        else if (!ImpCall(strcmp, mode, c_ajia) || !ImpCall(strcmp, mode, c_ajiab) || !ImpCall(strcmp, mode, c_abjia))
+        else if (!strcmp(mode, c_ajia) || !strcmp(mode, c_ajiab) || !strcmp(mode, c_abjia))
         {
             AccessMask =
                 FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_APPEND_DATA;
@@ -331,21 +329,21 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
         CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
     }
 
-    path = (char *)ImpCall(ExAllocatePoolWithTag, PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
+    path = (char *)ExAllocatePoolWithTag(PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
     if (!path)
         return NULL;
     RtlSecureZeroMemory(path, 512);
 
     if (_IsSanitizePath)
     {
-        //×ªR3ÄÇÖÖÂ·¾¶£¬Ä¿Ç°Ö»ÊÇÇ°Ãæ¼ÓÁË¸ö\\??\\¶øÒÑ¡£¡£¡£
+        //×ªR3ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½Ä¿Ç°Ö»ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ë¸ï¿½\\??\\ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½
 
         const char *cwd = "";
-        if (_FileName[0] == '.') //®”Ç°Ä¿ä›ÔOÖÃµÄÊÇC:\Windows
+        if (_FileName[0] == '.') //ï¿½ï¿½Ç°Ä¿ï¿½ï¿½Oï¿½Ãµï¿½ï¿½ï¿½C:\Windows
             cwd = _get_cwd();
         if (!path_sanitize(path, 512, cwd, _FileName))
         {
-            ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+            ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
             return NULL;
         }
     }
@@ -354,22 +352,21 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
         RtlCopyMemory(path, _FileName, min(512, strlen(_FileName)));
     }
 
-    ImpCall(RtlInitAnsiString, &FileNameA, path);
-    if (!NT_SUCCESS(ImpCall(RtlAnsiStringToUnicodeString, &FileNameW, &FileNameA, TRUE)))
+    RtlInitAnsiString(&FileNameA, path);
+    if (!NT_SUCCESS(RtlAnsiStringToUnicodeString(&FileNameW, &FileNameA, TRUE)))
     {
-        ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+        ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
         return NULL;
     }
-    // »ñÈ¡Õâ¸öÎÄ¼þ´ÅÅÌµÄ×îµ×²ãÉè±¸¶ÔÏó
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½×²ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½
     baseDev = GetBaseDevByPath(&FileNameW);
 
     InitializeObjectAttributes(&oa, &FileNameW, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
 
     if (baseDev)
     {
-        // °´ÕÕÏò×îµ×²ãÉè±¸¶ÔÏóÍ¨ÐÅµÄ·½Ê½´ò¿ªÎÄ¼þ¾ä±ú
-        st = ImpCall(IoCreateFileSpecifyDeviceObjectHint,
-            &hFile,
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ÅµÄ·ï¿½Ê½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+        st = IoCreateFileSpecifyDeviceObjectHint(&hFile,
             AccessMask,
             &oa,
             &isb,
@@ -388,8 +385,7 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
     }
     if (NULL == hFile)
     {
-        st = ImpCall(ZwCreateFile,
-            &hFile,
+        st = ZwCreateFile(&hFile,
             AccessMask,
             &oa,
             &isb,
@@ -401,16 +397,16 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
             NULL,
             0);
     }
-    ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+    ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
     path = NULL;
-    ImpCall(RtlFreeUnicodeString, &FileNameW);
+    RtlFreeUnicodeString(&FileNameW);
 
     if (!NT_SUCCESS(st))
         return NULL;
 
-    FILE *f = (FILE *)ImpCall(ExAllocatePoolWithTag, PagedPool, sizeof(FILE), KCRTFS_POOL_DEFAULT_TAG);
+    FILE *f = (FILE *)ExAllocatePoolWithTag(PagedPool, sizeof(FILE), KCRTFS_POOL_DEFAULT_TAG);
     FILE_CONTROL_BLOCK *fcb =
-        (FILE_CONTROL_BLOCK *)ImpCall(ExAllocatePoolWithTag, PagedPool, sizeof(FILE_CONTROL_BLOCK), KCRTFS_POOL_DEFAULT_TAG);
+        (FILE_CONTROL_BLOCK *)ExAllocatePoolWithTag(PagedPool, sizeof(FILE_CONTROL_BLOCK), KCRTFS_POOL_DEFAULT_TAG);
     fcb->err = 0;
     fcb->hFile = hFile;
     fset_core(f, fcb);
@@ -418,7 +414,7 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
     return (void *)f;
 }
 
-//²ÎÊý3´ú±íÊÇ·ñÒª×ª»»³ÉR3µÄÄÇÖÖÂ·¾¶
+//ï¿½ï¿½ï¿½ï¿½3ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Òª×ªï¿½ï¿½ï¿½ï¿½R3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
 /*FILE**/ void *__cdecl fopen2(char const *_FileName, char const *_Mode, int _IsSanitizePath)
 {
     NTSTATUS st;
@@ -446,22 +442,22 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
 
         const char *mode = _Mode;
 
-        if (!ImpCall(strcmp, mode, c_r) || !ImpCall(strcmp, mode, c_rb))
+        if (!strcmp(mode, c_r) || !strcmp(mode, c_rb))
         {
             AccessMask = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
             CreateDisposition = FILE_OPEN;
         }
-        else if (!ImpCall(strcmp, mode, c_w) || !ImpCall(strcmp, mode, c_wb))
+        else if (!strcmp(mode, c_w) || !strcmp(mode, c_wb))
         {
             AccessMask = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
             CreateDisposition = FILE_SUPERSEDE;
         }
-        else if (!ImpCall(strcmp, mode, c_rw) || !ImpCall(strcmp, mode, c_rwb))
+        else if (!strcmp(mode, c_rw) || !strcmp(mode, c_rwb))
         {
             AccessMask = FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
             CreateDisposition = FILE_OPEN_IF;
         }
-        else if (!ImpCall(strcmp, mode, c_ajia) || !ImpCall(strcmp, mode, c_ajiab) || !ImpCall(strcmp, mode, c_abjia))
+        else if (!strcmp(mode, c_ajia) || !strcmp(mode, c_ajiab) || !strcmp(mode, c_abjia))
         {
             AccessMask =
                 FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_APPEND_DATA;
@@ -477,21 +473,21 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
         CreateOptions = FILE_SYNCHRONOUS_IO_NONALERT;
     }
 
-    path = (char *)ImpCall(ExAllocatePoolWithTag, PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
+    path = (char *)ExAllocatePoolWithTag(PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
     if (!path)
         return NULL;
     RtlSecureZeroMemory(path, 512);
 
     if (_IsSanitizePath)
     {
-        //×ªR3ÄÇÖÖÂ·¾¶£¬Ä¿Ç°Ö»ÊÇÇ°Ãæ¼ÓÁË¸ö\\??\\¶øÒÑ¡£¡£¡£
+        //×ªR3ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½Ä¿Ç°Ö»ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ë¸ï¿½\\??\\ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½
 
         const char *cwd = "";
-        if (_FileName[0] == '.') //®”Ç°Ä¿ä›ÔOÖÃµÄÊÇC:\Windows
+        if (_FileName[0] == '.') //ï¿½ï¿½Ç°Ä¿ï¿½ï¿½Oï¿½Ãµï¿½ï¿½ï¿½C:\Windows
             cwd = _get_cwd();
         if (!path_sanitize(path, 512, cwd, _FileName))
         {
-            ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+            ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
             return NULL;
         }
     }
@@ -500,16 +496,15 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
         RtlCopyMemory(path, _FileName, min(512, strlen(_FileName)));
     }
 
-    ImpCall(RtlInitAnsiString, &FileNameA, path);
-    if (!NT_SUCCESS(ImpCall(RtlAnsiStringToUnicodeString, &FileNameW, &FileNameA, TRUE)))
+    RtlInitAnsiString(&FileNameA, path);
+    if (!NT_SUCCESS(RtlAnsiStringToUnicodeString(&FileNameW, &FileNameA, TRUE)))
     {
-        ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+        ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
         return NULL;
     }
 
     InitializeObjectAttributes(&oa, &FileNameW, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
-    st = ImpCall(ZwCreateFile,
-        &hFile,
+    st = ZwCreateFile(&hFile,
         AccessMask,
         &oa,
         &isb,
@@ -520,16 +515,16 @@ void *__cdecl fopenSafe(char const *_FileName, char const *_Mode, int _IsSanitiz
         CreateOptions,
         NULL,
         0);
-    ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+    ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
     path = NULL;
-    ImpCall(RtlFreeUnicodeString, &FileNameW);
+    RtlFreeUnicodeString(&FileNameW);
 
     if (!NT_SUCCESS(st))
         return NULL;
 
-    FILE *f = (FILE *)ImpCall(ExAllocatePoolWithTag, PagedPool, sizeof(FILE), KCRTFS_POOL_DEFAULT_TAG);
+    FILE *f = (FILE *)ExAllocatePoolWithTag(PagedPool, sizeof(FILE), KCRTFS_POOL_DEFAULT_TAG);
     FILE_CONTROL_BLOCK *fcb =
-        (FILE_CONTROL_BLOCK *)ImpCall(ExAllocatePoolWithTag, PagedPool, sizeof(FILE_CONTROL_BLOCK), KCRTFS_POOL_DEFAULT_TAG);
+        (FILE_CONTROL_BLOCK *)ExAllocatePoolWithTag(PagedPool, sizeof(FILE_CONTROL_BLOCK), KCRTFS_POOL_DEFAULT_TAG);
     fcb->err = 0;
     fcb->hFile = hFile;
     fset_core(f, fcb);
@@ -546,14 +541,14 @@ int __cdecl fclose(FILE *f)
 {
     FILE_CONTROL_BLOCK *fcb = fget_core(f);
 
-    ImpCall(ZwClose, fcb->hFile);
-    ImpCall(ExFreePoolWithTag, fcb, KCRTFS_POOL_DEFAULT_TAG);
-    ImpCall(ExFreePoolWithTag, f, KCRTFS_POOL_DEFAULT_TAG);
+    ZwClose(fcb->hFile);
+    ExFreePoolWithTag(fcb, KCRTFS_POOL_DEFAULT_TAG);
+    ExFreePoolWithTag(f, KCRTFS_POOL_DEFAULT_TAG);
 
     return 0;
 }
 
-//²ÎÊý2´ú±íÊÇ·ñÒª×ª»»³ÉR3µÄÄÇÖÖÂ·¾¶
+//ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Òª×ªï¿½ï¿½ï¿½ï¿½R3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
 int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
 {
     UNICODE_STRING usFIleNameW;
@@ -569,7 +564,7 @@ int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
     RtlSecureZeroMemory(&iosb, sizeof(iosb));
     RtlSecureZeroMemory(&fbi, sizeof(fbi));
 
-    path = (char *)ImpCall(ExAllocatePoolWithTag, PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
+    path = (char *)ExAllocatePoolWithTag(PagedPool, 512, KCRTFS_POOL_DEFAULT_TAG);
     if (!path)
     {
         return -1;
@@ -578,17 +573,17 @@ int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
 
     if (_IsSanitizePath)
     {
-        //×ªR3ÄÇÖÖÂ·¾¶£¬Ä¿Ç°Ö»ÊÇÇ°Ãæ¼ÓÁË¸ö\\??\\¶øÒÑ¡£¡£¡£
+        //×ªR3ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½Ä¿Ç°Ö»ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ë¸ï¿½\\??\\ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½
 
         if (_FileName[0] == '.')
         {
-            //®”Ç°Ä¿ä›ÔOÖÃµÄÊÇC:\Windows
+            //ï¿½ï¿½Ç°Ä¿ï¿½ï¿½Oï¿½Ãµï¿½ï¿½ï¿½C:\Windows
             cwd = (char *)_get_cwd();
         }
 
         if (!path_sanitize(path, 512, cwd, _FileName))
         {
-            ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+            ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
             return -1;
         }
     }
@@ -597,35 +592,34 @@ int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
         RtlCopyMemory(path, _FileName, min(512, strlen(_FileName)));
     }
 
-    ImpCall(RtlInitAnsiString, &usFIleNameA, path);
-    if (ImpCall(RtlAnsiStringToUnicodeString, &usFIleNameW, &usFIleNameA, TRUE) < 0)
+    RtlInitAnsiString(&usFIleNameA, path);
+    if (RtlAnsiStringToUnicodeString(&usFIleNameW, &usFIleNameA, TRUE) < 0)
     {
-        ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+        ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
         return -1;
     }
 
     oa.Attributes = OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE;
     oa.ObjectName = &usFIleNameW;
 
-    //Ê×ÏÈ°ÑÐèÒªÉ¾³ýµÄÎÄ¼þµÄÊôÐÔÉèÖÃÎªÆÕÍ¨£¬ÕâÑù¸üºÃÉ¾³ý
+    //ï¿½ï¿½ï¿½È°ï¿½ï¿½ï¿½ÒªÉ¾ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½
 
-    status = ImpCall(ZwCreateFile,
-        &hFile,
-        //ÕâÀï±ØÐëÕâÑùÐ´£¬·ñÔòÎÞ·¨´ò¿ªÖ»¶ÁÎÄ¼þ..
-        SYNCHRONIZE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, //¶ÁÐ´·ÃÎÊÈ¨ÏÞ
+    status = ZwCreateFile(&hFile,
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½Ä¼ï¿½..
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, //ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
         &oa,
-        &iosb, //ÎÄ¼þIO×´Ì¬
+        &iosb, //ï¿½Ä¼ï¿½IO×´Ì¬
         NULL,
         FILE_ATTRIBUTE_READONLY |   // read only
-            FILE_ATTRIBUTE_NORMAL | //ÎÄ¼þÊôÐÔÒ»°ãÐ´NORMAL
-            FILE_ATTRIBUTE_HIDDEN | //Òª´ò¿ªÒþ²ØÎÄ¼þ£¬Ò²ÒªÌîÐ´
-            FILE_ATTRIBUTE_SYSTEM,  //Òª´ò¿ªÏµÍ³ÎÄ¼þ£¬Ò²ÒªÌîÐ´
+            FILE_ATTRIBUTE_NORMAL | //ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ð´NORMAL
+            FILE_ATTRIBUTE_HIDDEN | //Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ò²Òªï¿½ï¿½Ð´
+            FILE_ATTRIBUTE_SYSTEM,  //Òªï¿½ï¿½ÏµÍ³ï¿½Ä¼ï¿½ï¿½ï¿½Ò²Òªï¿½ï¿½Ð´
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        FILE_OPEN, //Ö»´ò¿ª´æÔÚµÄÎÄ¼þ£¬ÈôÎÄ¼þ²»´æÔÚ£¬ÔòÊ§°Ü
-                   // ÎÄ¼þ·ÇÄ¿Â¼ÐÔÖÊ
-                   // ²¢ÇÒÎÄ¼þ²Ù×÷Ö±½ÓÐ´ÈëÎÄ¼þÏµÍ³£¨Ö±½ÓÐ´Èë²»»á²úÉú»º³åÑÓÊ±ÎÊÌâ£¬µ«IOÕ¼ÓÃºÜ¶à£©
+        FILE_OPEN, //Ö»ï¿½ò¿ª´ï¿½ï¿½Úµï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
+                   // ï¿½Ä¼ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½
+                   // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ä¼ï¿½ÏµÍ³ï¿½ï¿½Ö±ï¿½ï¿½Ð´ï¿½ë²»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½â£¬ï¿½ï¿½IOÕ¼ï¿½ÃºÜ¶à£©
         FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
-        // EabufÊôÐÔÌîÐ´NULL£¬ÕâÊÇÎÄ¼þ´´½¨²»ÊÇÇý¶¯Éè±¸µÄ½»»¥£¬ËùÒÔEAÐ´NULL,EA³¤¶ÈÒ²ÊÇ0
+        // Eabufï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´NULLï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½EAÐ´NULL,EAï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½0
         NULL,
         0);
 
@@ -634,7 +628,7 @@ int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
         goto _end;
     }
 
-    status = ImpCall(ZwQueryInformationFile, hFile, &iosb, &fbi, sizeof(fbi), FileBasicInformation);
+    status = ZwQueryInformationFile(hFile, &iosb, &fbi, sizeof(fbi), FileBasicInformation);
 
     if (status < 0)
     {
@@ -643,26 +637,26 @@ int __cdecl remove2(char const *_FileName, int _IsSanitizePath)
 
     fbi.FileAttributes = FILE_ATTRIBUTE_NORMAL;
 
-    status = ImpCall(ZwSetInformationFile, hFile, &iosb, &fbi, sizeof(fbi), FileBasicInformation);
+    status = ZwSetInformationFile(hFile, &iosb, &fbi, sizeof(fbi), FileBasicInformation);
 
     if (status < 0)
     {
         goto _end;
     }
 
-    //É¾³ýµÄÊ±ºòÒ»¶¨Òª¹Ø±Õµô¾ä±ú
-    ImpCall(ZwClose, hFile);
+    //É¾ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ò»ï¿½ï¿½Òªï¿½Ø±Õµï¿½ï¿½ï¿½ï¿½
+    ZwClose(hFile);
 
-    status = ImpCall(ZwDeleteFile,&oa);
+    status = ZwDeleteFile(&oa);
 
 _end:
     if (path)
     {
-        ImpCall(ExFreePoolWithTag, path, KCRTFS_POOL_DEFAULT_TAG);
+        ExFreePoolWithTag(path, KCRTFS_POOL_DEFAULT_TAG);
         path = NULL;
     }
 
-    ImpCall(RtlFreeUnicodeString,&usFIleNameW);
+    RtlFreeUnicodeString(&usFIleNameW);
 
     if (status == 0)
     {
@@ -683,12 +677,12 @@ int __cdecl feof(FILE *f)
     FILE_STANDARD_INFORMATION fsi;
     FILE_CONTROL_BLOCK *fcb = fget_core(f);
 
-    fcb->err = ImpCall(ZwQueryInformationFile, fcb->hFile, &isb, &fsi, sizeof(fsi), FileStandardInformation);
+    fcb->err = ZwQueryInformationFile(fcb->hFile, &isb, &fsi, sizeof(fsi), FileStandardInformation);
     if (NT_SUCCESS(fcb->err))
     {
         FILE_POSITION_INFORMATION fpi;
 
-        fcb->err = ImpCall(ZwQueryInformationFile, fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
+        fcb->err = ZwQueryInformationFile(fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
         if (NT_SUCCESS(fcb->err))
         {
             return (fpi.CurrentByteOffset.QuadPart + 1 >= fsi.EndOfFile.QuadPart);
@@ -721,7 +715,7 @@ int __cdecl fgetc(FILE *f)
     IO_STATUS_BLOCK isb;
     FILE_CONTROL_BLOCK *fcb = fget_core(f);
 
-    fcb->err = ImpCall(ZwReadFile, fcb->hFile, NULL, NULL, NULL, &isb, &c, 1, NULL, NULL);
+    fcb->err = ZwReadFile(fcb->hFile, NULL, NULL, NULL, &isb, &c, 1, NULL, NULL);
     if (NT_SUCCESS(fcb->err))
     {
         return (c & 0xFF);
@@ -752,7 +746,7 @@ size_t __cdecl fread(void *Buffer, size_t ElementSize, size_t ElementCount, FILE
     size_t rd_size = ElementSize * ElementCount;
 
     RtlSecureZeroMemory(&isb, sizeof(isb));
-    fcb->err = ImpCall(ZwReadFile, fcb->hFile, NULL, NULL, NULL, &isb, Buffer, (ULONG)rd_size, NULL, NULL);
+    fcb->err = ZwReadFile(fcb->hFile, NULL, NULL, NULL, &isb, Buffer, (ULONG)rd_size, NULL, NULL);
     return isb.Information;
 }
 
@@ -763,7 +757,7 @@ size_t __cdecl fwrite(void const *Buffer, size_t ElementSize, size_t ElementCoun
     size_t wt_size = ElementSize * ElementCount;
 
     RtlSecureZeroMemory(&isb, sizeof(isb));
-    fcb->err = ImpCall(ZwWriteFile, fcb->hFile, NULL, NULL, NULL, &isb, (PVOID)Buffer, (ULONG)wt_size, NULL, NULL);
+    fcb->err = ZwWriteFile(fcb->hFile, NULL, NULL, NULL, &isb, (PVOID)Buffer, (ULONG)wt_size, NULL, NULL);
     return isb.Information;
 }
 
@@ -793,7 +787,7 @@ __int64 __cdecl _ftelli64(FILE *_Stream)
     FILE_POSITION_INFORMATION fpi;
     FILE_CONTROL_BLOCK *fcb = fget_core(_Stream);
 
-    fcb->err = ImpCall(ZwQueryInformationFile, fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
+    fcb->err = ZwQueryInformationFile(fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
     if (NT_SUCCESS(fcb->err))
     {
         return fpi.CurrentByteOffset.QuadPart;
@@ -818,7 +812,7 @@ int __cdecl _fseeki64(FILE *_Stream, __int64 _Offset, int _Origin)
         if (cur_pos >= 0)
         {
             fpi.CurrentByteOffset.QuadPart = cur_pos + _Offset;
-            fcb->err = ImpCall(ZwSetInformationFile, fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
+            fcb->err = ZwSetInformationFile(fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
             if (NT_SUCCESS(fcb->err))
             {
                 return 0;
@@ -829,12 +823,12 @@ int __cdecl _fseeki64(FILE *_Stream, __int64 _Offset, int _Origin)
     case SEEK_END: {
         FILE_STANDARD_INFORMATION fsi;
 
-        fcb->err = ImpCall(ZwQueryInformationFile, fcb->hFile, &isb, &fsi, sizeof(fsi), FileStandardInformation);
+        fcb->err = ZwQueryInformationFile(fcb->hFile, &isb, &fsi, sizeof(fsi), FileStandardInformation);
         if (NT_SUCCESS(fcb->err))
         {
             fpi.CurrentByteOffset.QuadPart = fsi.EndOfFile.QuadPart + _Offset;
 
-            fcb->err = ImpCall(ZwSetInformationFile, fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
+            fcb->err = ZwSetInformationFile(fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
             if (NT_SUCCESS(fcb->err))
             {
                 return 0;
@@ -844,7 +838,7 @@ int __cdecl _fseeki64(FILE *_Stream, __int64 _Offset, int _Origin)
     break;
     case SEEK_SET: {
         fpi.CurrentByteOffset.QuadPart = _Offset;
-        fcb->err = ImpCall(ZwSetInformationFile, fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
+        fcb->err = ZwSetInformationFile(fcb->hFile, &isb, &fpi, sizeof(fpi), FilePositionInformation);
         if (NT_SUCCESS(fcb->err))
         {
             return 0;

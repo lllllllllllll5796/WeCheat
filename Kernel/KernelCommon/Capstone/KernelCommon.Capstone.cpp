@@ -18,7 +18,7 @@ static void CAPSTONE_API csdrv_free(void *ptr)
 {
   if (ptr)
   {
-    ImpCall(ExFreePool, CONTAINING_RECORD(ptr, CS_DRIVER_MEMBLOCK, data)/*,CS_DRIVER_POOL_TAG*/);
+    ExFreePool(CONTAINING_RECORD(ptr, CS_DRIVER_MEMBLOCK, data)/*,CS_DRIVER_POOL_TAG*/);
   }
 }
 
@@ -29,7 +29,7 @@ static void * CAPSTONE_API csdrv_malloc(size_t size)
   // in many cases, indicate a potential validation issue in the calling code.
   NT_ASSERT(size);
 
-  CS_DRIVER_MEMBLOCK *block = (CS_DRIVER_MEMBLOCK *)ImpCall(ExAllocatePool,
+  CS_DRIVER_MEMBLOCK *block = (CS_DRIVER_MEMBLOCK *)ExAllocatePool(
     NonPagedPoolNx, size + sizeof(CS_DRIVER_MEMBLOCK)/*,CS_DRIVER_POOL_TAG*/);
   if (!block)
   {
@@ -128,7 +128,7 @@ cs_err CAPSTONE_API Capstone_Init()
   cs_opt_mem setup;
   cs_err err;
 
-  //NT_ASSERT(ImpCall(KeGetCurrentIrql) <= DISPATCH_LEVEL);
+  NT_ASSERT(KeGetCurrentIrql() <= DISPATCH_LEVEL);
 
   // Capstone API may use floating point.
   status = KeSaveFloatingPointState(&float_save);

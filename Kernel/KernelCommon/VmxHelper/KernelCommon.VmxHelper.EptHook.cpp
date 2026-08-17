@@ -55,14 +55,14 @@ namespace VmxHelper
 		{
 			
 			//ExAllocatePool
-			PVOID trampoline_address = ImpCall(ExAllocatePool, NonPagedPool, 100);
+			PVOID trampoline_address = ExAllocatePool(NonPagedPool, 100);
 			if (trampoline_address)
 			{
-				memcpy(trampoline_address, target_address, broken_length);  //±»ÆÆ»µµÄÄÚÈÝ
+				memcpy(trampoline_address, target_address, broken_length);  //ï¿½ï¿½ï¿½Æ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				RetJmp ret;
 				ret.H.value = ((ULONG64)target_address + broken_length) >> 32;
 				ret.L.value = ((ULONG64)target_address + broken_length) & 0xffffffff;
-				memcpy(PVOID((ULONG64)trampoline_address + broken_length), &ret, sizeof(RetJmp));  //Ìî³ä»ØÌø
+				memcpy(PVOID((ULONG64)trampoline_address + broken_length), &ret, sizeof(RetJmp));  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				return trampoline_address;
 			}
 		}
@@ -83,8 +83,8 @@ namespace VmxHelper
 				}
 			);
 
-			//ÎªÁË¶Ô¿¹YDArkµÄVTInlineHook¼ì²â
-			//Ìø°åº¯Êý»º³åÇø¾ÍÊÇ100¸ö×Ö½Ú,Ïê¼ûAsmTrampoline.asm
+			//Îªï¿½Ë¶Ô¿ï¿½YDArkï¿½ï¿½VTInlineHookï¿½ï¿½ï¿½
+			//ï¿½ï¿½ï¿½åº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½100ï¿½ï¿½ï¿½Ö½ï¿½,ï¿½ï¿½ï¿½AsmTrampoline.asm
 
 			((PBYTE)trampoline_address)[99] = hookcode_length;
 
@@ -94,22 +94,22 @@ namespace VmxHelper
 
 // 			SIZE_T PageSize = PAGE_SIZE;
 // 
-// 			if (NT_SUCCESS(ImpCall(ZwLockVirtualMemory, (HANDLE)-1i64, &target_address, &PageSize, LOCK_VM_IN_WORKING_SET | LOCK_VM_IN_RAM)))
+// 			if (NT_SUCCESS(ZwLockVirtualMemory((HANDLE)-1i64, &target_address, &PageSize, LOCK_VM_IN_WORKING_SET | LOCK_VM_IN_RAM)))
 // 			{
 // 
 // 			}
 
-			//target_addressÊÇÒªHookµÄÎ»ÖÃ
-			QWORD PA = ImpCall(MmGetPhysicalAddress, (void*)target_address).QuadPart;
+			//target_addressï¿½ï¿½ÒªHookï¿½ï¿½Î»ï¿½ï¿½
+			QWORD PA = MmGetPhysicalAddress((void*)target_address).QuadPart;
 
 			r = vmx_Add_R0Hook(PA, (QWORD)target_address, (QWORD)fake_function, (QWORD)trampoline_address);
 
 			if (r != 0)
 			{
-				return TRUE;  //ÒÑ¾­¹Ò¹³¹ýÁË
+				return TRUE;  //ï¿½Ñ¾ï¿½ï¿½Ò¹ï¿½ï¿½ï¿½ï¿½ï¿½
 			}
 
-			r = vmx_Cloak_Activate(PA, 1);  //Ó¢ÌØ¶ûcpuÉÏÊ¹PA²»¿É¶Á,¶øAMDÉÏÊ¹Æä²»¿ÉÖ´ÐÐ²¢ÇÒ¶ÁµÄÊ±ºò»¹ÊÇ¼ÙÊý¾Ý
+			r = vmx_Cloak_Activate(PA, 1);  //Ó¢ï¿½Ø¶ï¿½cpuï¿½ï¿½Ê¹PAï¿½ï¿½ï¿½É¶ï¿½,ï¿½ï¿½AMDï¿½ï¿½Ê¹ï¿½ä²»ï¿½ï¿½Ö´ï¿½Ð²ï¿½ï¿½Ò¶ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ç¼ï¿½ï¿½ï¿½ï¿½ï¿½
 
 			if (r == 1)
 			{
@@ -126,15 +126,15 @@ namespace VmxHelper
 
 			//LOG_DEBUG("[+] bFirstPageHook:%d\r\n", bFirstPageHook);
 
-			KernelIntrin__invlpg((void*)target_address);   //INVLPG ½«Ê¹ÓëÔ´²Ù×÷ÊýµØÖ·Æ¥ÅäµÄTLBÌõÄ¿ÎÞÐ§
+			KernelIntrin__invlpg((void*)target_address);   //INVLPG ï¿½ï¿½Ê¹ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·Æ¥ï¿½ï¿½ï¿½TLBï¿½ï¿½Ä¿ï¿½ï¿½Ð§
 
 			PVOID target_page_address = MAKE_PAGE_ALIGN(target_address);
 			ULONG64 target_address_offset = (ULONG64)target_address - (ULONG64)target_page_address;
 
-			//LOG_DEBUG("Ä¿±êº¯ÊýËùÔÚÒ³ÃæÆðÊ¼µØÖ·:%p Æ«ÒÆ:0x%llX\r\n", target_page_address, target_address_offset);
+			//LOG_DEBUG("Ä¿ï¿½êº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·:%p Æ«ï¿½ï¿½:0x%llX\r\n", target_page_address, target_address_offset);
 
-			uint8_t executable[0x1000];                   //ÕýºÃÒ»¸öÒ³Ãæ
-			r = vmx_Cloak_ReadOriginal(PA, executable);   //¶ÁÈ¡Ô­Ê¼ÄÚÈÝ
+			uint8_t executable[0x1000];                   //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ò³ï¿½ï¿½
+			r = vmx_Cloak_ReadOriginal(PA, executable);   //ï¿½ï¿½È¡Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
 
 			if (r != 0)
 			{
@@ -144,7 +144,7 @@ namespace VmxHelper
 
 			if (bFirstPageHook == TRUE)
 			{
-				LOG_DEBUG("[+] Ò³ÃæµÚÒ»´Î±»Hook\r\n");
+				LOG_DEBUG("[+] Ò³ï¿½ï¿½ï¿½Ò»ï¿½Î±ï¿½Hook\r\n");
 				g_EptHooks[function_name] = eastl::make_shared<EptHookItem>();
 				g_EptHooks[function_name]->target_address = target_address;
 	
@@ -152,12 +152,12 @@ namespace VmxHelper
 				g_EptHooks[function_name]->target_address_offset = target_address_offset;
 				g_EptHooks[function_name]->hookcode_length = hookcode_length;
 
-				g_EptHooks[function_name]->backup_page_context = (unsigned char*)malloc(0x1000);   //ÓÃÀ´±£´æ±¸·ÝµÄ×îÔ­Ê¼ÄÚÈÝ
+				g_EptHooks[function_name]->backup_page_context = (unsigned char*)malloc(0x1000);   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ±¸ï¿½Ýµï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
 				memcpy(g_EptHooks[function_name]->backup_page_context, executable, 0x1000);
 			}
 			else
 			{
-				LOG_DEBUG("[+] ´ËÒ³Ãæ²¢²»ÊÇµÚÒ»´Î±»Hook\r\n");
+				LOG_DEBUG("[+] ï¿½ï¿½Ò³ï¿½æ²¢ï¿½ï¿½ï¿½Çµï¿½Ò»ï¿½Î±ï¿½Hook\r\n");
 				BOOL IsSamePage = FALSE;
 				unsigned char* backup_page_context = nullptr;
 
@@ -185,7 +185,7 @@ namespace VmxHelper
 				}
  			}
 
-			//LOG_DEBUG("Ö´ÐÐÒ³ÃæµÄÖÐ¼ä»º³åÇøµØÖ·:%p\r\n", executable);
+			//LOG_DEBUG("Ö´ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½Ð¼ä»ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·:%p\r\n", executable);
 
 			unsigned char* buf = executable + target_address_offset;
 
@@ -218,14 +218,14 @@ namespace VmxHelper
 			ULONG64 target_address_offset = (ULONG64)target_address - (ULONG64)target_page_address;
 
 			int r;
-			QWORD PA = ImpCall(MmGetPhysicalAddress, (void*)target_address).QuadPart;
+			QWORD PA = MmGetPhysicalAddress((void*)target_address).QuadPart;
 			if (PA == 0)
 			{
-				LOG_DEBUG("»ñµÃÎïÀíµØÖ·Ê§°Ü\n");
+				LOG_DEBUG("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·Ê§ï¿½ï¿½\n");
 				return;
 			}
 
-			uint8_t buf[0x1000];               //ÕýºÃÒ»¸öÒ³Ãæ
+			uint8_t buf[0x1000];               //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ò³ï¿½ï¿½
 			r = vmx_Cloak_ReadOriginal(PA, buf);
 			if (r == 0)
 			{
@@ -237,13 +237,13 @@ namespace VmxHelper
 // 					LOG_DEBUG("0x%X\r\n", backup_target_address[i]);
 // 				}
 
-				memcpy(buf + target_address_offset, backup_target_address, hookcode_length);  //»Ö¸´±»ÆÆ»µµÄ×Ö½Ú
+				memcpy(buf + target_address_offset, backup_target_address, hookcode_length);  //ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Æ»ï¿½ï¿½ï¿½ï¿½Ö½ï¿½
 
 				r = vmx_Cloak_WriteOriginal(PA, buf);
 
 				if (r == 0)
 				{
-					//LOG_DEBUG("»Ö¸´Ô­Ê¼ÄÚÈÝ\r\n");
+					//LOG_DEBUG("ï¿½Ö¸ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½\r\n");
 					r = vmx_Del_R0Hook(PA);
 
 					if (r == 0)
@@ -252,9 +252,9 @@ namespace VmxHelper
 
 						unsigned char* backup_page_context = g_EptHooks[function_name]->backup_page_context;
 
-						g_EptHooks.erase(function_name);  //ÏÈ´ÓÈÝÆ÷ÀïÌÞ³ý
+						g_EptHooks.erase(function_name);  //ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ³ï¿½
 
-						//È»ºó±éÀúÒ»´Î,¿´¿´»¹ÓÐÃ»ÓÐÒ»ÑùµÄÒ³Ãæ
+						//È»ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
 						int SamePageCount = 0;
 
 						for (auto v : g_EptHooks)
@@ -262,13 +262,13 @@ namespace VmxHelper
 							if (v.second->target_page_address == target_page_address)
 							{
 								SamePageCount += 1;
-								LOG_DEBUG("·¢ÏÖÏàÍ¬Ò³Ãæ»¹´æÔÚHook\r\n");
+								LOG_DEBUG("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬Ò³ï¿½æ»¹ï¿½ï¿½ï¿½ï¿½Hook\r\n");
 							}
 						}
 
 						if (SamePageCount == 0)
 						{
-							LOG_DEBUG("Ã»ÓÐÆäËûÒ³Ãæ ÐèÒªÊÍ·Å±¸·ÝµÄÄÚ´æ\r\n");
+							LOG_DEBUG("Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ ï¿½ï¿½Òªï¿½Í·Å±ï¿½ï¿½Ýµï¿½ï¿½Ú´ï¿½\r\n");
 							r = vmx_Cloak_Deactivate(PA);
 							if (r == 0)
 							{
@@ -335,19 +335,19 @@ namespace VmxHelper
 
 		switch (hookcode_type)
 		{
-		case cc_type:      //¶Ïµã¹Ò¹³·½Ê½
+		case cc_type:      //ï¿½Ïµï¿½Ò¹ï¿½ï¿½ï¿½Ê½
 			hookcode_length = sizeof(cc_code);
 			hookcode = cc_code;
 			break;
-		case ud_type:      //UD¹Ò¹³·½Ê½
+		case ud_type:      //UDï¿½Ò¹ï¿½ï¿½ï¿½Ê½
 			hookcode_length = sizeof(ud_code);
 			hookcode = ud_code;
 			break;
-		case pushret_type: //pushret¹Ò¹³·½Ê½
+		case pushret_type: //pushretï¿½Ò¹ï¿½ï¿½ï¿½Ê½
 			hookcode_length = sizeof(pushret_code);
 			hookcode = (unsigned char*)&pushret_code;
 			break;
-		case jmp_type:     //jmp¹Ò¹³·½Ê½
+		case jmp_type:     //jmpï¿½Ò¹ï¿½ï¿½ï¿½Ê½
 			hookcode_length = sizeof(jmp_code);
 			hookcode = (unsigned char*)&jmp_code;
 			break;
@@ -374,7 +374,7 @@ namespace VmxHelper
 
 		LOG_DEBUG("function_name:%s target_address:0x%p fake_function:0x%p trampoline_address:0x%p \r\n", function_name.c_str(), target_address, fake_function, *trampoline_address);
 
-		//EptÎÞºÛ¹Ò¹³
+		//Eptï¿½ÞºÛ¹Ò¹ï¿½
 		bRet = EptHook(function_name, target_address, fake_function, *trampoline_address, hookcode, hookcode_length);
 
 		return bRet;

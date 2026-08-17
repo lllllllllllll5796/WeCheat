@@ -248,11 +248,11 @@ namespace Global
 
 	BOOL Initialize_Global()
 	{
-		g_KernelProcess = ImpCall(IoGetCurrentProcess);
+		g_KernelProcess = IoGetCurrentProcess();
 
 		OSVERSIONINFOW OsVersion;
 
-		NTSTATUS Status = ImpCall(RtlGetVersion, &OsVersion);
+		NTSTATUS Status = RtlGetVersion(&OsVersion);
 		if (!NT_SUCCESS(Status))
 		{
 			LOG_DEBUG("[-] RtlGetVersion Ê§°Ü\r\n");

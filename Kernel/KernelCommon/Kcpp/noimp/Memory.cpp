@@ -6,7 +6,7 @@ BOOL InitializePteBase(u64 dirbase)
 	PHYSICAL_ADDRESS phAddr; u64 slot = 0;
 	auto pfn = PTE{ dirbase }.PageFrameNumber;
 	phAddr.QuadPart = pfn << PAGE_SHIFT;
-	auto pml4 = (PTE*)ImpCall(MmGetVirtualForPhysical, phAddr);
+	auto pml4 = (PTE*)MmGetVirtualForPhysical(phAddr);
 	while (pml4[slot].PageFrameNumber != pfn) slot++;
 	g_pte_base = (slot << 39) + 0xFFFF000000000000;
 	g_pde_base = g_pte_base + (slot << 30);
@@ -111,7 +111,7 @@ VOID SetMemoryExecute(ULONG64 Address, ULONG tSize)
 {
 	PMMPTE pte = NULL;
 	for (ULONG_PTR pAdress = Address; pAdress < (ULONG_PTR)Address + tSize; pAdress += PAGE_SIZE) {
-		//ÐÞ¸ÄPETÊôÐÔ£¬ÈÃÄÚ´æ¿ÉÖ´ÐÐ
+		//ï¿½Þ¸ï¿½PETï¿½ï¿½ï¿½Ô£ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ö´ï¿½ï¿½
 		PMMPTE pte = (PMMPTE)GetPDEAddress((PVOID)pAdress);
 		if (!pte) {
 			break;

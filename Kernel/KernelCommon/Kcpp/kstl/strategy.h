@@ -27,7 +27,7 @@ namespace eastl
 
 				if (it == itEnd)
 				{
-					LOG_DEBUG("Strategy key = %d\n", key);
+					// LOG_DEBUG("Strategy key = %d\n", key);
 					return RetType();
 				}
 				return it->second(eastl::forward<Args>(args)...);

@@ -12,7 +12,7 @@
 #define EPTO_HOOK_FUNCTION         2
 
 #define EPT_PD_COUNT 512
-#define HOST_PHYSICAL_MEMORY_PD_COUNT 64
+#define HOST_PHYSICAL_MEMORY_PD_COUNT 512
 
 
 #define VMCALL_IDENTIFIER 0xBF5587567C4C830F  //VT_Driver经16位md5摘要
@@ -1200,4 +1200,28 @@ namespace hv
 
 	//将guest虚拟地址转为guest物理地址
 	uint64_t gva2gpa(cr3 guest_cr3, void* gva, size_t* offset_to_next_page = nullptr);
+
+	cr0 read_effective_guest_cr0();
+
+	cr4 read_effective_guest_cr4();
+
+	vmx_interruptibility_state read_interruptibility_state();
+
+	void write_interruptibility_state(vmx_interruptibility_state const value);
+
+	void inject_nmi();
+
+	void inject_single_step(__vcpu* vcpu);
+
+	// set the memory type in every EPT paging structure to the specified value
+	// 将每个 EPT 分页结构中的内存类型设置为指定值将每个 EPT 分页结构中的内存类型设置为指定值
+	void set_ept_memory_type(__ept_state& ept_state, uint8_t const memory_type);
+
+	void update_ept_memory_type(__ept_state& ept_state);
+
+	//读取guest通用寄存器
+	uint64_t read_guest_gpr(guest_context const* const ctx, uint64_t const gpr_idx);
+
+	//写guest通用寄存器
+	void write_guest_gpr(guest_context* const ctx, uint64_t const gpr_idx, uint64_t const value);
 }

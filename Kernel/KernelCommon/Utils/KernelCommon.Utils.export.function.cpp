@@ -5,13 +5,13 @@ namespace KernelCommon
 {
 	namespace Utils
 	{
-		//---------------3»·----------------
+		//---------------3ï¿½ï¿½----------------
 		PVOID GetExportedFunctionAddress(PEPROCESS TargetProcess, PVOID ModuleBase, CONST CHAR* ExportedFunctionName)
 		{
 			::KAPC_STATE State;
 			PVOID FunctionAddress = 0;
 			if (TargetProcess != NULL)
-				ImpCall(KeStackAttachProcess, (PRKPROCESS)TargetProcess, &State);
+				KeStackAttachProcess((PRKPROCESS)TargetProcess, &State);
 
 			do
 			{
@@ -28,14 +28,14 @@ namespace KernelCommon
 				USHORT* Ordinal = (USHORT*)((ULONG64)ModuleBase + ExportDirectory->AddressOfNameOrdinals);
 
 				STRING TargetExportedFunctionName;
-				ImpCall(RtlInitString, &TargetExportedFunctionName, ExportedFunctionName);
+				RtlInitString(&TargetExportedFunctionName, ExportedFunctionName);
 
 				for (size_t i = 0; ExportDirectory->NumberOfFunctions; i++)
 				{
 					STRING CurrentExportedFunctionName;
-					ImpCall(RtlInitString, &CurrentExportedFunctionName, (PCHAR)ModuleBase + Name[i]);
+					RtlInitString(&CurrentExportedFunctionName, (PCHAR)ModuleBase + Name[i]);
 
-					if (ImpCall(RtlCompareString, &TargetExportedFunctionName, &CurrentExportedFunctionName, TRUE) == 0)
+					if (RtlCompareString(&TargetExportedFunctionName, &CurrentExportedFunctionName, TRUE) == 0)
 					{
 						FunctionAddress = (PVOID)((ULONG64)ModuleBase + Address[Ordinal[i]]);
 						break;
@@ -45,7 +45,7 @@ namespace KernelCommon
 			} while (0);
 
 			if (TargetProcess != NULL)
-				ImpCall(KeUnstackDetachProcess, &State);
+				KeUnstackDetachProcess(&State);
 
 			return FunctionAddress;
 		}
@@ -94,7 +94,7 @@ namespace KernelCommon
 
 				if (pExport)
 				{
-					//LOG_DEBUG("ÕÒµ½µ¼³ö±íÁË\r\n");
+					//LOG_DEBUG("ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
 					PULONG AddressOfFunctions = (PULONG)RVATOVA(Image, pExport->AddressOfFunctions);
 					PSHORT AddrOfOrdinals = (PSHORT)RVATOVA(Image, pExport->AddressOfNameOrdinals);
 					PULONG AddressOfNames = (PULONG)RVATOVA(Image, pExport->AddressOfNames);
@@ -106,7 +106,7 @@ namespace KernelCommon
 
 						//LOG_DEBUG("WTF:%s\r\n", (char*)RVATOVA(Image, AddressOfNames[i]));
 
-						if (!ImpCall(strcmp, Func_Name.c_str(), FunctionName.c_str()))
+						if (!strcmp(Func_Name.c_str(), FunctionName.c_str()))
 						{
 							//LOG_DEBUG("AddrOfOrdinals:%llX   i:%d\r\n", AddrOfOrdinals, i);
 							//LOG_DEBUG("AddressOfFunctions:%llX   j:%d\r\n", AddressOfFunctions, AddrOfOrdinals[i]);
@@ -192,7 +192,7 @@ namespace KernelCommon
 						char* cpExportedFunctionName = (char*)(uiLibraryAddress + DEREF_32(uiNameArray));
 
 						// test if we have a match...
-						if (ImpCall(strcmp, cpExportedFunctionName, lpProcName) == 0)
+						if (strcmp(cpExportedFunctionName, lpProcName) == 0)
 						{
 							// use the functions name ordinal as an index into the array of name pointers
 							uiAddressArray += (DEREF_16(uiNameOrdinals) * sizeof(unsigned long));
@@ -246,14 +246,14 @@ namespace KernelCommon
 		}
 
 		/*
-		»ñÈ¡ÏµÍ³µ¼³öº¯ÊýµÄµØÖ·
+		ï¿½ï¿½È¡ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Ö·
 		*/
 		ULONG_PTR GetSystemRoutineAddressByName(PWCHAR funcNameStr)
 		{
 			ULONG_PTR				addr = 0;
 			UNICODE_STRING		funcName = { 0 };
-			ImpCall(RtlInitUnicodeString, &funcName, funcNameStr);
-			addr = (ULONG_PTR)ImpCall(MmGetSystemRoutineAddress, &funcName);
+			RtlInitUnicodeString(&funcName, funcNameStr);
+			addr = (ULONG_PTR)MmGetSystemRoutineAddress(&funcName);
 			return addr;
 		}
 
@@ -263,20 +263,20 @@ namespace KernelCommon
 			UNICODE_STRING usName;
 			NTSTATUS Status;
 
-			ImpCall(RtlInitAnsiString, &asName, FunctionName.c_str());
-			Status = ImpCall(RtlAnsiStringToUnicodeString, &usName, &asName, TRUE);
+			RtlInitAnsiString(&asName, FunctionName.c_str());
+			Status = RtlAnsiStringToUnicodeString(&usName, &asName, TRUE);
 			if (NT_SUCCESS(Status))
 			{
 				//LOG_DEBUG("%wZ\r\n", &usName);
-				auto pfn = ImpCall(MmGetSystemRoutineAddress, &usName);
+				auto pfn = MmGetSystemRoutineAddress(&usName);
 
 				if (pfn)
 				{
-					ImpCall(RtlFreeUnicodeString, &usName);
+					RtlFreeUnicodeString(&usName);
 					return pfn;
 				}
 
-				ImpCall(RtlFreeUnicodeString, &usName);
+				RtlFreeUnicodeString(&usName);
 			}
 
 			return nullptr;

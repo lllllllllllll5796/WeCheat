@@ -12,10 +12,10 @@ namespace KernelCommon
 
 			::KAPC_STATE State;
 			PVOID Address = NULL;
-			ImpCall(KeStackAttachProcess, (PRKPROCESS)TargetProcess, &State);
+			KeStackAttachProcess((PRKPROCESS)TargetProcess, &State);
 
 			UNICODE_STRING TargetModuleName;
-			ImpCall(RtlCreateUnicodeString, &TargetModuleName, ModuleName);
+			RtlCreateUnicodeString(&TargetModuleName, ModuleName);
 
 			__try
 			{
@@ -23,7 +23,7 @@ namespace KernelCommon
 				{
 					if (IsWow64 == TRUE)
 					{
-						wdk::PPEB32 Peb32 = (wdk::PPEB32)ImpCall(PsGetProcessWow64Process, TargetProcess);
+						wdk::PPEB32 Peb32 = (wdk::PPEB32)PsGetProcessWow64Process(TargetProcess);
 
 						for (PLIST_ENTRY32 ListEntry = (PLIST_ENTRY32)((wdk::PPEB_LDR_DATA32)Peb32->Ldr)->InLoadOrderModuleList.Flink;
 							ListEntry != (PLIST_ENTRY32)(&((wdk::PPEB_LDR_DATA32)(Peb32->Ldr))->InLoadOrderModuleList);
@@ -32,9 +32,9 @@ namespace KernelCommon
 							wdk::PLDR_DATA_TABLE_ENTRY32 Entry = CONTAINING_RECORD(ListEntry, wdk::LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks);
 
 							UNICODE_STRING CurrentModuleName;
-							ImpCall(RtlCreateUnicodeString, &CurrentModuleName, (PWCH)Entry->BaseDllName.Buffer);
+							RtlCreateUnicodeString(&CurrentModuleName, (PWCH)Entry->BaseDllName.Buffer);
 
-							if (ImpCall(RtlCompareUnicodeString, &CurrentModuleName, &TargetModuleName, TRUE) == 0)
+							if (RtlCompareUnicodeString(&CurrentModuleName, &TargetModuleName, TRUE) == 0)
 							{
 								Address = (PVOID)Entry->DllBase;
 								break;
@@ -43,7 +43,7 @@ namespace KernelCommon
 					}
 					else
 					{
-						wdk::PPEB64 Peb = (wdk::PPEB64)ImpCall(PsGetProcessPeb, TargetProcess);
+						wdk::PPEB64 Peb = (wdk::PPEB64)PsGetProcessPeb(TargetProcess);
 						for (PLIST_ENTRY ListEntry = (PLIST_ENTRY)((wdk::PPEB_LDR_DATA64)Peb->Ldr)->InLoadOrderModuleList.Flink;
 							ListEntry != (PLIST_ENTRY)(&((wdk::PPEB_LDR_DATA64)(Peb->Ldr))->InLoadOrderModuleList);
 							ListEntry = ListEntry->Flink)
@@ -51,9 +51,9 @@ namespace KernelCommon
 							wdk::PLDR_DATA_TABLE_ENTRY64 Entry = CONTAINING_RECORD(ListEntry, wdk::LDR_DATA_TABLE_ENTRY64, InLoadOrderLinks);
 
 							UNICODE_STRING CurrentModuleName;
-							ImpCall(RtlCreateUnicodeString, &CurrentModuleName, (PCWSTR)(Entry->BaseDllName.Buffer));
+							RtlCreateUnicodeString(&CurrentModuleName, (PCWSTR)(Entry->BaseDllName.Buffer));
 
-							if (ImpCall(RtlCompareUnicodeString, &CurrentModuleName, &TargetModuleName, TRUE) == 0)
+							if (RtlCompareUnicodeString(&CurrentModuleName, &TargetModuleName, TRUE) == 0)
 							{
 								Address = Entry->DllBase;
 								break;
@@ -69,7 +69,7 @@ namespace KernelCommon
 
 			}
 
-			ImpCall(KeUnstackDetachProcess, &State);
+			KeUnstackDetachProcess(&State);
 			return Address;
 		}
 
@@ -94,18 +94,18 @@ namespace KernelCommon
 				PIMAGE_SECTION_HEADER Section = IMAGE_FIRST_SECTION(NtHeader);
 
 				STRING TargetSectionName;
-				ImpCall(RtlInitString, &TargetSectionName, SectionName);
+				RtlInitString(&TargetSectionName, SectionName);
 
 				for (ULONG i = 0; i < NumSections; i++)
 				{
 					STRING CurrentSectionName;
-					ImpCall(RtlInitString, &CurrentSectionName, (PCSZ)Section->Name);
+					RtlInitString(&CurrentSectionName, (PCSZ)Section->Name);
 					if (CurrentSectionName.Length > 8)
 						CurrentSectionName.Length = 8;
 
 					LOG_DEBUG("CurrentSectionName:%s\r\n", Section->Name);
 
-					if (ImpCall(RtlCompareString, &CurrentSectionName, &TargetSectionName, FALSE) == 0)
+					if (RtlCompareString(&CurrentSectionName, &TargetSectionName, FALSE) == 0)
 					{
 						SectionSize = Section->Misc.VirtualSize;
 						SectionBaseAddress = (PVOID)((ULONG64)ImageBase + (ULONG64)Section->VirtualAddress);
@@ -119,7 +119,7 @@ namespace KernelCommon
 			return FALSE;
 		}
 
-		//ÐèÒª¹Ò¿¿ºóÊ¹ÓÃ
+		//ï¿½ï¿½Òªï¿½Ò¿ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½
 		PVOID AttachedProcess_GetModuleBase_x86(PEPROCESS pEProcess, PWCHAR pModuleName, OUT ULONG* SizeOfImage)
 		{
 			PVOID DllBase = nullptr;
@@ -128,8 +128,8 @@ namespace KernelCommon
 
 			UNICODE_STRING usModuleName;
 
-			ImpCall(RtlInitUnicodeString, &usModuleName, pModuleName);
-			pPeb = (wdk::PPEB32)ImpCall(PsGetProcessWow64Process, pEProcess);
+			RtlInitUnicodeString(&usModuleName, pModuleName);
+			pPeb = (wdk::PPEB32)PsGetProcessWow64Process(pEProcess);
 
 			if (pPeb == NULL || pPeb->Ldr == 0)
 			{
@@ -147,8 +147,8 @@ namespace KernelCommon
 				}
 
 				UNICODE_STRING usCurrentName = { 0 };
-				ImpCall(RtlInitUnicodeString, &usCurrentName, (PWCHAR)LdrEntry->BaseDllName.Buffer);
-				if (ImpCall(RtlEqualUnicodeString, &usModuleName, &usCurrentName, TRUE))
+				RtlInitUnicodeString(&usCurrentName, (PWCHAR)LdrEntry->BaseDllName.Buffer);
+				if (RtlEqualUnicodeString(&usModuleName, &usCurrentName, TRUE))
 				{
 					DllBase = (PVOID)LdrEntry->DllBase;
 					*SizeOfImage = LdrEntry->SizeOfImage;
@@ -161,11 +161,11 @@ namespace KernelCommon
 			return NULL;
 		}
 
-		//ÐèÒª¹Ò¿¿ºóÊ¹ÓÃ
+		//ï¿½ï¿½Òªï¿½Ò¿ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½
 		PVOID AttachedProcess_GetModuleBase_x64(PEPROCESS pEProcess, PWCHAR pModuleName, OUT ULONG* SizeOfImage)
 		{
 			PVOID DllBase = nullptr;
-			auto vPeb = (wdk::PPEB)ImpCall(PsGetProcessPeb, pEProcess);
+			auto vPeb = (wdk::PPEB)PsGetProcessPeb(pEProcess);
 			if (vPeb == nullptr)
 			{
 				LOG_DEBUG("PEB is null\r\n", vPeb);
@@ -183,7 +183,7 @@ namespace KernelCommon
 				auto vDllName = (PUNICODE_STRING)&vLdrEntry->BaseDllName;
 				//LOG_DEBUG("%S", vDllName->Buffer);
 				//
-				if (ImpCall(_wcsnicmp, vDllName->Buffer, pModuleName, vDllName->Length / sizeof(wchar_t)) == 0)
+				if (_wcsnicmp(vDllName->Buffer, pModuleName, vDllName->Length / sizeof(wchar_t)) == 0)
 				{
 					DllBase = vLdrEntry->DllBase;
 					*SizeOfImage = vLdrEntry->SizeOfImage;
@@ -207,9 +207,9 @@ namespace KernelCommon
 				return STATUS_UNSUCCESSFUL;
 			}
 
-			//µÃµ½Ä£¿éÐÅÏ¢(ÆðÊ¼µØÖ·,Ä£¿é´óÐ¡)
+			//ï¿½Ãµï¿½Ä£ï¿½ï¿½ï¿½ï¿½Ï¢(ï¿½ï¿½Ê¼ï¿½ï¿½Ö·,Ä£ï¿½ï¿½ï¿½Ð¡)
 			PEPROCESS Process = NULL;
-			status = ImpCall(PsLookupProcessByProcessId, (HANDLE)ProcessID, &Process);
+			status = PsLookupProcessByProcessId((HANDLE)ProcessID, &Process);
 
 			if (!NT_SUCCESS(status))
 			{
@@ -221,11 +221,11 @@ namespace KernelCommon
 				return STATUS_UNSUCCESSFUL;
 			}
 
-			auto Is_x86 = ImpCall(PsGetProcessWow64Process, Process);
+			auto Is_x86 = PsGetProcessWow64Process(Process);
 
 			::KAPC_STATE KAPC;
 
-			ImpCall(KeStackAttachProcess, Process, &KAPC);
+			KeStackAttachProcess(Process, &KAPC);
 
 			if (Is_x86)
 			{
@@ -249,14 +249,14 @@ namespace KernelCommon
 			status = STATUS_SUCCESS;
 
 		$EXIT:
-			ImpCall(KeUnstackDetachProcess, &KAPC);
-			ImpCall(ObfDereferenceObject, Process);
+			KeUnstackDetachProcess(&KAPC);
+			ObfDereferenceObject(Process);
 			Process = NULL;
 
 			return status;
 		}
 
-		//Í¨¹ýPEPROCESSºÍÃû³Æ»ñµÃDllµÄÄ£¿é
+		//Í¨ï¿½ï¿½PEPROCESSï¿½ï¿½ï¿½ï¿½ï¿½Æ»ï¿½ï¿½Dllï¿½ï¿½Ä£ï¿½ï¿½
 		PVOID GetModuleBaseBySystemApi(PEPROCESS TargetProcess, PWCHAR ModuleName)
 		{
 			//https://github.com/imgits/scdetective/blob/1625a7f30900305711057806608cd2867056726c/ScDetective_Driver/ScDetective/Process/Process.c#L802
@@ -274,7 +274,7 @@ namespace KernelCommon
 			{
 				wdk::MEMORY_BASIC_INFORMATION mbi;
 
-				NTSTATUS Status = ImpCall(ZwQueryVirtualMemory, ZwCurrentProcess(),
+				NTSTATUS Status = ZwQueryVirtualMemory(ZwCurrentProcess(),
 					(PVOID)ulBase,
 					(::MEMORY_INFORMATION_CLASS)(0),  //wdk::MEMORY_INFORMATION_CLASS::MemoryBasicInformation
 					&mbi,
@@ -284,13 +284,13 @@ namespace KernelCommon
 				if (NT_SUCCESS(Status))
 				{
 
-					//Èç¹ûÊÇImage ÔÙ²éÑ¯SectionName,¼´FileObject Name
+					//ï¿½ï¿½ï¿½ï¿½ï¿½Image ï¿½Ù²ï¿½Ñ¯SectionName,ï¿½ï¿½FileObject Name
 					if (mbi.Type == SEC_IMAGE)
 					{
 
 						wdk::MEMORY_MAPPED_FILE_NAME_INFORMATION msn;
 
-						Status = ImpCall(ZwQueryVirtualMemory, ZwCurrentProcess(),
+						Status = ZwQueryVirtualMemory(ZwCurrentProcess(),
 							(PVOID)ulBase,
 							(::MEMORY_INFORMATION_CLASS)(2),  //wdk::MEMORY_INFORMATION_CLASS::MemoryMappedFilenameInformation
 							&msn,
@@ -299,7 +299,7 @@ namespace KernelCommon
 
 						if (NT_SUCCESS(Status))
 						{
-							LOG_DEBUG("SectionName:%wZ,base=%p\r\n", &(msn.Name), ulBase);  //·Å¿ª¿ÉÒÔ¿´µ½ºÜ¶àÐÅÏ¢
+							LOG_DEBUG("SectionName:%wZ,base=%p\r\n", &(msn.Name), ulBase);  //ï¿½Å¿ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½ï¿½ï¿½Ï¢
 						}
 
 					}
@@ -334,7 +334,7 @@ namespace KernelCommon
 			//#else
 			//				HighUserAddress = 0x80000000;
 			//#endif
-			auto Status = ImpCall(ObOpenObjectByPointer, TargetProcess,
+			auto Status = ObOpenObjectByPointer(TargetProcess,
 				OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE,
 				NULL,
 				GENERIC_ALL,
@@ -349,7 +349,7 @@ namespace KernelCommon
 				{
 					wdk::MEMORY_BASIC_INFORMATION mbi;
 
-					Status = ImpCall(ZwQueryVirtualMemory, hProcess,
+					Status = ZwQueryVirtualMemory(hProcess,
 						(PVOID)ulBase,
 						(::MEMORY_INFORMATION_CLASS)(0),  //wdk::MEMORY_INFORMATION_CLASS::MemoryBasicInformation
 						&mbi,
@@ -358,13 +358,13 @@ namespace KernelCommon
 
 					if (NT_SUCCESS(Status))
 					{
-						//Èç¹ûÊÇImage ÔÙ²éÑ¯SectionName,¼´FileObject Name
+						//ï¿½ï¿½ï¿½ï¿½ï¿½Image ï¿½Ù²ï¿½Ñ¯SectionName,ï¿½ï¿½FileObject Name
 
 						if (mbi.Type == SEC_IMAGE)
 						{
 							wdk::MEMORY_MAPPED_FILE_NAME_INFORMATION msn;
 
-							Status = ImpCall(ZwQueryVirtualMemory, hProcess,
+							Status = ZwQueryVirtualMemory(hProcess,
 								(PVOID)ulBase,
 								(::MEMORY_INFORMATION_CLASS)(2),  //wdk::MEMORY_INFORMATION_CLASS::MemoryMappedFilenameInformation
 								&msn,
@@ -377,14 +377,14 @@ namespace KernelCommon
 								SectionName:\Device\HarddiskVolume2\Windows\SysWOW64\ntdll.dll,base=0000000077BF0000
 								*/
 								//UNICODE_STRING DosName;
-								//LOG_DEBUG("SectionName:%wZ,base=%p\r\n", &(msn.Name), ulBase);  //·Å¿ª¿ÉÒÔ¿´µ½ºÜ¶àÐÅÏ¢
+								//LOG_DEBUG("SectionName:%wZ,base=%p\r\n", &(msn.Name), ulBase);  //ï¿½Å¿ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½ï¿½ï¿½Ï¢
 								eastl::wstring temp(msn.Name.Buffer);
 								if (DllName == oxorany(L"ntdll.dll"))
 								{
-									// ntdll ÌØÊâ´¦Àí
+									// ntdll ï¿½ï¿½ï¿½â´¦ï¿½ï¿½
 									if (!IsX64)
 									{
-										//X86Ó¦¸ÃÊÇ·µ»Øx86µÄÄÇ¸ö\Windows\SysWOW64\ntdll.dll
+										//X86Ó¦ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½x86ï¿½ï¿½ï¿½Ç¸ï¿½\Windows\SysWOW64\ntdll.dll
 										if (temp.find(oxorany(L"\\Windows\\SysWOW64\\ntdll.dll")) !=
 											eastl::wstring::npos
 											)
@@ -408,7 +408,7 @@ namespace KernelCommon
 								}
 								else
 								{
-									//ÆÕÍ¨´¦Àí
+									//ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½
 									if (temp.find(DllName) != eastl::wstring::npos)
 									{
 										result = (PVOID)(ulBase);
@@ -428,7 +428,7 @@ namespace KernelCommon
 
 				if (hProcess)
 				{
-					ImpCall(ZwClose, hProcess);
+					ZwClose(hProcess);
 				}
 			}
 
@@ -441,11 +441,11 @@ namespace KernelCommon
 			UNICODE_STRING apiname = { 0 };
 			PVOID apiaddr = NULL;
 
-			ImpCall(RtlInitUnicodeString, &apiname, L"NtCreateFile");
+			RtlInitUnicodeString(&apiname, L"NtCreateFile");
 
-			apiaddr = ImpCall(MmGetSystemRoutineAddress, &apiname);
+			apiaddr = MmGetSystemRoutineAddress(&apiname);
 
-			ImpCall(RtlPcToFileHeader, (PVOID)apiaddr, &pret);
+			RtlPcToFileHeader((PVOID)apiaddr, &pret);
 
 			return pret;
 		}
@@ -457,7 +457,7 @@ namespace KernelCommon
 
 			ULONG SystemInfoBufferSize = 0;
 
-			NTSTATUS status = ImpCall(ZwQuerySystemInformation, wdk::SystemModuleInformation,
+			NTSTATUS status = ZwQuerySystemInformation(wdk::SystemModuleInformation,
 				&SystemInfoBufferSize,
 				0,
 				&SystemInfoBufferSize);
@@ -468,7 +468,7 @@ namespace KernelCommon
 				return NULL;
 			}
 
-			pSystemInfoBuffer = (PSYSTEM_MODULE_INFORMATION)ImpCall(ExAllocatePool, NonPagedPool, SystemInfoBufferSize * 2);
+			pSystemInfoBuffer = (PSYSTEM_MODULE_INFORMATION)ExAllocatePool(NonPagedPool, SystemInfoBufferSize * 2);
 
 			if (!pSystemInfoBuffer)
 			{
@@ -478,7 +478,7 @@ namespace KernelCommon
 
 			memset(pSystemInfoBuffer, 0, SystemInfoBufferSize * 2);
 
-			status = ImpCall(ZwQuerySystemInformation, wdk::SystemModuleInformation,
+			status = ZwQuerySystemInformation(wdk::SystemModuleInformation,
 				pSystemInfoBuffer,
 				SystemInfoBufferSize * 2,
 				&SystemInfoBufferSize);
@@ -494,7 +494,7 @@ namespace KernelCommon
 				LOG_DEBUG("ZwQuerySystemInformation (2) failed...\r\n");
 			}
 
-			ImpCall(ExFreePool, pSystemInfoBuffer);
+			ExFreePool(pSystemInfoBuffer);
 
 			return pModuleBase;
 		}
@@ -508,18 +508,18 @@ namespace KernelCommon
 			wdk::PRTL_PROCESS_MODULES v_modules;
 			do
 			{
-				pBuffer = ImpCall(ExAllocatePool, PagedPool, BufferSize);
+				pBuffer = ExAllocatePool(PagedPool, BufferSize);
 				if (pBuffer == nullptr)
 					return;
-				v_ret_status = ImpCall(ZwQuerySystemInformation, wdk::SystemModuleInformation, pBuffer, BufferSize, &NeedSize);
+				v_ret_status = ZwQuerySystemInformation(wdk::SystemModuleInformation, pBuffer, BufferSize, &NeedSize);
 				if (v_ret_status == STATUS_INFO_LENGTH_MISMATCH)
 				{
-					ImpCall(ExFreePool, pBuffer);
+					ExFreePool(pBuffer);
 					BufferSize *= 2;
 				}
 				else if (!NT_SUCCESS(v_ret_status))
 				{
-					ImpCall(ExFreePool, pBuffer);
+					ExFreePool(pBuffer);
 					return;
 				}
 			} while (v_ret_status == STATUS_INFO_LENGTH_MISMATCH);
@@ -541,7 +541,7 @@ namespace KernelCommon
 				}
 			}
 		exit_sub:
-			ImpCall(ExFreePool, pBuffer);
+			ExFreePool(pBuffer);
 		}
 
 		NTSTATUS GetModuleNameForAddress(IN PVOID ProcessVa, OUT PCHAR FileNameBuff)
@@ -554,17 +554,17 @@ namespace KernelCommon
 			if (NT_SUCCESS(status))
 			{
 				ULONG need = 0;
-				ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, 0, 0, &need);
-				auto buff = reinterpret_cast<PSYSTEM_MODULE_INFORMATION>(ImpCall(ExAllocatePool, NonPagedPool, need));
+				ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, 0, 0, &need);
+				auto buff = reinterpret_cast<PSYSTEM_MODULE_INFORMATION>(ExAllocatePool(NonPagedPool, need));
 				if (!buff)
 				{
 					status = STATUS_UNSUCCESSFUL;
 					return status;
 				}
-				status = ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, buff, need, &need);
+				status = ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, buff, need, &need);
 				if (!NT_SUCCESS(status))
 				{
-					ImpCall(ExFreePool, buff);
+					ExFreePool(buff);
 				}
 
 				PSYSTEM_MODULE_ENTRY next;
@@ -573,7 +573,7 @@ namespace KernelCommon
 				{
 					if (ProcessVa >= next->ImageBase && (next->ImageSize + (ULONG64)next->ImageBase) >= (ULONG64)ProcessVa)
 					{
-						ImpCall(strcpy, FileNameBuff, (const char*)next->FullPathName);
+						strcpy(FileNameBuff, (const char*)next->FullPathName);
 						delete buff;
 						return STATUS_SUCCESS;
 					}

@@ -2,9 +2,6 @@
 #include "Wdk.MmStruct.inl"
 #include "Wdk.RtlKernel.inl"
 
-extern decltype(&MmGetSystemRoutineAddress) MmGetSystemRoutineAddressFn;
-extern decltype(&RtlCompareMemory) RtlCompareMemoryFn;
-
 namespace wdk
 {
     extern"C"
@@ -189,7 +186,7 @@ namespace wdk
                     0x48, 0xBA, // 00 00 00 00 80 F6 FF FF
                 };
 
-                auto vSearchAddress = (UINT8*)MmGetSystemRoutineAddressFn(const_cast<PUNICODE_STRING>(&cName));
+                auto vSearchAddress = (UINT8*)MmGetSystemRoutineAddress(const_cast<PUNICODE_STRING>(&cName));
                 if (nullptr == vSearchAddress)
                 {
                     vStatus = STATUS_NOT_FOUND;
@@ -199,7 +196,7 @@ namespace wdk
                 UINT8* vHitAddress = nullptr;
                 for (auto i = 0u; i < 0x60; ++i)
                 {
-                    if (sizeof(sSearchPatten) == RtlCompareMemoryFn(
+                    if (sizeof(sSearchPatten) == RtlCompareMemory(
                         &vSearchAddress[i], sSearchPatten, sizeof(sSearchPatten)))
                     {
                         vHitAddress = &vSearchAddress[i];

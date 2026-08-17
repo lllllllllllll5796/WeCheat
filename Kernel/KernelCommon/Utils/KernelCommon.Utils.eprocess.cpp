@@ -10,39 +10,39 @@ namespace KernelCommon
 			NTSTATUS Status;
 			ULONG Bytes;
 
-			ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemProcessInformation, NULL, NULL, &Bytes);
-			wdk::PSYSTEM_PROCESS_INFORMATION ProcInfo = (wdk::PSYSTEM_PROCESS_INFORMATION)ImpCall(ExAllocatePool, NonPagedPool, Bytes);
+			ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemProcessInformation, NULL, NULL, &Bytes);
+			wdk::PSYSTEM_PROCESS_INFORMATION ProcInfo = (wdk::PSYSTEM_PROCESS_INFORMATION)ExAllocatePool(NonPagedPool, Bytes);
 			if (ProcInfo == NULL)
 				return NULL;
 
 			RtlSecureZeroMemory(ProcInfo, Bytes);
 
-			Status = ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemProcessInformation, ProcInfo, Bytes, &Bytes);
+			Status = ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemProcessInformation, ProcInfo, Bytes, &Bytes);
 			if (NT_SUCCESS(Status) == FALSE)
 			{
-				ImpCall(ExFreePool, ProcInfo);
+				ExFreePool(ProcInfo);
 				return NULL;
 			}
 
 			UNICODE_STRING ProcessImageName;
-			ImpCall(RtlCreateUnicodeString, &ProcessImageName, ProcessName);
+			RtlCreateUnicodeString(&ProcessImageName, ProcessName);
 
 			for (wdk::PSYSTEM_PROCESS_INFORMATION Entry = ProcInfo; Entry->NextEntryOffset != NULL; Entry = (wdk::PSYSTEM_PROCESS_INFORMATION)((UCHAR*)Entry + Entry->NextEntryOffset))
 			{
 				if (Entry->ImageName.Buffer != NULL)
 				{
-					if (ImpCall(RtlCompareUnicodeString, &Entry->ImageName, &ProcessImageName, TRUE) == 0)
+					if (RtlCompareUnicodeString(&Entry->ImageName, &ProcessImageName, TRUE) == 0)
 					{
 						PEPROCESS CurrentPeprocess;
-						ImpCall(PsLookupProcessByProcessId, (HANDLE)(Entry->UniqueProcessId), &CurrentPeprocess);
-						ImpCall(ObfDereferenceObject, CurrentPeprocess);
-						ImpCall(ExFreePool, ProcInfo);
+						PsLookupProcessByProcessId((HANDLE)(Entry->UniqueProcessId), &CurrentPeprocess);
+						ObfDereferenceObject(CurrentPeprocess);
+						ExFreePool(ProcInfo);
 						return CurrentPeprocess;
 					}
 				}
 			}
 
-			ImpCall(ExFreePool, ProcInfo);
+			ExFreePool(ProcInfo);
 			return NULL;
 		}
 
@@ -62,9 +62,9 @@ namespace KernelCommon
 		PEPROCESS GetEProcessByProcessId(HANDLE ProcessId)
 		{
 			PEPROCESS Process = NULL;
-			if (NT_SUCCESS(ImpCall(PsLookupProcessByProcessId, ProcessId, &Process)))
+			if (NT_SUCCESS(PsLookupProcessByProcessId(ProcessId, &Process)))
 			{
-				ImpCall(ObfDereferenceObject, Process);
+				ObfDereferenceObject(Process);
 			}
 			return Process;
 		}
@@ -75,7 +75,7 @@ namespace KernelCommon
 			PUNICODE_STRING Image;
 			if (Process)
 			{
-				auto ns = ImpCall(SeLocateProcessImageName, Process, &Image);
+				auto ns = SeLocateProcessImageName(Process, &Image);
 
 				if (NT_SUCCESS(ns))
 				{
@@ -84,13 +84,13 @@ namespace KernelCommon
 						if (Image->Buffer != NULL)
 						{
 							wchar_t wstr[MAX_PATH] = { 0 };
-							ImpCall(wcsncpy, wstr, Image->Buffer, Image->Length / 2);
+							wcsncpy(wstr, Image->Buffer, Image->Length / 2);
 							wstr[Image->Length / 2] = 0;
 							//LOG_DEBUG("1111:%S\r\n", wstr);
 							strName = wstr;
 						}
 					}
-					ImpCall(ExFreePool, Image);
+					ExFreePool(Image);
 				}
 			}
 			return strName;
@@ -104,7 +104,7 @@ namespace KernelCommon
 
 			UNICODE_STRING FullImageName;
 
-			ImpCall(RtlInitUnicodeString, &FullImageName, wsName.c_str());
+			RtlInitUnicodeString(&FullImageName, wsName.c_str());
 
 			//LOG_DEBUG("PsQueryFullProcessImageName--->FullImageName:%wZ\r\n", FullImageName);
 
@@ -114,7 +114,7 @@ namespace KernelCommon
 				{
 					if (FullImageName.Buffer[i] == L'\\')
 					{
-						ImpCall(RtlInitUnicodeString, &TruncatedFullImageName, &FullImageName.Buffer[i + 1]);
+						RtlInitUnicodeString(&TruncatedFullImageName, &FullImageName.Buffer[i + 1]);
 						break;
 					}
 				}
@@ -144,30 +144,30 @@ namespace KernelCommon
 		BOOL IsWow64Process(PEPROCESS Process)
 		{
 			UNICODE_STRING uRoutineName;
-			ImpCall(RtlInitUnicodeString, &uRoutineName, L"PsGetProcessWow64Process");
-			auto PsGetProcessPebWow64 = (fnPsGetProcessWow64Process)ImpCall(MmGetSystemRoutineAddress, &uRoutineName);
+			RtlInitUnicodeString(&uRoutineName, L"PsGetProcessWow64Process");
+			auto PsGetProcessPebWow64 = (fnPsGetProcessWow64Process)MmGetSystemRoutineAddress(&uRoutineName);
 			return PsGetProcessPebWow64(Process) != 0;
 		}
 
 		PVOID GetProcessPebWow64(PEPROCESS Process)
 		{
 			UNICODE_STRING uRoutineName;
-			ImpCall(RtlInitUnicodeString, &uRoutineName, L"PsGetProcessWow64Process");
-			auto PsGetProcessPebWow64 = (fnPsGetProcessWow64Process)ImpCall(MmGetSystemRoutineAddress, &uRoutineName);
+			RtlInitUnicodeString(&uRoutineName, L"PsGetProcessWow64Process");
+			auto PsGetProcessPebWow64 = (fnPsGetProcessWow64Process)MmGetSystemRoutineAddress(&uRoutineName);
 			return (PVOID)PsGetProcessPebWow64(Process);
 		}
 
 		PVOID GetProcessPeb64(PEPROCESS Process)
 		{
 			UNICODE_STRING uRoutineName;
-			ImpCall(RtlInitUnicodeString, &uRoutineName, L"PsGetProcessPeb");
-			auto PsGetProcessPeb64 = (fnPsGetProcessPeb)ImpCall(MmGetSystemRoutineAddress, &uRoutineName);
+			RtlInitUnicodeString(&uRoutineName, L"PsGetProcessPeb");
+			auto PsGetProcessPeb64 = (fnPsGetProcessPeb)MmGetSystemRoutineAddress(&uRoutineName);
 			return (PVOID)PsGetProcessPeb64(Process);
 		}
 
 		PVOID GetProcessDebugPort(_In_ PEPROCESS Process)
 		{
-			return ImpCall(PsGetProcessDebugPort, Process);
+			return PsGetProcessDebugPort(Process);
 		}
 
 	}

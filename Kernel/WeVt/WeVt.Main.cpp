@@ -13,6 +13,16 @@ VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
 	UNREFERENCED_PARAMETER(DriverObject);
 
+	if (Global::g_HypervisorRunning && g_vmm_context.vcpu != nullptr)
+	{
+		hvgt::ept_unhook();
+		hvgt::vmoff(g_vmm_context.processor_count);
+	}
+
+	hv::disable_vmx_operation();
+	free_vmm_context();
+	Global::g_HypervisorRunning = FALSE;
+
 	Global::UnInitialize_Global();
 
 	LogDestroy();
@@ -132,18 +142,32 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 				return STATUS_UNSUCCESSFUL;
 			}
 
-			//
-			// Initialize and start virtual machine
-			// If it fails turn off vmx and deallocate all structures
-			// 初始化 并安装vt
-			//
+			Global::g_SuportVT = TRUE;
 
 			hv::InitGlobalVariables();
+
 			if (vmm_init() == false)
 			{
-
+				hvgt::vmoff(g_vmm_context.processor_count);
+				hv::disable_vmx_operation();
+				free_vmm_context();
+#if ENABLE_TRACE
+				TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] Vmm initialization failed");
+#endif
+				return STATUS_UNSUCCESSFUL;
 			}
 
+			Global::g_HypervisorRunning = TRUE;
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "[+] Vmm launched, processor_count=%u", g_vmm_context.processor_count);
+#endif
+		}
+		else
+		{
+#if ENABLE_TRACE
+			TraceEvents(TRACE_LEVEL_ERROR, TRACE_DRIVER, "[-] InitNtoskrnlSymbolsTable failed");
+#endif
+			return STATUS_UNSUCCESSFUL;
 		}
 
 	}

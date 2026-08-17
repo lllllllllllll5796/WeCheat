@@ -93,7 +93,7 @@ namespace _lxy_ {
 		constexpr operator value_type() const noexcept {
 			return value;
 		}
-		//编译器爆红改之
+
 //		_NODISCARD constexpr value_type operator()() const noexcept {
 //			return value;
 //		}
@@ -103,7 +103,6 @@ namespace _lxy_ {
 	};
 
 #ifdef OXORANY_USE_BIT_CAST
-	//编译器爆红改之
 //	template <class _To, class _From>
 //	_NODISCARD constexpr _To _Bit_cast(const _From& _Val) noexcept {
 //		return __builtin_bit_cast(_To, _Val);

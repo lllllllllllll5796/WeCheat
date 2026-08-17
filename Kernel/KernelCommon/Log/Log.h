@@ -40,7 +40,6 @@
 #endif
 
 // #include "ntapi.h"
-
 #if defined(DBG)
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -88,7 +87,7 @@
  *  A message should not exceede 512 bytes after all string construction is
  *  done; otherwise this macro fails to log and returns non STATUS_SUCCESS.
  */
-#if defined(ENABLE_LOG)
+#if (ENABLE_LOG)
 
 #if defined(__GNUC__) || defined(__clang__)
 #define LOG_DEBUG(fmt,...)  LogPrint(LogLevelDebug, __FUNCTION__, fmt, ##__VA_ARGS__)
@@ -107,6 +106,7 @@
 #define LOG_INFO(fmt,...)   ((void)fmt)
 #define LOG_WARN(fmt,...)   ((void)fmt)
 #define LOG_ERROR(fmt,...)  ((void)fmt)
+
 #endif // ENABLE_LOG
 
 /**
@@ -121,7 +121,7 @@
  *  expectable in order to avoid system instability.
  *  @see LOG_DEBUG
  */
-#if defined(ENABLE_LOG)
+#if (ENABLE_LOG)
 
 #if defined(__GNUC__) || defined(__clang__)
 #define LOG_DEBUG_SAFE(fmt, ...)    LogPrint(LogLevelDebug | LogLevelOptSafe, __FUNCTION__, fmt, ##__VA_ARGS__)
@@ -183,7 +183,7 @@ typedef enum _LOG_LEVEL_OPTIONS {
     LogOptDisableAppend = 0x800ul
 } LOG_LEVEL_OPTIONS;
 
-#if defined(ENABLE_LOG)
+#if (ENABLE_LOG)
 
 //
 // Log Prototypes

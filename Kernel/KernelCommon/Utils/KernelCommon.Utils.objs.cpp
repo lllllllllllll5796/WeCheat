@@ -12,18 +12,18 @@ namespace KernelCommon
 			BOOL bRet = FALSE;
 			OBJECT_ATTRIBUTES oa;
 			UNICODE_STRING nsObjectTypes;
-			ImpCall(RtlInitUnicodeString, &nsObjectTypes, L"\\ObjectTypes");
+			RtlInitUnicodeString(&nsObjectTypes, L"\\ObjectTypes");
 			InitializeObjectAttributes(&oa,
 				&nsObjectTypes,
 				OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
 				nullptr,
 				nullptr);
 			HANDLE DirectoryHandle = nullptr;
-			auto ns = ImpCall(ZwOpenDirectoryObject, &DirectoryHandle, DIRECTORY_QUERY, &oa);
+			auto ns = ZwOpenDirectoryObject(&DirectoryHandle, DIRECTORY_QUERY, &oa);
 			if (NT_SUCCESS(ns))
 			{
 				PVOID dir_object = nullptr;
-				ns = ImpCall(ObReferenceObjectByHandle, DirectoryHandle,
+				ns = ObReferenceObjectByHandle(DirectoryHandle,
 					0,
 					nullptr,
 					KernelMode,
@@ -41,7 +41,7 @@ namespace KernelCommon
 							wchar_t buffer[MAX_PATH * 2] = { 0 };
 							auto d_size = 0UL;
 							POBJECT_NAME_INFORMATION wcName = (POBJECT_NAME_INFORMATION)buffer;
-							auto ns = ImpCall(ObQueryNameString, DirectoryEntry->Object,
+							auto ns = ObQueryNameString(DirectoryEntry->Object,
 								(POBJECT_NAME_INFORMATION)wcName,
 								sizeof(buffer),
 								&d_size);
@@ -53,10 +53,10 @@ namespace KernelCommon
 							DirectoryEntry = DirectoryEntry->ChainLink;
 						}
 					}
-					ImpCall(ObfDereferenceObject, dir_object);
+					ObfDereferenceObject(dir_object);
 					bRet = TRUE;
 				}
-				ImpCall(ZwClose, DirectoryHandle);
+				ZwClose(DirectoryHandle);
 			}
 
 			return bRet;
@@ -67,18 +67,18 @@ namespace KernelCommon
 			BOOL bRet = FALSE;
 			OBJECT_ATTRIBUTES oa;
 			UNICODE_STRING nsRPCControls;
-			ImpCall(RtlInitUnicodeString, &nsRPCControls, L"\\RPC Control");
+			RtlInitUnicodeString(&nsRPCControls, L"\\RPC Control");
 			InitializeObjectAttributes(&oa,
 				&nsRPCControls,
 				OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
 				nullptr,
 				nullptr);
 			HANDLE DirectoryHandle = nullptr;
-			auto ns = ImpCall(ZwOpenDirectoryObject, &DirectoryHandle, DIRECTORY_QUERY, &oa);
+			auto ns = ZwOpenDirectoryObject(&DirectoryHandle, DIRECTORY_QUERY, &oa);
 			if (NT_SUCCESS(ns))
 			{
 				PVOID dir_object = nullptr;
-				ns = ImpCall(ObReferenceObjectByHandle, DirectoryHandle,
+				ns = ObReferenceObjectByHandle(DirectoryHandle,
 					0,
 					nullptr,
 					KernelMode,
@@ -96,7 +96,7 @@ namespace KernelCommon
 							wchar_t buffer[MAX_PATH * 2] = { 0 };
 							auto d_size = 0UL;
 							POBJECT_NAME_INFORMATION wcName = (POBJECT_NAME_INFORMATION)buffer;
-							auto ns = ImpCall(ObQueryNameString, DirectoryEntry->Object,
+							auto ns = ObQueryNameString(DirectoryEntry->Object,
 								(POBJECT_NAME_INFORMATION)wcName,
 								sizeof(buffer),
 								&d_size);
@@ -108,10 +108,10 @@ namespace KernelCommon
 							DirectoryEntry = DirectoryEntry->ChainLink;
 						}
 					}
-					ImpCall(ObfDereferenceObject, dir_object);
+					ObfDereferenceObject(dir_object);
 					bRet = TRUE;
 				}
-				ImpCall(ZwClose, DirectoryHandle);
+				ZwClose(DirectoryHandle);
 			}
 
 			return bRet;

@@ -9,7 +9,7 @@ namespace KernelCommon
 
 		KIRQL RaiseIrql()
 		{
-			KIRQL irql = ImpCall(KeRaiseIrqlToDpcLevel);
+			KIRQL irql = KeRaiseIrqlToDpcLevel();
 			_disable();
 			return irql;
 		}
@@ -17,12 +17,12 @@ namespace KernelCommon
 		VOID LowerIrql(KIRQL irql)
 		{
 			_enable();
-			ImpCall(KeLowerIrql, irql);
+			KeLowerIrql(irql);
 		}
 
 		KIRQL WPOFFx64()
 		{
-			KIRQL irql = ImpCall(KeRaiseIrqlToDpcLevel);
+			KIRQL irql = KeRaiseIrqlToDpcLevel();
 			UINT64 cr0 = __readcr0();
 			cr0 &= 0xfffffffffffeffff;
 			__writecr0(cr0);
@@ -36,7 +36,7 @@ namespace KernelCommon
 			cr0 |= 0x10000;
 			_enable();
 			__writecr0(cr0);
-			ImpCall(KeLowerIrql, irql);
+			KeLowerIrql(irql);
 		}
 
 		eastl::string GetCpuID()
@@ -78,7 +78,7 @@ namespace KernelCommon
 			if ((ULONG_PTR)Address <= kernelStarts)
 				return FALSE;
 
-			if (!ImpCall(MmIsAddressValid, Address))
+			if (!MmIsAddressValid(Address))
 				return FALSE;
 
 			return TRUE;
@@ -144,7 +144,7 @@ namespace KernelCommon
 			// The KM versions seem to have been unaffected by this change, at least up until RS3.
 			// If this ever starts returning values >= Max, try the above scale instead
 			const ULONG Scale = static_cast<ULONG>(MAXINT32) / (Max - Min);
-			return ImpCall(RtlRandomEx, &g_RandomSeed) / Scale + Min;
+			return RtlRandomEx(&g_RandomSeed) / Scale + Min;
 		}
 
 		ULONG GetPoolTag()
@@ -284,7 +284,7 @@ namespace KernelCommon
 			WriteRaw(&FastMutex->Count, FM_LOCK_BIT);
 			FastMutex->Owner = NULL;
 			FastMutex->Contention = 0;
-			ImpCall(KeInitializeEvent, &FastMutex->Event, SynchronizationEvent, FALSE);
+			KeInitializeEvent(&FastMutex->Event, SynchronizationEvent, FALSE);
 			return;
 		}
 
@@ -297,16 +297,10 @@ namespace KernelCommon
 		ULONG GetPreviousModeOffset()
 		{
 			auto PrevModeOffset = 0UL;
-			PVOID fnExGetPreviousMode = NULL;
 
-			if (ExGetPreviousModeFn)
-			{
-				fnExGetPreviousMode = ExGetPreviousModeFn;
-			}
-			else
-			{
-				fnExGetPreviousMode = GetSystemRoutineAddress(oxorany("ExGetPreviousMode"));
-			}
+			PVOID fnExGetPreviousMode = ExGetPreviousMode;
+
+			fnExGetPreviousMode = GetSystemRoutineAddress(oxorany("ExGetPreviousMode"));
 
 			if (fnExGetPreviousMode)
 			{
@@ -323,8 +317,8 @@ namespace KernelCommon
 
 		KPROCESSOR_MODE KeSetPreviousMode(KPROCESSOR_MODE mode)
 		{
-			KPROCESSOR_MODE old = ImpCall(ExGetPreviousMode);
-			*(KPROCESSOR_MODE*)((PBYTE)ImpCall(KeGetCurrentThread) + GetPreviousModeOffset()) = mode;
+			KPROCESSOR_MODE old = ExGetPreviousMode();
+			*(KPROCESSOR_MODE*)((PBYTE)KeGetCurrentThread() + GetPreviousModeOffset()) = mode;
 			return old;
 		}
 
@@ -335,7 +329,7 @@ namespace KernelCommon
 			wdk::PKLDR_DATA_TABLE_ENTRY	v_fist_entry = nullptr;
 			UNICODE_STRING v_pch_sys_name = { 0 };
 			wdk::PKLDR_DATA_TABLE_ENTRY v_target_entry{ nullptr };
-			ImpCall(RtlInitUnicodeString, &v_pch_sys_name, L"PCHUNTER*");
+			RtlInitUnicodeString(&v_pch_sys_name, L"PCHUNTER*");
 			v_fist_entry = v_self_entry;
 
 			__try
@@ -344,7 +338,7 @@ namespace KernelCommon
 				{
 					if (v_self_entry->BaseDllName.Buffer != nullptr)
 					{
-						if (ImpCall(FsRtlIsNameInExpression, &v_pch_sys_name, &v_self_entry->BaseDllName, TRUE, nullptr))
+						if (FsRtlIsNameInExpression(&v_pch_sys_name, &v_self_entry->BaseDllName, TRUE, nullptr))
 						{
 							v_target_entry = v_self_entry;
 							break;
@@ -371,7 +365,6 @@ namespace KernelCommon
 
 		BOOL NtFileNameToDosFileName(IN PUNICODE_STRING us, OUT WCHAR* ws)
 		{
-			//Œƒº˛±ª…æ≥˝‘Úª· ß∞‹
 			HANDLE hFile = NULL;
 			OBJECT_ATTRIBUTES ObjectAttributes;
 			IO_STATUS_BLOCK IoStatusBlock;
@@ -381,11 +374,11 @@ namespace KernelCommon
 
 			InitializeObjectAttributes(&ObjectAttributes, us, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
 
-			if (NT_SUCCESS(ImpCall(ZwOpenFile, &hFile, FILE_READ_ATTRIBUTES | SYNCHRONIZE, &ObjectAttributes, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT)))
+			if (NT_SUCCESS(ZwOpenFile(&hFile, FILE_READ_ATTRIBUTES | SYNCHRONIZE, &ObjectAttributes, &IoStatusBlock, FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT)))
 			{
-				if (NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, hFile, FILE_READ_ATTRIBUTES, *IoFileObjectType, KernelMode, (PVOID*)&FileObject, NULL)))
+				if (NT_SUCCESS(ObReferenceObjectByHandle(hFile, FILE_READ_ATTRIBUTES, *IoFileObjectType, KernelMode, (PVOID*)&FileObject, NULL)))
 				{
-					if (NT_SUCCESS(ImpCall(IoQueryFileDosDeviceName, FileObject, &pObjectNameInfo)))
+					if (NT_SUCCESS(IoQueryFileDosDeviceName(FileObject, &pObjectNameInfo)))
 					{
 						wcscpy(ws, pObjectNameInfo->Name.Buffer);
 						boole = TRUE;
@@ -394,17 +387,17 @@ namespace KernelCommon
 			}
 			if (pObjectNameInfo)
 			{
-				ImpCall(ExFreePool, pObjectNameInfo);
+				ExFreePool(pObjectNameInfo);
 			}
 
 			if (FileObject)
 			{
-				ImpCall(ObfDereferenceObject, FileObject);
+				ObfDereferenceObject(FileObject);
 			}
 
 			if (hFile)
 			{
-				ImpCall(ZwClose, hFile);
+				ZwClose(hFile);
 			}
 
 			return boole;
@@ -414,15 +407,13 @@ namespace KernelCommon
 		{
 			LARGE_INTEGER la;
 			ULONG MyInc;
-			MyInc = ImpCall(KeQueryTimeIncrement); //∑µªÿµŒ¥ ˝
+			MyInc = KeQueryTimeIncrement();
 			KeQueryTickCount(&la);
 			la.QuadPart *= MyInc;
 			la.QuadPart /= 10000;
 			return la.LowPart;
 		}
 
-
-		//ªÒ»°Œƒº˛√˚≥∆
 		bool GetModuleFileName(OUT WCHAR* fileName, IN PUNICODE_STRING filePath)
 		{
 			if (filePath)
@@ -445,7 +436,6 @@ namespace KernelCommon
 					}
 					else
 					{
-						//ƒ¨»œ’˚∏ˆ¬∑æ∂ «Œƒº˛√˚
 						wcsncpy(fileName, &filePath->Buffer[i], Full_length);
 						return true;
 					}
@@ -454,7 +444,7 @@ namespace KernelCommon
 			return false;
 		}
 
-		//ªÒ»°Ω¯≥Ã√˚
+		//Ëé∑ÂèñËøõÁ®ãÂêç
 		NTSTATUS GetProcessName(IN PEPROCESS Process, OUT WCHAR* fileName)
 		{
 			NTSTATUS Status;

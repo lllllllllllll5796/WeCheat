@@ -33,7 +33,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Devlepoment|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>WindowsKernelModeDriver10.0_LLVM</PlatformToolset>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
@@ -123,7 +123,7 @@
       </AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;CONFIG_DEBUG_PRINT_ON=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_KERNEL_MODE;AMD64;_CRT_SECURE_NO_WARNINGS;_EASTL;CONFIG_DEBUG_PRINT_ON=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <AdditionalIncludeDirectories>.\;Kcpp\eastl\include;Kcpp\eastl\test\packages\EABase\include\Common;..\..\3rd\;..\..\3rd\asmjit_xedparse;..\..\3rd\zydis\include;..\..\3rd\zydis\dependencies\zycore\include;..\KernelIntrin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -132,6 +132,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>KernelCommon.pch.h</PrecompiledHeaderFile>
       <SDLCheck>false</SDLCheck>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData>KernelCommon.Trace.h</WppScanConfigurationData>
+      <DisableSpecificWarnings>4603;4627;4986;4987;4091;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>
@@ -374,9 +377,9 @@
     <ClInclude Include="KernelCommon.cppheader.h" />
     <ClInclude Include="KernelCommon.FuncDef.h" />
     <ClInclude Include="KernelCommon.h" />
-    <ClInclude Include="KernelCommon.log.h" />
     <ClInclude Include="KernelCommon.macro.h" />
     <ClInclude Include="KernelCommon.pch.h" />
+    <ClInclude Include="KernelCommon.Trace.h" />
     <ClInclude Include="KernelCommon.version.h" />
     <ClInclude Include="KernelCommon.winbase.h" />
     <ClInclude Include="Lock\KernelCommon.Lock.h" />

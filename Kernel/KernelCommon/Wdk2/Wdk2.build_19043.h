@@ -21678,7 +21678,7 @@ typedef struct _MI_ZERO_THREAD_CONTEXT // 0 elements, 0x0 bytes (sizeof)
 /*0x010*/     UINT8        ImageFileName[16];                                                
 /*0x020*/     UINT16       NextPos;                                                          
 /*0x022*/     UINT16       MaxStacks;                                                        
-/*0x024*/     struct _OBJECT_REF_STACK_INFO StackInfo[0];                                    
+///*0x024*/     struct _OBJECT_REF_STACK_INFO StackInfo[0];                                    
 /*0x024*/     UINT8        _PADDING0_[0x4];                                                  
           }OBJECT_REF_INFO, *POBJECT_REF_INFO;                                               
                                                                                              

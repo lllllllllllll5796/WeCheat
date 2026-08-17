@@ -1,6 +1,7 @@
 ﻿#include "WeVt.pch.h"
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
+#include "WeVt.AllocateMem.h"
 #include "WeVt.Trace.h"
 #include "WeVt.poolmanager.tmh"
 
@@ -55,7 +56,7 @@ namespace pool_manager
 			}
 			RtlSecureZeroMemory(single_pool, sizeof(__pool_table));
 
-			single_pool->address = ::allocate_pool<void*>(size);
+			single_pool->address = allocate_aligned_pool<void*>(size);
 
 			if (single_pool->address == nullptr)
 			{
@@ -246,7 +247,7 @@ namespace pool_manager
 				__pool_table* pool_table = (__pool_table*)CONTAINING_RECORD(NextEntry, __pool_table, pool_list);
 
 				// Free the alloocated buffer
-				free_pool(pool_table->address);
+				free_aligned_pool(pool_table->address);
 
 				DelEntry = NextEntry;
 				/* Move to the next entry */

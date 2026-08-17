@@ -17,13 +17,13 @@ namespace KernelCommon
 			PVOID FilePool;
 			DWORD dwSize = 0;
 			BOOL bRet = FALSE;
-			ImpCall(RtlInitUnicodeString, &uniFileName, szFileName);
+			RtlInitUnicodeString(&uniFileName, szFileName);
 			InitializeObjectAttributes(&oba,
 				&uniFileName,
 				OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE,
 				0,
 				0);
-			ns = ImpCall(IoCreateFile, &hListFile,
+			ns = IoCreateFile(&hListFile,
 				GENERIC_READ | SYNCHRONIZE,
 				&oba,
 				&iosb,
@@ -41,10 +41,10 @@ namespace KernelCommon
 
 			if (!NT_SUCCESS(ns))
 			{
-				LOG_DEBUG("IoCreateFileÊ§°Ü:%X\r\n", ns);
+				LOG_DEBUG("IoCreateFileÊ§ï¿½ï¿½:%X\r\n", ns);
 				return NULL;
 			}
-			ns = ImpCall(ZwQueryInformationFile, hListFile,
+			ns = ZwQueryInformationFile(hListFile,
 				&iosb,
 				&filestandinfo,
 				sizeof(FILE_STANDARD_INFORMATION),
@@ -53,8 +53,8 @@ namespace KernelCommon
 
 			if (!NT_SUCCESS(ns))
 			{
-				LOG_DEBUG("ZwQueryInformationFileÊ§°Ü%X\r\n", ns);
-				ImpCall(ZwClose, hListFile);
+				LOG_DEBUG("ZwQueryInformationFileÊ§ï¿½ï¿½%X\r\n", ns);
+				ZwClose(hListFile);
 				return NULL;
 			}
 
@@ -63,18 +63,18 @@ namespace KernelCommon
 
 			dwSize = (ULONG)filestandinfo.AllocationSize.QuadPart;
 
-			FilePool = ImpCall(ExAllocatePool, NonPagedPool,
+			FilePool = ExAllocatePool(NonPagedPool,
 				dwSize);
 
 			if (!FilePool)
 			{
-				ImpCall(ZwClose, hListFile);
+				ZwClose(hListFile);
 				return NULL;
 			}
 
 			//allocate pool for read file
 
-			ns = ImpCall(ZwReadFile, hListFile,
+			ns = ZwReadFile(hListFile,
 				NULL,
 				NULL,
 				NULL,
@@ -87,12 +87,12 @@ namespace KernelCommon
 
 			if (!NT_SUCCESS(ns))
 			{
-				ImpCall(ExFreePool, FilePool);
-				ImpCall(ZwClose, hListFile);
+				ExFreePool(FilePool);
+				ZwClose(hListFile);
 				return NULL;
 			}
 			//read file
-			ImpCall(ZwClose, hListFile);
+			ZwClose(hListFile);
 			return FilePool;
 		}
 	}

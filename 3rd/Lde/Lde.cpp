@@ -809,7 +809,7 @@ unsigned char LDEX64_szShellCode[12800] =
 
 BOOLEAN WINAPI LDE_INIT(_In_ LDE_DISASM* LDE)
 {
-	*LDE = (LDE_DISASM)ExAllocatePoolWithTag(NonPagedPool, 12800, 'yc');
+	*LDE = (LDE_DISASM)ExAllocatePool2(NonPagedPool, 12800, 'yc');
 
 	if (!*LDE)
 		return FALSE;

@@ -1,4 +1,4 @@
-#include "WeVt.pch.h"
+ï»¿#include "WeVt.pch.h"
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
 #include "WeVt.hypervisor_routines.h"
@@ -70,7 +70,7 @@ namespace hv
 	unsigned __int64 swap_context()
 	{
 		__nt_kprocess* current_process;
-		//×¢ÒâÓÉÓÚ½«hostÀïµÄgs¼Ä´æÆ÷ÇåÁãÁË£¬¹ÌÎŞ·¨¼ÌĞøÊ¹ÓÃCurrentProcess¡¢CurrentThreadÏµÁĞº¯Êı
+		//æ³¨æ„ç”±äºå°†hosté‡Œçš„gså¯„å­˜å™¨æ¸…é›¶äº†ï¼Œå›ºæ— æ³•ç»§ç»­ä½¿ç”¨CurrentProcessã€CurrentThreadç³»åˆ—å‡½æ•°
 		current_process = (__nt_kprocess*)IoGetCurrentProcess();
 		unsigned __int64 current_cr3 = __readcr3();
 		unsigned __int64 guest_cr3 = current_process->DirectoryTableBase;
@@ -135,7 +135,7 @@ namespace hv
 		return vmread(GUEST_CS_SELECTOR) & 3;
 	}
 
-	//»ñÈ¡guestµÄµ±Ç°cpl
+	//è·å–guestçš„å½“å‰cpl
 	uint16_t current_guest_cpl()
 	{
 		vmx_segment_access_rights ss;
@@ -238,7 +238,7 @@ namespace hv
 
 	/// <summary>
 	/// Check if cpu support virtualization
-	/// ¼ì²écpuÊÇ·ñÖ§³ÖĞéÄâ»¯
+	/// <summary>
 	/// </summary>
 	/// <returns></returns>
 	bool virtualization_support()
@@ -269,7 +269,7 @@ namespace hv
 
 	bool vmx_on(unsigned __int64 vmxon_phys_addr)
 	{
-		//0Ôò±íÊ¾²Ù×÷³É¹¦
+		//0åˆ™è¡¨ç¤ºæ“ä½œæˆåŠŸ
 		unsigned char res = __vmx_on(&vmxon_phys_addr);
 		if (res)
 		{
@@ -280,7 +280,7 @@ namespace hv
 
 	bool vmx_vmclear(unsigned __int64 vmcs_phys)
 	{
-		//0Ôò±íÊ¾²Ù×÷³É¹¦
+		//0åˆ™è¡¨ç¤ºæ“ä½œæˆåŠŸ
 		unsigned char res = __vmx_vmclear(&vmcs_phys);
 		if (res)
 		{
@@ -291,13 +291,17 @@ namespace hv
 
 	bool vmx_vmptrld(unsigned __int64 vmcs_phys)
 	{
-		//0Ôò±íÊ¾²Ù×÷³É¹¦
+		//0åˆ™è¡¨ç¤ºæ“ä½œæˆåŠŸ
 		unsigned char res = __vmx_vmptrld(&vmcs_phys);
 		if (res)
 		{
 			return false;
 		}
 		return true;
+	}
+
+	void dump_vmcs()
+	{
 	}
 
 }

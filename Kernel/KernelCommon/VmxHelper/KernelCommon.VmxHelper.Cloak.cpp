@@ -6,7 +6,7 @@ namespace VmxHelper
 
 	eastl::unordered_map<PEPROCESS, eastl::unordered_map<QWORD, QWORD>> g_ClockRecoveryMap;
 
-	int vmx_Cloak_Activate(QWORD physicalAddress, int mode)   //ÒþÉí¼¤»î
+	int vmx_Cloak_Activate(QWORD physicalAddress, int mode)   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	/*
 	 Copies a page to a shadow page and marks the original page as execute only (or no access at all if the cpu does not support it)
 
@@ -22,20 +22,20 @@ namespace VmxHelper
 						  make edits so integrity check routines are jumped over
 
 	 Note: Affects ALL cpu's so only needs to be called once
-	 ½«Ò³Ãæ¸´ÖÆµ½Ó°×ÓÒ³Ãæ²¢½«Ô­Ê¼Ò³Ãæ±ê¼ÇÎª½öÖ´ÐÐ£¨»òÕßÈç¹ûCPU²»Ö§³ÖÔò¸ù±¾ÎÞ·¨·ÃÎÊ£©
+	 ï¿½ï¿½Ò³ï¿½æ¸´ï¿½Æµï¿½Ó°ï¿½ï¿½Ò³ï¿½æ²¢ï¿½ï¿½Ô­Ê¼Ò³ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ö´ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½CPUï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Ê£ï¿½
 
-	 ¶Á/Ð´Ê±£¬Ó°×ÓÒ³µÄÄÚÈÝ±»¶Á/Ð´£¬µ«Ö´ÐÐ½«Ö´ÐÐÔ­Ê¼Ò³
+	 ï¿½ï¿½/Ð´Ê±ï¿½ï¿½Ó°ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½ï¿½ï¿½/Ð´ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð½ï¿½Ö´ï¿½ï¿½Ô­Ê¼Ò³
 
-	 Òª·ÃÎÊÔ­Ê¼£¨Ö´ÐÐ£©Ò³ÃæµÄÄÚÈÝ£¬ÇëÊ¹ÓÃ vmx_cloak_readOriginal ºÍ vmx_cloak_writeOriginal
+	 Òªï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½Ö´ï¿½Ð£ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ vmx_cloak_readOriginal ï¿½ï¿½ vmx_cloak_writeOriginal
 
-	 ¿ÉÄÜµÄÎÊÌâ£º¶ÁÈ¡ºÍÖ´ÐÐ²Ù×÷¿ÉÒÔÍ¬Ê±ÔÚÍ¬Ò»¸öÒ³ÃæÖÐ£¬Òò´Ëµ±Ò³Ãæ±»Î´ÐÞ¸ÄÒ³ÃæµÄÄÚÈÝ½»»»Ê±£¬ÒÔ·½±ã¶ÁÈ¡Î´ÐÞ¸ÄµÄÄÚ´æ
-						Î´ÐÞ¸ÄµÄ´úÂëÒ²½«Ö´ÐÐ£¨ÍêÕûÐÔ¼ì²é±¾Éí£©
+	 ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½ï¿½â£ºï¿½ï¿½È¡ï¿½ï¿½Ö´ï¿½Ð²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬Ê±ï¿½ï¿½Í¬Ò»ï¿½ï¿½Ò³ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½Ëµï¿½Ò³ï¿½æ±»Î´ï¿½Þ¸ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½È¡Î´ï¿½Þ¸Äµï¿½ï¿½Ú´ï¿½
+						Î´ï¿½Þ¸ÄµÄ´ï¿½ï¿½ï¿½Ò²ï¿½ï¿½Ö´ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½é±¾ï¿½ï¿½ï¿½ï¿½
 
-	 ¿ÉÄÜµÄ½â¾ö·½°¸£º²»ÒªÓÃÍêÕûÐÔ¼ì²éÒþ²ØÒ³Ãæ£¬È»ºóËæÒâ±à¼­ÍêÕûÐÔ¼ì²é
-							Ê¹ÓÃµ¥×Ö½Ú±à¼­£¨ÀýÈç int3 bps ÒÔ±ãÓÚ¸ü¸Ä£©
-	 ½øÐÐ±à¼­£¬ÒÔ±ãÌø¹ýÍêÕûÐÔ¼ì²éÀý³Ì
+	 ï¿½ï¿½ï¿½ÜµÄ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½æ£¬È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½
+							Ê¹ï¿½Ãµï¿½ï¿½Ö½Ú±à¼­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ int3 bps ï¿½Ô±ï¿½ï¿½Ú¸ï¿½ï¿½Ä£ï¿½
+	 ï¿½ï¿½ï¿½Ð±à¼­ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	 ×¢Òâ£ºÓ°ÏìËùÓÐ cpu£¬Òò´ËÖ»ÐèÒªµ÷ÓÃÒ»´Î
+	 ×¢ï¿½â£ºÓ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ cpuï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 	*/
 	{
 #pragma pack(1)
@@ -177,21 +177,21 @@ namespace VmxHelper
 
 	void DelRecoveryMap(PEPROCESS Process, QWORD VirtualAddress, QWORD PhysicalAddress)
 	{
-		// ²éÕÒÖ¸¶¨½ø³ÌÔÚÓ³Éä±íÖÐµÄÌõÄ¿
+		// ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ä¿
 		auto ProcessEntry = g_ClockRecoveryMap.find(Process);
 		if (ProcessEntry != g_ClockRecoveryMap.end())
 		{
-			// ²éÕÒÖ¸¶¨ÐéÄâµØÖ·ÔÚ½ø³ÌÓ³Éä±íÖÐµÄÌõÄ¿
+			// ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½Ú½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ä¿
 			auto& VirtualAddressMap = ProcessEntry->second;
 			auto VirtualAddressEntry = VirtualAddressMap.find(VirtualAddress);
 			if (VirtualAddressEntry != VirtualAddressMap.end()) 
 			{
-				// ²éÕÒÖ¸¶¨ÎïÀíµØÖ·ÊÇ·ñÆ¥Åä
+				// ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½Ç·ï¿½Æ¥ï¿½ï¿½
 				if (VirtualAddressEntry->second == PhysicalAddress) 
 				{
-					// É¾³ýÓ³Éä¹ØÏµ
+					// É¾ï¿½ï¿½Ó³ï¿½ï¿½ï¿½Ïµ
 					VirtualAddressMap.erase(VirtualAddressEntry);
-					// Èç¹û½ø³ÌÓ³Éä±íÎª¿Õ£¬Ôò´ÓÈ«¾ÖÓ³Éä±íÖÐÉ¾³ý¸Ã½ø³Ì
+					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½
 					if (VirtualAddressMap.empty()) 
 					{
 						g_ClockRecoveryMap.erase(ProcessEntry);
@@ -199,17 +199,17 @@ namespace VmxHelper
 				}
 				else 
 				{
-					// ÎïÀíµØÖ·²»Æ¥Åä£¬¿ÉÄÜÐèÒª¼ÇÂ¼´íÎó»òÕß²ÉÈ¡ÆäËû²Ù×÷
+					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Æ¥ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß²ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				}
 			}
 			else 
 			{
-				// Ã»ÓÐÕÒµ½Ö¸¶¨µÄÐéÄâµØÖ·Ó³Éä
+				// Ã»ï¿½ï¿½ï¿½Òµï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·Ó³ï¿½ï¿½
 			}
 		}
 		else 
 		{
-			// Ã»ÓÐÕÒµ½Ö¸¶¨µÄ½ø³ÌÓ³Éä
+			// Ã»ï¿½ï¿½ï¿½Òµï¿½Ö¸ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½
 		}
 	}
 
@@ -222,37 +222,37 @@ namespace VmxHelper
 		{
 			if (Item.first == Process)
 			{
-				//LOG_DEBUG("¼à¿Øµ½Ä¿±ê½ø³Ì¹Ø±Õ RecoveryCloaks--->Process:0x%llX\n", Process);
+				//LOG_DEBUG("ï¿½ï¿½Øµï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Ì¹Ø±ï¿½ RecoveryCloaks--->Process:0x%llX\n", Process);
 
 				bFind = TRUE;
 
-				//¹Ò¿¿½ø³Ì
+				//ï¿½Ò¿ï¿½ï¿½ï¿½ï¿½ï¿½
 				::KAPC_STATE apc_state;
 				RtlZeroMemory(&apc_state, sizeof(apc_state));
-				ImpCall(KeStackAttachProcess, Process, &apc_state);
+				KeStackAttachProcess(Process, &apc_state);
 
 				for (auto v : Item.second)
 				{
 					QWORD VirtualAddress = v.first;
 
 					
-					if (ImpCall(MmIsAddressValid, (PVOID)v.first))
+					if (MmIsAddressValid((PVOID)v.first))
 					{
 						PhysicalAddress.QuadPart = 0;
-						PhysicalAddress = ImpCall(MmGetPhysicalAddress, (PVOID)VirtualAddress);
+						PhysicalAddress = MmGetPhysicalAddress((PVOID)VirtualAddress);
 
 						if (PhysicalAddress.QuadPart == v.second)
 						{
-							//±ØÐëÒ³¶ÔÆëÒ»ÏÂ
+							//ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 							uintptr_t PABase = v.second & ~0xFFF;
 
-							//LOG_DEBUG("Ó¦¸Ã»¹Ô­ÄÚ´æ:VA:0x%llX PA:0x%llX ÎïÀíÒ³¶ÔÆëµØÖ·:0x%llX\r\n", VirtualAddress, v.second, PABase);
+							//LOG_DEBUG("Ó¦ï¿½Ã»ï¿½Ô­ï¿½Ú´ï¿½:VA:0x%llX PA:0x%llX ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½Ö·:0x%llX\r\n", VirtualAddress, v.second, PABase);
 							VmxHelper::vmx_Cloak_Deactivate(PABase);
 						}
 					}
 				}
 
-				ImpCall(KeUnstackDetachProcess, &apc_state);
+				KeUnstackDetachProcess(&apc_state);
 
 				break;
 			}

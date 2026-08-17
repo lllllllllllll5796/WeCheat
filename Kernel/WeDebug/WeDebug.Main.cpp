@@ -103,7 +103,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] KernelBase:0x%llX KernelSize:0x%X\r\n", Global::g_KernelBase, Global::g_KernelSize);
 #endif
 		//初始化导入函数
-		InitializeHideImport(Global::g_KernelBase);
+		//InitializeHideImport(Global::g_KernelBase);
 
 		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeDebug_Log.log");
 

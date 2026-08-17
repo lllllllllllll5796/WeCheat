@@ -70,7 +70,7 @@ namespace VmxHelper
 			UINT64 PhysicalPages[0];
 		} AddMemoryInfoCall, * PAddMemoryInfoCall;
 #pragma pack()
-		PAddMemoryInfoCall vmcallinfo = (PAddMemoryInfoCall)ImpCall(ExAllocatePool, NonPagedPool, sizeof(AddMemoryInfoCall) + count * sizeof(UINT64));
+		PAddMemoryInfoCall vmcallinfo = (PAddMemoryInfoCall)ExAllocatePool(NonPagedPool, sizeof(AddMemoryInfoCall) + count * sizeof(UINT64));
 
 
 // 		LOG_DEBUG("vmx_add_memory(%p,%d)\n", list, count);
@@ -102,11 +102,11 @@ namespace VmxHelper
 		__except (1)
 		{
 			//LOG_DEBUG("vmx_add_memory(%p,%d) gave an exception at part %d with exception code %x\n", list, count, j, GetExceptionCode());
-			//vmdisk头文件化这里会过来
+			//vmdisk头锟侥硷拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
 			r = 0x100;
 		}
 
-		ImpCall(ExFreePool, vmcallinfo);
+		ExFreePool(vmcallinfo);
 		return r;
 	}
 
@@ -191,7 +191,7 @@ namespace VmxHelper
 			r = -1;
 		}
 
-		LOG_DEBUG("[+] vmx_Add_R3BreakPoint--->返回值r:0x%X\r\n", r);
+		LOG_DEBUG("[+] vmx_Add_R3BreakPoint--->锟斤拷锟斤拷值r:0x%X\r\n", r);
 
 		return r;
 	}
@@ -225,7 +225,7 @@ namespace VmxHelper
 			r = -1;
 		}
 
-		LOG_DEBUG("[+] vmx_Del_R3BreakPoint--->返回值r:0x%X\r\n", r);
+		LOG_DEBUG("[+] vmx_Del_R3BreakPoint--->锟斤拷锟斤拷值r:0x%X\r\n", r);
 
 		return r;
 	}
@@ -265,7 +265,7 @@ namespace VmxHelper
 			r = -1;
 		}
 
-		LOG_DEBUG("[+] 返回值r:0x%X\r\n", r);
+		LOG_DEBUG("[+] 锟斤拷锟斤拷值r:0x%X\r\n", r);
 		return r;
 	}
 
@@ -297,7 +297,7 @@ namespace VmxHelper
 			r = -1;
 		}
 
-		LOG_DEBUG("返回值r:0x%X\r\n", r);
+		LOG_DEBUG("锟斤拷锟斤拷值r:0x%X\r\n", r);
 		return r;
 
 	}
@@ -306,7 +306,7 @@ namespace VmxHelper
 	{
 		UNREFERENCED_PARAMETER(DeferredContext);
 		UNREFERENCED_PARAMETER(Dpc);
-		//每个CPU都会执行一遍
+		//每锟斤拷CPU锟斤拷锟斤拷执锟斤拷一锟斤拷
 #pragma pack(1)
 		struct
 		{
@@ -323,13 +323,13 @@ namespace VmxHelper
 		vmcallinfo.AllCpu = TRUE;
 
 		DoVmcall(&vmcallinfo);
-		ImpCall(KeSignalCallDpcSynchronize,SystemArgument2);
-		ImpCall(KeSignalCallDpcDone,SystemArgument1);
+		KeSignalCallDpcSynchronize(SystemArgument2);
+		KeSignalCallDpcDone(SystemArgument1);
 	}
 
 	void vmx_Invept()
 	{
-		ImpCall(KeGenericCallDpc, broadcast_invept_all_contexts, NULL);   //不要用lambda实现
+		KeGenericCallDpc(broadcast_invept_all_contexts, NULL);   //锟斤拷要锟斤拷lambda实锟斤拷
 	}
 
 	unsigned int vmx_GetRealCR0()
@@ -440,12 +440,12 @@ namespace VmxHelper
 
 	Note: effects ALL cpu's
 
-	在给定地址放置一个 int3 bp，并在执行时将状态更改为给定状态
-	如果给定一个隐藏页面，BP 将在执行页面中设置
+	锟节革拷锟斤拷锟斤拷址锟斤拷锟斤拷一锟斤拷 int3 bp锟斤拷锟斤拷锟斤拷执锟斤拷时锟斤拷状态锟斤拷锟斤拷为锟斤拷锟斤拷状态
+	锟斤拷锟斤拷锟斤拷锟揭伙拷锟斤拷锟斤拷锟揭筹拷妫珺P 锟斤拷锟斤拷执锟斤拷页锟斤拷锟斤拷锟斤拷锟斤拷
 
-	如果没有给出隐藏页面，则隐藏它（如果没有进行 IP 更改，则需要单步执行）
+	锟斤拷锟矫伙拷懈锟斤拷锟斤拷锟斤拷锟揭筹拷妫拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷没锟叫斤拷锟斤拷 IP 锟斤拷锟侥ｏ拷锟斤拷锟斤拷要锟斤拷锟斤拷执锟叫ｏ拷
 
-	注意：影响所有 CPU
+	注锟解：影锟斤拷锟斤拷锟斤拷 CPU
 	*/
 	{
 #pragma pack(1)

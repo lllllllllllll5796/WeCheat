@@ -9,11 +9,11 @@ namespace KernelCommon
 		{
 			ULONG Pid = 0;
 			PEPROCESS Process = NULL;
-			if (!NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, ProcessHandle, 0, *PsProcessType, ImpCall(ExGetPreviousMode), (PVOID*)&Process, nullptr)))
+			if (!NT_SUCCESS(ObReferenceObjectByHandle(ProcessHandle, 0, *PsProcessType, ExGetPreviousMode(), (PVOID*)&Process, nullptr)))
 			{
 				if (Process == NULL)
 				{
-					if (!NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, ProcessHandle, 0, *PsProcessType, KernelMode, (PVOID*)&Process, NULL)))
+					if (!NT_SUCCESS(ObReferenceObjectByHandle(ProcessHandle, 0, *PsProcessType, KernelMode, (PVOID*)&Process, NULL)))
 					{
 						return NULL;
 					}
@@ -22,8 +22,8 @@ namespace KernelCommon
 
 			if (Process)
 			{
-				Pid = (ULONG)(ULONG_PTR)(ImpCall(PsGetProcessId, Process));
-				ImpCall(ObfDereferenceObject, Process);
+				Pid = (ULONG)(ULONG_PTR)(PsGetProcessId(Process));
+				ObfDereferenceObject(Process);
 			}
 
 			return Pid;
@@ -33,11 +33,11 @@ namespace KernelCommon
 		{
 			PEPROCESS Process = NULL;
 
-			if (!NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, ProcessHandle, 0, *PsProcessType, ImpCall(ExGetPreviousMode), (PVOID*)&Process, nullptr)))
+			if (!NT_SUCCESS(ObReferenceObjectByHandle(ProcessHandle, 0, *PsProcessType, ExGetPreviousMode(), (PVOID*)&Process, nullptr)))
 			{
 				if (Process == NULL)
 				{
-					if (!NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, ProcessHandle, 0, *PsProcessType, KernelMode, (PVOID*)&Process, NULL)))
+					if (!NT_SUCCESS(ObReferenceObjectByHandle(ProcessHandle, 0, *PsProcessType, KernelMode, (PVOID*)&Process, NULL)))
 					{
 						return NULL;
 					}
@@ -46,7 +46,7 @@ namespace KernelCommon
 
 			if (Process)
 			{
-				ImpCall(ObfDereferenceObject, Process);
+				ObfDereferenceObject(Process);
 			}
 
 			return Process;
@@ -56,7 +56,7 @@ namespace KernelCommon
 		{
 			HANDLE Handle = NULL;
 
-			ImpCall(ObOpenObjectByPointer, Process,
+			ObOpenObjectByPointer(Process,
 				0,
 				0,
 				0,
@@ -71,12 +71,12 @@ namespace KernelCommon
 		{
 			ULONG Pid = 0;
 			PETHREAD Thread = NULL;
-			if (NT_SUCCESS(ImpCall(ObReferenceObjectByHandle, ThreadHandle, 0, *PsThreadType, ImpCall(ExGetPreviousMode), (PVOID*)&Thread, nullptr)))
+			if (NT_SUCCESS(ObReferenceObjectByHandle(ThreadHandle, 0, *PsThreadType, ExGetPreviousMode(), (PVOID*)&Thread, nullptr)))
 			{
-				PEPROCESS Process = ImpCall(PsGetThreadProcess, Thread);
+				PEPROCESS Process = PsGetThreadProcess(Thread);
 
-				Pid = (ULONG)(ULONG_PTR)ImpCall(PsGetProcessId, Process);
-				ImpCall(ObfDereferenceObject, Thread);
+				Pid = (ULONG)(ULONG_PTR)PsGetProcessId(Process);
+				ObfDereferenceObject(Thread);
 			}
 			return Pid;
 		}
@@ -85,20 +85,20 @@ namespace KernelCommon
 		{
 			NTSTATUS Status = STATUS_SUCCESS;
 			UNICODE_STRING		TagName = { 0 };
-			ImpCall(RtlInitUnicodeString, &TagName, ProcessName);
+			RtlInitUnicodeString(&TagName, ProcessName);
 
 			ULONG buffer_size = 0;
 			PVOID pBuffer = NULL;
-			Status = ImpCall(ZwQuerySystemInformation, wdk::SystemProcessInformation, pBuffer, 0, &buffer_size);
+			Status = ZwQuerySystemInformation(wdk::SystemProcessInformation, pBuffer, 0, &buffer_size);
 			while (Status == STATUS_INFO_LENGTH_MISMATCH)
 			{
 				if (pBuffer)
 				{
-					ImpCall(ExFreePool, pBuffer);
+					ExFreePool(pBuffer);
 				}
 
-				pBuffer = ImpCall(ExAllocatePool, NonPagedPool, buffer_size);
-				Status = ImpCall(ZwQuerySystemInformation, wdk::SystemProcessInformation, pBuffer, buffer_size, &buffer_size);
+				pBuffer = ExAllocatePool(NonPagedPool, buffer_size);
+				Status = ZwQuerySystemInformation(wdk::SystemProcessInformation, pBuffer, buffer_size, &buffer_size);
 			}
 
 			wdk::PSYSTEM_PROCESS_INFORMATION ProcessInformation = (wdk::PSYSTEM_PROCESS_INFORMATION)(pBuffer);
@@ -106,7 +106,7 @@ namespace KernelCommon
 			HANDLE ProcessList = NULL;
 			for (;;)
 			{
-				if (ImpCall(FsRtlIsNameInExpression, &TagName, &(ProcessInformation->ImageName), FALSE, NULL) == TRUE)
+				if (FsRtlIsNameInExpression(&TagName, &(ProcessInformation->ImageName), FALSE, NULL) == TRUE)
 				{
 					ProcessList = ProcessInformation->UniqueProcessId;
 					break;
@@ -120,7 +120,7 @@ namespace KernelCommon
 				ProcessInformation = (wdk::PSYSTEM_PROCESS_INFORMATION)(((PUCHAR)ProcessInformation) + ProcessInformation->NextEntryOffset);
 			}
 
-			ImpCall(ExFreePool, pBuffer);
+			ExFreePool(pBuffer);
 
 			return ProcessList;
 		}
@@ -132,7 +132,7 @@ namespace KernelCommon
 			NTSTATUS ns = STATUS_UNSUCCESSFUL;
 			if (bThread)
 			{
-				ns = ImpCall(ObReferenceObjectByHandle,
+				ns = ObReferenceObjectByHandle(
 					hObject,
 					THREAD_GET_CONTEXT,
 					*PsThreadType,
@@ -142,7 +142,7 @@ namespace KernelCommon
 			}
 			else
 			{
-				ns = ImpCall(ObReferenceObjectByHandle,
+				ns = ObReferenceObjectByHandle(
 					hObject,
 					PROCESS_SET_PORT,
 					*PsProcessType,
@@ -155,12 +155,12 @@ namespace KernelCommon
 			{
 				if (bThread)
 				{
-					ImpCall(ObfDereferenceObject, Thread);
-					Process = ImpCall(IoThreadToProcess, Thread);
+					ObfDereferenceObject(Thread);
+					Process = IoThreadToProcess(Thread);
 				}
 				else
 				{
-					ImpCall(ObfDereferenceObject, Process);
+					ObfDereferenceObject(Process);
 				}
 				return TRUE;
 			}
@@ -177,7 +177,7 @@ namespace KernelCommon
 
 			if (Process)
 			{
-				ImpCall(ObOpenObjectByPointer,
+				ObOpenObjectByPointer(
 					Process,
 					0,
 					NULL,
@@ -194,8 +194,8 @@ namespace KernelCommon
 		{
 			//LOG_DEBUG("GetProcessInfo Begin\r\n");
 			ULONG Bytes;
-			NTSTATUS Status = ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, 0, 0, &Bytes);
-			PSYSTEM_MODULE_INFORMATION Mods = (PSYSTEM_MODULE_INFORMATION)ImpCall(ExAllocatePool, NonPagedPool, Bytes);
+			NTSTATUS Status = ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, 0, 0, &Bytes);
+			PSYSTEM_MODULE_INFORMATION Mods = (PSYSTEM_MODULE_INFORMATION)ExAllocatePool(NonPagedPool, Bytes);
 			if (Mods == NULL)
 			{
 				return FALSE;
@@ -203,20 +203,20 @@ namespace KernelCommon
 
 			RtlSecureZeroMemory(Mods, Bytes);
 
-			Status = ImpCall(ZwQuerySystemInformation, wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, Mods, Bytes, &Bytes);
+			Status = ZwQuerySystemInformation(wdk::SYSTEM_INFORMATION_CLASS::SystemModuleInformation, Mods, Bytes, &Bytes);
 			if (NT_SUCCESS(Status) == FALSE)
 			{
-				ImpCall(ExFreePool, Mods);
+				ExFreePool(Mods);
 				return FALSE;
 			}
 
 			STRING TargetProcessName;
-			ImpCall(RtlInitString, &TargetProcessName, Name);
+			RtlInitString(&TargetProcessName, Name);
 
 			for (ULONG i = 0; i < Mods->Count; i++)
 			{
 				STRING CurrentModuleName;
-				ImpCall(RtlInitString, &CurrentModuleName, (PCSZ)Mods->Module[i].FullPathName);
+				RtlInitString(&CurrentModuleName, (PCSZ)Mods->Module[i].FullPathName);
 
 				if (RtlStringContains(&CurrentModuleName, &TargetProcessName, TRUE) != NULL)
 				{
@@ -224,14 +224,14 @@ namespace KernelCommon
 					{
 						ImageSize = Mods->Module[i].ImageSize;
 						ImageBase = Mods->Module[i].ImageBase;
-						ImpCall(ExFreePool, Mods);
+						ExFreePool(Mods);
 						LOG_DEBUG("GetProcessInfo End Success\r\n");
 						return TRUE;
 					}
 				}
 			}
 
-			ImpCall(ExFreePool, Mods);
+			ExFreePool(Mods);
 
 			//LOG_DEBUG("GetProcessInfo End Error\r\n");
 			return FALSE;

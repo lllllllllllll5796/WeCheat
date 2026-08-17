@@ -579,9 +579,6 @@
     <ClInclude Include="KernelCommon.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="KernelCommon.log.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="KernelCommon.macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -713,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="VmxHelper\KernelCommon.VmxHelper.EptHook.h">
       <Filter>VmxHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelCommon.Trace.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

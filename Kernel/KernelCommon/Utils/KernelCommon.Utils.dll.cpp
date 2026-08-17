@@ -32,7 +32,7 @@ namespace KernelCommon
 					nullptr,
 					nullptr);
 
-				Status = ImpCall(ZwOpenSection,
+				Status = ZwOpenSection(
 					&SectionHandle,
 					SECTION_MAP_READ | SECTION_QUERY,
 					&ObjectAttributes);
@@ -44,7 +44,7 @@ namespace KernelCommon
 
 				SECTION_IMAGE_INFORMATION SectionImageInfo;
 
-				Status = ImpCall(ZwQuerySection,
+				Status = ZwQuerySection(
 					SectionHandle,
 					SectionImageInformation,
 					&SectionImageInfo,
@@ -69,7 +69,7 @@ namespace KernelCommon
 				// extents out of PH.
 				//
 
-				Status = ImpCall(ObReferenceObjectByHandle,
+				Status = ObReferenceObjectByHandle(
 					SectionHandle,
 					SECTION_MAP_READ | SECTION_QUERY,
 					*MmSectionObjectType,
@@ -81,7 +81,7 @@ namespace KernelCommon
 					break;
 				}
 
-				Status = ImpCall(MmMapViewInSystemSpace, SectionObject, &MappedBase, &MappedSize);
+				Status = MmMapViewInSystemSpace(SectionObject, &MappedBase, &MappedSize);
 				if (!NT_SUCCESS(Status))
 				{
 					break;
@@ -94,17 +94,17 @@ namespace KernelCommon
 
 			if (MappedBase)
 			{
-				ImpCall(MmUnmapViewInSystemSpace, MappedBase);
+				MmUnmapViewInSystemSpace(MappedBase);
 			}
 
 			if (SectionObject)
 			{
-				ImpCall(ObfDereferenceObject, SectionObject);
+				ObfDereferenceObject(SectionObject);
 			}
 
 			if (SectionHandle)
 			{
-				ImpCall(ZwClose, SectionHandle);
+				ZwClose(SectionHandle);
 			}
 
 			return Status;
@@ -122,7 +122,7 @@ namespace KernelCommon
 			IO_STATUS_BLOCK iosb;
 			auto full_dll_path = FileName.c_str();
 
-			KIRQL CurrentIrql = ImpCall(KeGetCurrentIrql);
+			KIRQL CurrentIrql = KeGetCurrentIrql();
 
 			if (CurrentIrql != (KIRQL)0)
 			{
@@ -130,9 +130,9 @@ namespace KernelCommon
 				__debugbreak();
 			}
 
-			ImpCall(RtlInitUnicodeString, &dllName, full_dll_path);
+			RtlInitUnicodeString(&dllName, full_dll_path);
 
-			stat = ImpCall(ZwOpenFile, &hFile, FILE_EXECUTE | SYNCHRONIZE, &oa, &iosb,
+			stat = ZwOpenFile(&hFile, FILE_EXECUTE | SYNCHRONIZE, &oa, &iosb,
 				FILE_SHARE_READ, FILE_SYNCHRONOUS_IO_NONALERT);
 
 			if (!NT_SUCCESS(stat))
@@ -143,7 +143,7 @@ namespace KernelCommon
 
 			oa.ObjectName = 0;
 
-			stat = ImpCall(ZwCreateSection, &hSection, SECTION_ALL_ACCESS, &oa, 0, PAGE_EXECUTE,
+			stat = ZwCreateSection(&hSection, SECTION_ALL_ACCESS, &oa, 0, PAGE_EXECUTE,
 				0x01000000, hFile);
 
 			if (!NT_SUCCESS(stat))
@@ -152,7 +152,7 @@ namespace KernelCommon
 				return 0;
 			}
 
-			stat = ImpCall(ZwMapViewOfSection, hSection, NtCurrentProcess(), &BaseAddress, 0,
+			stat = ZwMapViewOfSection(hSection, NtCurrentProcess(), &BaseAddress, 0,
 				1000, 0, &size, (SECTION_INHERIT)1, MEM_TOP_DOWN, PAGE_READWRITE);
 
 			if (!NT_SUCCESS(stat))
@@ -161,8 +161,8 @@ namespace KernelCommon
 				return 0;
 			}
 
-			ImpCall(ZwClose, hSection);
-			ImpCall(ZwClose, hFile);
+			ZwClose(hSection);
+			ZwClose(hFile);
 
 			//LOG_DEBUG("DBG: Successfully loaded %ws\n", full_dll_path);
 			return BaseAddress;
@@ -170,7 +170,7 @@ namespace KernelCommon
 
 		VOID Free_Dll(HANDLE hMod)
 		{
-			ImpCall(ZwUnmapViewOfSection, NtCurrentProcess(), hMod);
+			ZwUnmapViewOfSection(NtCurrentProcess(), hMod);
 		}
 
 		ULONG LdrGetImageSize(PVOID ImageBase)
