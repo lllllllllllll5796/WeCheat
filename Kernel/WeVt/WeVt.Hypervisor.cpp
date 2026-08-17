@@ -6,6 +6,15 @@
 
 namespace hvgt
 {
+	struct HookFunctionArgs
+	{
+		void* target_address;
+		void* proxy_function;
+		void** origin_function;
+		unsigned __int64 current_cr3;
+		volatile SHORT statuses;
+	};
+
 	struct UnHookFunctionArgs
 	{
 		bool unhook_all_functions;
@@ -50,6 +59,62 @@ namespace hvgt
 
 		if (__vm_call(VT_VMCALL_EPT_UNHOOK_FUNCTION, args->unhook_all_functions,
 			(unsigned __int64)args->function_to_unhook, args->current_cr3))
+		{
+			InterlockedIncrement16(&args->statuses);
+		}
+
+		KeSignalCallDpcSynchronize(SystemArgument2);
+		KeSignalCallDpcDone(SystemArgument1);
+	}
+
+	void broadcast_hook_function(KDPC*, PVOID DeferredContext, PVOID SystemArgument1, PVOID SystemArgument2)
+	{
+		const auto args = reinterpret_cast<HookFunctionArgs*>(DeferredContext);
+
+		if (__vm_call_ex(VT_VMCALL_EPT_RIP_HOOK, (unsigned __int64)args->target_address,
+			(unsigned __int64)args->proxy_function, (unsigned __int64)args->origin_function, args->current_cr3, 0, 0, 0, 0, 0))
+		{
+			InterlockedIncrement16(&args->statuses);
+		}
+
+		KeSignalCallDpcSynchronize(SystemArgument2);
+		KeSignalCallDpcDone(SystemArgument1);
+	}
+
+	void broadcast_get_hide_software_breakpoint(KDPC*, PVOID DeferredContext, PVOID SystemArgument1, PVOID SystemArgument2)
+	{
+		const auto args = reinterpret_cast<HookFunctionArgs*>(DeferredContext);
+
+		if (__vm_call_ex(VT_VMCALL_READ_SOFTWARE_BREAKPOINT, (unsigned __int64)args->target_address,
+			(unsigned __int64)args->proxy_function, (unsigned __int64)args->origin_function, args->current_cr3, 0, 0, 0, 0, 0))
+		{
+			InterlockedIncrement16(&args->statuses);
+		}
+
+		KeSignalCallDpcSynchronize(SystemArgument2);
+		KeSignalCallDpcDone(SystemArgument1);
+	}
+
+	void broadcast_set_hide_software_breakpoint(KDPC*, PVOID DeferredContext, PVOID SystemArgument1, PVOID SystemArgument2)
+	{
+		const auto args = reinterpret_cast<HookFunctionArgs*>(DeferredContext);
+
+		if (__vm_call_ex(VT_VMCALL_HIDE_SOFTWARE_BREAKPOINT, (unsigned __int64)args->target_address,
+			(unsigned __int64)args->proxy_function, (unsigned __int64)args->origin_function, args->current_cr3, 0, 0, 0, 0, 0))
+		{
+			InterlockedIncrement16(&args->statuses);
+		}
+
+		KeSignalCallDpcSynchronize(SystemArgument2);
+		KeSignalCallDpcDone(SystemArgument1);
+	}
+
+	void broadcast_vmcall(KDPC*, PVOID DeferredContext, PVOID SystemArgument1, PVOID SystemArgument2)
+	{
+		const auto args = reinterpret_cast<HookFunctionArgs*>(DeferredContext);
+		unsigned __int64 command = *reinterpret_cast<unsigned __int64*>(args->target_address);
+
+		if (__vm_call(command, (unsigned __int64)args->target_address, 0, 0))
 		{
 			InterlockedIncrement16(&args->statuses);
 		}
@@ -135,5 +200,38 @@ namespace hvgt
 		KeGenericCallDpc(broadcast_test_vmcall, (PVOID)&statuses);
 
 		return static_cast<ULONG>(statuses) == KeQueryActiveProcessorCountEx(ALL_PROCESSOR_GROUPS);
+	}
+
+	bool hook_function(void* target_address, void* proxy_function, void** origin_function)
+	{
+		HookFunctionArgs args{ target_address, proxy_function, origin_function, __readcr3(), 0 };
+		KeGenericCallDpc(broadcast_hook_function, &args);
+
+		return static_cast<ULONG>(args.statuses) == KeQueryActiveProcessorCountEx(ALL_PROCESSOR_GROUPS);
+	}
+
+	bool vmcall(void* vmcallinfo)
+	{
+		HookFunctionArgs args{};
+		args.target_address = vmcallinfo;
+		KeGenericCallDpc(broadcast_vmcall, &args);
+
+		return static_cast<ULONG>(args.statuses) == KeQueryActiveProcessorCountEx(ALL_PROCESSOR_GROUPS);
+	}
+
+	bool get_hide_software_breakpoint(void* target_address, void* buffer, unsigned __int64 buffer_size)
+	{
+		HookFunctionArgs args{ target_address, buffer, (void**)buffer_size, __readcr3(), 0 };
+		KeGenericCallDpc(broadcast_get_hide_software_breakpoint, &args);
+
+		return static_cast<ULONG>(args.statuses) == KeQueryActiveProcessorCountEx(ALL_PROCESSOR_GROUPS);
+	}
+
+	bool set_hide_software_breakpoint(void* vmcallinfo)
+	{
+		HookFunctionArgs args{ vmcallinfo, nullptr, nullptr, __readcr3(), 0 };
+		KeGenericCallDpc(broadcast_set_hide_software_breakpoint, &args);
+
+		return static_cast<ULONG>(args.statuses) == KeQueryActiveProcessorCountEx(ALL_PROCESSOR_GROUPS);
 	}
 }

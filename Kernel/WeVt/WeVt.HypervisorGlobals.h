@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 
 #define MIN(a,b)    (((a) < (b)) ? (a) : (b))
 #define MAX(a,b)    (((a) > (b)) ? (a) : (b))
 
-//16Î»md5¹şÏ£ÕªÒª
+//16ä½md5å“ˆå¸Œæ‘˜è¦
 #define EPTW_WRITE             0xE943BC6264401591
 #define EPTW_READWRITE         0x03F03258ADC870FC
 #define EPTW_EXECUTE           0xB68C0804641E71ED
@@ -15,7 +15,7 @@
 #define HOST_PHYSICAL_MEMORY_PD_COUNT 512
 
 
-#define VMCALL_IDENTIFIER 0xBF5587567C4C830F  //VT_Driver¾­16Î»md5ÕªÒª
+#define VMCALL_IDENTIFIER 0xBF5587567C4C830F  //VT_Driverç»16ä½md5æ‘˜è¦
 #define VMCALL_IDENTIFIER2 0x66666666
 #define VMM_TAG 'vtmm'
 #define VMM_STACK_SIZE 0x6000
@@ -463,7 +463,7 @@ union __ept_pde {
 		unsigned __int64 execute : 1;
 		unsigned __int64 memory_type : 3;
 		unsigned __int64 ignore_pat : 1;
-		unsigned __int64 large_page : 1;  //psÎ» ´óÒ³Ãæ
+		unsigned __int64 large_page : 1;  //psä½ å¤§é¡µé¢
 		unsigned __int64 accessed : 1;
 		unsigned __int64 dirty : 1;
 		unsigned __int64 execute_for_usermode : 1;
@@ -471,7 +471,7 @@ union __ept_pde {
 		unsigned __int64 page_frame_number : 27;
 		unsigned __int64 reserved2 : 15;
 		unsigned __int64 suppressve : 1;
-	}page_directory_entry;  //2mbµÄ½á¹¹
+	}page_directory_entry;  //2mbçš„ç»“æ„
 };
 
 // See Table 28-6																	 
@@ -496,7 +496,7 @@ union __ept_pte {
 	};
 };
 
-//Êı×é×î´óÎª512¼´2^9´Î·½
+//æ•°ç»„æœ€å¤§ä¸º512å³2^9æ¬¡æ–¹
 struct __vmm_ept_page_table
 {
 	DECLSPEC_ALIGN(PAGE_SIZE) __ept_pml4e pml4[512];
@@ -506,37 +506,37 @@ struct __vmm_ept_page_table
 	DECLSPEC_ALIGN(PAGE_SIZE) __ept_pde pml2[EPT_PD_COUNT][512];
 };
 
-//hookÒ³ ÃèÊö·û
+//hooké¡µ æè¿°ç¬¦
 struct __ept_hooked_page_info
 {
 	//
 	// Page with our hooked functions
-	// Î±ÔìÒ³µÄÄÚÈİ´æ·Åhook´úÂë
-	// 4KBÎïÀíÒ³
+	// ä¼ªé€ é¡µçš„å†…å®¹å­˜æ”¾hookä»£ç 
+	// 4KBç‰©ç†é¡µ
 	//
 	DECLSPEC_ALIGN(PAGE_SIZE) unsigned __int8 fake_page_contents[PAGE_SIZE];
 
 	//
 	// Linked list entires for each page hook.
-	// ¼ÇÂ¼±»hookµÄÒ³Ãæ
+	// è®°å½•è¢«hookçš„é¡µé¢
 	//
 	LIST_ENTRY hooked_page_list;
 
 	//
 	// Linked list entries for each function hook
-	// ¼ÇÂ¼±»hookµÄº¯Êı
+	// è®°å½•è¢«hookçš„å‡½æ•°
 	//
 	LIST_ENTRY hooked_functions_list;
 
 	//
 	// The base address of the page. Used to find this structure in the list of page hooks
-	// Ô´º¯ÊıµÄÒ³Ö¡ºÅ
+	// æºå‡½æ•°çš„é¡µå¸§å·
 	//
 	unsigned __int64 pfn_of_hooked_page;
 
 	//
 	// The base address of the page with fake contents. Used to swap page with fake contents
-	// Î±ÔìÒ³µÄÒ³Ö¡ºÅ
+	// ä¼ªé€ é¡µçš„é¡µå¸§å·
 	//
 	unsigned __int64 pfn_of_fake_page_contents;
 
@@ -547,13 +547,13 @@ struct __ept_hooked_page_info
 
 	//
 	// The original page entry
-	// Ô­Ò³
+	// åŸé¡µ
 	// 
 	__ept_pte original_entry;
 
 	//
 	// The changed page entry
-	// Î±ÔìÒ³
+	// ä¼ªé€ é¡µ
 	//
 	__ept_pte changed_entry;
 
@@ -615,14 +615,14 @@ typedef struct _PageEventExtended
 
 typedef struct _BrokenThreadEntry
 {
-	int inuse;  //ÊÇ·ñÒÑ±»Ê¹ÓÃ
+	int inuse;  //æ˜¯å¦å·²è¢«ä½¿ç”¨
 	int continueMethod; //0=no, 1=single step, 2=run  (resets to 0 after taking a step.  if 2 then inuse turns false
-	int watchid; //µ¼ÖÂÖĞ¶ÏµÄ watchid¡£Èç¹ûÊÇµ¥²½£¬ÔòÎª -1
+	int watchid; //å¯¼è‡´ä¸­æ–­çš„ watchidã€‚å¦‚æœæ˜¯å•æ­¥ï¼Œåˆ™ä¸º -1
 
-	unsigned __int64 UserModeLoop; //Íê³ÉÄ³²½ºóÒªÈ¥ÄÄÀï
+	unsigned __int64 UserModeLoop; //å®ŒæˆæŸæ­¥åè¦å»å“ªé‡Œ
 	unsigned __int64 KernelModeLoop;
 
-	PageEventExtended state; //°üº¬ CR3¡¢FSBASE ºÍ GSBASE
+	PageEventExtended state; //åŒ…å« CR3ã€FSBASE å’Œ GSBASE
 } BrokenThreadEntry, * PBrokenThreadEntry;
 
 struct __ept_hooked_function_info
@@ -634,8 +634,8 @@ struct __ept_hooked_function_info
 
 	//
 	// Pointer to page with our hooked functions
-	// Î±ÔìÒ³ÄÚÈİ
-	// Ö¸Ïò4KBÎïÀíÒ³
+	// ä¼ªé€ é¡µå†…å®¹
+	// æŒ‡å‘4KBç‰©ç†é¡µ
 	//
 	unsigned __int8* fake_page_contents;
 
@@ -644,10 +644,10 @@ struct __ept_hooked_function_info
 	//
 	unsigned __int64 hook_size;
 
-	//ÓûÉèÖÃ¶ÏµãµÄÎïÀíµØÖ·
+	//æ¬²è®¾ç½®æ–­ç‚¹çš„ç‰©ç†åœ°å€
 	unsigned __int64 breakpoint_address;
 
-	//ÓÃÍ¾
+	//ç”¨é€”
 	int Options;
 
 	unsigned __int64 LoopUserMode;
@@ -658,16 +658,16 @@ struct __ept_hooked_function_info
 
 	//
 	// Virtual address of function
-	// º¯ÊıµÄĞéÄâµØÖ·
+	// å‡½æ•°çš„è™šæ‹Ÿåœ°å€
 	//
 	void* virtual_address;
 
-	//ÊÂ¼şµÄ´¦Àíº¯Êı
+	//äº‹ä»¶çš„å¤„ç†å‡½æ•°
 	void* handler_function;
 
 	//
 	// Address to first trampoline used to call original function
-	// ÓÃÓÚµ÷ÓÃÔ­Ê¼º¯ÊıµÄ
+	// ç”¨äºè°ƒç”¨åŸå§‹å‡½æ•°çš„
 	//
 	unsigned __int8* first_trampoline_address;
 
@@ -705,7 +705,7 @@ struct __vcpu
 	alignas(0x1000) vmx_msr_bitmap msr_bitmap;
 
 	// the number of NMIs that need to be delivered
-	// ĞèÒª½»¸¶µÄ NMI ÊıÁ¿
+	// éœ€è¦äº¤ä»˜çš„ NMI æ•°é‡
 	uint32_t volatile queued_nmis;
 
 	// current preemption timer
@@ -748,25 +748,25 @@ struct __vcpu
 
 		unsigned __int64 instruction_length;
 
-		unsigned __int64 reason;  //vmexitÔ­Òò
+		unsigned __int64 reason;  //vmexitåŸå› 
 
 		unsigned __int64 qualification;
 
 		unsigned __int64 instruction_information;
 
-		unsigned __int64 instruction_error;  //¼ÇÂ¼VMfailValidÊ§°ÜÔ­Òò
+		unsigned __int64 instruction_error;  //è®°å½•VMfailValidå¤±è´¥åŸå› 
 
 	}vmexit_info;
 
 	struct __vcpu_status
 	{
 		unsigned __int64 vmx_on;
-		unsigned __int64 vmm_launched;  //vmĞéÄâ»úµÄÔËĞĞ×´Ì¬
+		unsigned __int64 vmm_launched;  //vmè™šæ‹Ÿæœºçš„è¿è¡ŒçŠ¶æ€
 	}vcpu_status;
 
 	struct __vmx_off_state
 	{
-		unsigned __int64  vmx_off_executed;  //¹Ø±ÕĞéÄâ»¯
+		unsigned __int64  vmx_off_executed;  //å…³é—­è™šæ‹ŸåŒ–
 		unsigned __int64  guest_rip;
 		unsigned __int64  guest_rsp;
 	}vmx_off_state;
@@ -782,8 +782,8 @@ struct __vcpu
 
 	__ept_state* ept_state;
 
-	CLIENT_ID Cid; //¼ÇÂ¼´¥·¢¼àÊÓ¶ÏµãµÄguestµÄÏß³Ìid
-	unsigned __int64 breakpoint_detected; //¼ÇÂ¼´¥·¢µÄµØÖ·
+	CLIENT_ID Cid; //è®°å½•è§¦å‘ç›‘è§†æ–­ç‚¹çš„guestçš„çº¿ç¨‹id
+	unsigned __int64 breakpoint_detected; //è®°å½•è§¦å‘çš„åœ°å€
 };
 
 #pragma pack(push, 1)
@@ -807,20 +807,20 @@ struct mtrr_data {
 	ia32_mtrr_def_type_register def_type;
 
 	// fixed-range MTRRs
-	// ¹Ì¶¨·¶Î§MTRRs
+	// å›ºå®šèŒƒå›´MTRRs
 	struct {
 		// TODO: implement
 	} fixed;
 
 	// variable-range MTRRs
-	// ¿É±ä·¶Î§MTRRs¼Ä´æÆ÷×é  ´¦ÀíÆ÷Ò»°ãÊµÏÖ8¸ö
+	// å¯å˜èŒƒå›´MTRRså¯„å­˜å™¨ç»„  å¤„ç†å™¨ä¸€èˆ¬å®ç°8ä¸ª
 	struct {
 		ia32_mtrr_physbase_register base;
 		ia32_mtrr_physmask_register mask;
 	} variable[64];
 
 	// number of valid variable-range MTRRs
-	// ÓĞĞ§µÄ¿É±ä·¶Î§ MTRRs µÄÊıÁ¿
+	// æœ‰æ•ˆçš„å¯å˜èŒƒå›´ MTRRs çš„æ•°é‡
 	size_t var_count;
 };
 
@@ -834,19 +834,19 @@ struct __mtrr_info
 
 struct __vmm_context
 {
-	__vcpu* vcpu; //ĞéÄâ´¦ÀíÆ÷
+	__vcpu* vcpu; //è™šæ‹Ÿå¤„ç†å™¨
 	pool_manager::__pool_manager* pool_manager;
 	__mtrr_info mtrr_info;
 
-	unsigned __int32 processor_count;  //´¦ÀíÆ÷ÊıÁ¿
+	unsigned __int32 processor_count;  //å¤„ç†å™¨æ•°é‡
 	unsigned __int32 highest_basic_leaf;
-	bool hv_presence;  //±êÊ¶hy¶ÔÏóÒÑ¾­´´½¨    
+	bool hv_presence;  //æ ‡è¯†hyå¯¹è±¡å·²ç»åˆ›å»º    
 };
 
-//¶¯Ì¬·Ö¸î
+//åŠ¨æ€åˆ†å‰²
 struct __ept_dynamic_split
 {
-	DECLSPEC_ALIGN(PAGE_SIZE) __ept_pte pml1[512];  //Ò³±ípt
+	DECLSPEC_ALIGN(PAGE_SIZE) __ept_pte pml1[512];  //é¡µè¡¨pt
 
 	__ept_pde* entry;
 
@@ -858,7 +858,7 @@ union __mtrr_cap_reg
 	unsigned __int64 all;
 	struct
 	{
-		unsigned __int64 range_register_number : 8; //bit 7:0  ´¦ÀíÆ÷ÖĞ¿É±äMTRRs¼Ä´æÆ÷µÄÊıÁ¿¡£
+		unsigned __int64 range_register_number : 8; //bit 7:0  å¤„ç†å™¨ä¸­å¯å˜MTRRså¯„å­˜å™¨çš„æ•°é‡ã€‚
 		unsigned __int64 fixed_range_support : 1; //bit 8
 		unsigned __int64 reserved : 1; //bit 9
 		unsigned __int64 write_combining_support : 1; //bit 10
@@ -913,7 +913,7 @@ union __mtrr_fixed_range_type
 	};
 };
 
-// 4¼¶Ò³Ó³ÉäµÄĞéÄâµØÖ·
+// 4çº§é¡µæ˜ å°„çš„è™šæ‹Ÿåœ°å€
 union pml4_virtual_address {
 	void const* address;
 	struct {
@@ -927,16 +927,16 @@ union pml4_virtual_address {
 
 typedef struct
 {
-	unsigned __int64 cr3; //Ä¿±ê½ø³ÌµÄcr3    
+	unsigned __int64 cr3; //ç›®æ ‡è¿›ç¨‹çš„cr3    
 	unsigned __int64 VirtualAddress;
 	unsigned __int64 PhysicalAddress;
-	unsigned __int64 Type; //¶Á¡¢Ğ´¡¢Ö´ĞĞ
+	unsigned __int64 Type; //è¯»ã€å†™ã€æ‰§è¡Œ
 	unsigned long Options;
 	unsigned __int64 LoopUserMode;
 	unsigned __int64 LoopKernelMode;
 	int Size;
 	int inuse;
-	int bpType; //¶ÏµãÀàĞÍ 3=int3  1=debugreg
+	int bpType; //æ–­ç‚¹ç±»å‹ 3=int3  1=debugreg
 	unsigned char OriginalByte;
 } EPTWatchEntry, * PEPTWatchEntry;
 
@@ -1064,7 +1064,7 @@ namespace hv
 	// structure that gets filled out when a host exception occurs
 	struct host_exception_info {
 		// whether an exception occurred or not
-		// ÊÇ·ñ·¢ÉúÒì³£
+		// æ˜¯å¦å‘ç”Ÿå¼‚å¸¸
 		bool exception_occurred;
 
 		// interrupt vector
@@ -1093,7 +1093,7 @@ namespace hv
 		uint8_t* system_eprocess;
 
 		// kernel CR3 value of the System process
-		// System½ø³ÌµÄÄÚºË CR3 Öµ
+		// Systemè¿›ç¨‹çš„å†…æ ¸ CR3 å€¼
 		cr3 system_cr3;
 
 		// windows specific offsets D:
@@ -1147,16 +1147,16 @@ namespace hv
 
 		void handle_host_interrupt(trap_frame* const frame);
 
-		// ¾ßÓĞÒì³£´¦ÀíµÄxsetbv
+		// å…·æœ‰å¼‚å¸¸å¤„ç†çš„xsetbv
 		void xsetbv_safe(host_exception_info& e, uint32_t idx, uint64_t value);
 
-		// ¾ßÓĞÒì³£´¦ÀíµÄ rdmsr
+		// å…·æœ‰å¼‚å¸¸å¤„ç†çš„ rdmsr
 		uint64_t rdmsr_safe(host_exception_info& e, uint32_t msr);
 
-		// ¾ßÓĞÒì³£´¦ÀíµÄwrmsr
+		// å…·æœ‰å¼‚å¸¸å¤„ç†çš„wrmsr
 		void wrmsr_safe(host_exception_info& e, uint32_t msr, uint64_t value);
 
-		// ¾ßÓĞÒì³£´¦ÀíµÄ memcpy
+		// å…·æœ‰å¼‚å¸¸å¤„ç†çš„ memcpy
 		void memcpy_safe(host_exception_info& e, void* dst, void const* src, size_t size);
 	}
 
@@ -1179,26 +1179,26 @@ namespace hv
 	// calculate the MTRR memory type for the given physical memory range
 	uint8_t calc_mtrr_mem_type(mtrr_data const& mtrrs, uint64_t address, uint64_t size);
 
-	//½«GVA×ª»»ÎªGPA
+	//å°†GVAè½¬æ¢ä¸ºGPA
 	uint64_t get_physical_address(unsigned __int64 guest_cr3, _In_ PVOID BaseAddress);
 
 	size_t read_guest_virtual_memory(cr3 const guest_cr3,
 		void* const gva, void* const hva, size_t const size);
 
 	// attempt to read the memory at the specified guest virtual address from root-mode
-	// ¶ÁÈ¡guestÖĞµ±Ç°½ø³ÌµÄĞéÄâÄÚ´æ
+	// è¯»å–guestä¸­å½“å‰è¿›ç¨‹çš„è™šæ‹Ÿå†…å­˜
 	size_t read_guest_virtual_memory(void* const gva, void* const hva, size_t const size);
 
 	size_t write_guest_virtual_memory(cr3 const guest_cr3,
 		void* const gva, void* const hva, size_t const size);
 
-	// Ğ´ÈëguestÖĞµ±Ç°½ø³ÌµÄĞéÄâÄÚ´æ
+	// å†™å…¥guestä¸­å½“å‰è¿›ç¨‹çš„è™šæ‹Ÿå†…å­˜
 	size_t write_guest_virtual_memory(void* const gva, void* const hva, size_t const size);
 
-	//»ñÈ¡¿ÕÏĞµÄid
+	//è·å–ç©ºé—²çš„id
 	int getIdleWatchID();
 
-	//½«guestĞéÄâµØÖ·×ªÎªguestÎïÀíµØÖ·
+	//å°†guestè™šæ‹Ÿåœ°å€è½¬ä¸ºguestç‰©ç†åœ°å€
 	uint64_t gva2gpa(cr3 guest_cr3, void* gva, size_t* offset_to_next_page = nullptr);
 
 	cr0 read_effective_guest_cr0();
@@ -1214,14 +1214,14 @@ namespace hv
 	void inject_single_step(__vcpu* vcpu);
 
 	// set the memory type in every EPT paging structure to the specified value
-	// ½«Ã¿¸ö EPT ·ÖÒ³½á¹¹ÖĞµÄÄÚ´æÀàĞÍÉèÖÃÎªÖ¸¶¨Öµ½«Ã¿¸ö EPT ·ÖÒ³½á¹¹ÖĞµÄÄÚ´æÀàĞÍÉèÖÃÎªÖ¸¶¨Öµ
+	// å°†æ¯ä¸ª EPT åˆ†é¡µç»“æ„ä¸­çš„å†…å­˜ç±»å‹è®¾ç½®ä¸ºæŒ‡å®šå€¼å°†æ¯ä¸ª EPT åˆ†é¡µç»“æ„ä¸­çš„å†…å­˜ç±»å‹è®¾ç½®ä¸ºæŒ‡å®šå€¼
 	void set_ept_memory_type(__ept_state& ept_state, uint8_t const memory_type);
 
 	void update_ept_memory_type(__ept_state& ept_state);
 
-	//¶ÁÈ¡guestÍ¨ÓÃ¼Ä´æÆ÷
+	//è¯»å–guesté€šç”¨å¯„å­˜å™¨
 	uint64_t read_guest_gpr(guest_context const* const ctx, uint64_t const gpr_idx);
 
-	//Ğ´guestÍ¨ÓÃ¼Ä´æÆ÷
+	//å†™guesté€šç”¨å¯„å­˜å™¨
 	void write_guest_gpr(guest_context* const ctx, uint64_t const gpr_idx, uint64_t const value);
 }

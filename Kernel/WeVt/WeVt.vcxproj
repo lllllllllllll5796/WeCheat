@@ -225,7 +225,6 @@ copy "$(SolutionDir)Bin\x64\Release\WeVt\WeVt.sys" "$(SolutionDir)Bin\x64\Releas
     <ClInclude Include="WeVt.poolmanager.h" />
     <ClInclude Include="WeVt.segment.h" />
     <ClInclude Include="WeVt.Symbolic.h" />
-    <ClInclude Include="WeVt.MinMax.h" />
     <ClInclude Include="WeVt.Hypervisor.h" />
     <ClInclude Include="WeVt.pch.h" />
     <ClInclude Include="WeVt.Trace.h" />

@@ -1,6 +1,7 @@
 ﻿#include "WeVt.pch.h"
 #include "WeVt.poolmanager.h"
 #include "WeVt.HypervisorGlobals.h"
+#include "../../Shared/SharedStruct.h"
 #include "WeVt.AsmCallset.h"
 #include "WeVt.hypervisor_routines.h"
 #include "WeVt.invalid_ept.h"
@@ -654,6 +655,32 @@ namespace hv
 		size_t ptr_Cid = Thread + Global::ethread_offset::Cid;
 		return (PCLIENT_ID)ptr_Cid;
 	}
+
+	bool get_breakpoint_detected(__vcpu* vcpu, PBREAKPOINT_DETECTED vmcallinfo)
+	{
+		BREAKPOINT_DETECTED tmp_vmcallinfo = { 0 };
+
+		if (sizeof(BREAKPOINT_DETECTED) != hv::read_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(BREAKPOINT_DETECTED)))
+		{
+			return false;
+		}
+
+		if (vcpu->Cid.UniqueThread == (HANDLE)tmp_vmcallinfo.Cid.UniqueThread)
+		{
+			tmp_vmcallinfo.breakpoint_detected = vcpu->breakpoint_detected;
+
+			if (sizeof(BREAKPOINT_DETECTED) != hv::write_guest_virtual_memory(vmcallinfo, &tmp_vmcallinfo, sizeof(BREAKPOINT_DETECTED)))
+			{
+				return false;
+			}
+
+			vcpu->breakpoint_detected = NULL;
+			vcpu->Cid = { 0 };
+			return true;
+		}
+		return false;
+	}
+
 
 	//向guest注入#DB事件
 	void inject_single_step(__vcpu* vcpu)

@@ -1,5 +1,5 @@
-#pragma once
+я╗┐#pragma once
 
 #define EMPTY_DRIVER     0
 
-#define DRIVER_NO_MODULE 0    //╟¤╢п╬▐─г┐щ
+#define DRIVER_NO_MODULE 0    //щй▒хКицЧацибхЭЧ

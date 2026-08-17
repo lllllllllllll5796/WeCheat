@@ -34,4 +34,19 @@ namespace hvgt
 	/// Check if we can communicate with hypervisor
 	/// </summary>
 	bool test_vmcall();
+
+	/// <summary>
+	/// Hook function via ept and invalidate tlb
+	/// </summary>
+	bool hook_function(void* target_address, void* proxy_function, void** origin_function);
+
+	/// <summary>
+	/// Broadcast a VMCALL to every logical processor.
+	/// vmcallinfo->command is the VMCALL reason; rdx receives the structure pointer.
+	/// </summary>
+	bool vmcall(void* vmcallinfo);
+
+	bool get_hide_software_breakpoint(void* target_address, void* buffer, unsigned __int64 buffer_size);
+
+	bool set_hide_software_breakpoint(void* vmcallinfo);
 }

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 /// <summary>
 /// Initialize and launch vmm
@@ -11,10 +11,10 @@ bool vmm_init();
 /// </summary>
 void free_vmm_context();
 
-//´´½¨hostÒ³±í
+//åˆ›å»ºhosté¡µè¡¨
 void create_host_page_tables();
 
-//·ÖÅävcpu½á¹¹ÄÚ´æ
+//åˆ†é…vcpuç»“æ„å†…å­˜
 bool init_vcpu(__vcpu* vcpu);
 
 bool init_logical_processor2(unsigned int iter);

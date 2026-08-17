@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-//ջ�����������ڴ���ʵ�Ч��
-//��x64�ܹ��У�ջ����16�ֽڶ����
+//栈对齐可以提高内存访问的效率
+//在x64架构中，栈是以16字节对齐的
 #define StackAlignment(x) ((x) & ~0xF)
 
 #define _MINIMAL
