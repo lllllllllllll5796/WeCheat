@@ -1,30 +1,33 @@
-#pragma once
+ï»¿#pragma once
+
+using fnPspInheritSyscallProvider = NTSTATUS(__fastcall*)(PEPROCESS TargetProcess, PEPROCESS ParentProcess);
+using fnMiReferenceControlAreaFileWithTag = PVOID(__fastcall*)(PVOID ControlArea, ULONG Tag);
 
 typedef struct _DEBUG_PROCESS_TABLE
 {
-	MY_LIST list_entry;        //Ö¸ÏòDEBUG_PROCESS¶ÔÏó
-	FAST_MUTEX Mutex;          //»¥³âËø
+	MY_LIST list_entry;        //æŒ‡å‘DEBUG_PROCESSå¯¹è±¡
+	FAST_MUTEX Mutex;          //äº’æ–¥é”
 }DEBUG_PROCESS_TABLE, * PDEBUG_PROCESS_TABLE;
 
 typedef struct _PROTECTOBJ
 {
-	MY_LIST list_entry;        //±£»¤¶ÔÏóÁĞ±í
-	FAST_MUTEX Mutex;          //»¥³âËø
+	MY_LIST list_entry;        //ä¿æŠ¤å¯¹è±¡åˆ—è¡¨
+	FAST_MUTEX Mutex;          //äº’æ–¥é”
 }PROTECTOBJ, * PPROTECTOBJ;
 
 typedef struct _DEBUGGER_TABLE
 {
-	MY_LIST list_entry;        //Ö¸ÏòDEBUGGER_DATA¶ÔÏó
-	FAST_MUTEX Mutex;          //»¥³âËø
+	MY_LIST list_entry;        //æŒ‡å‘DEBUGGER_DATAå¯¹è±¡
+	FAST_MUTEX Mutex;          //äº’æ–¥é”
 }DEBUGGER_TABLE, * PDEBUGGER_TABLE;
 
 typedef struct _BREAKPOINT_TABLE
 {
-	MY_LIST list_entry;  //Ö¸ÏòBREAKPOINT_TABLE_ENTRY
-	FAST_MUTEX Mutex;          //»¥³âËø
+	MY_LIST list_entry;  //æŒ‡å‘BREAKPOINT_TABLE_ENTRY
+	FAST_MUTEX Mutex;          //äº’æ–¥é”
 }BREAKPOINT_TABLE, * PBREAKPOINT_TABLE;
 
-//ĞéÄâ¾ä±ú±í
+//è™šæ‹Ÿå¥æŸ„è¡¨
 typedef struct _VIRTUAL_HANDLE_TABLE_ENTRY
 {
 	size_t id;
@@ -36,11 +39,11 @@ typedef struct _VIRTUAL_HANDLE_TABLE_ENTRY
 
 typedef struct _VIRTUAL_HANDLE_TABLE
 {
-	MY_LIST list_entry;    //Ö¸ÏòDEBUG_PROCESS¶ÔÏó
-	FAST_MUTEX Mutex;          //»¥³âËø
+	MY_LIST list_entry;    //æŒ‡å‘DEBUG_PROCESSå¯¹è±¡
+	FAST_MUTEX Mutex;          //äº’æ–¥é”
 }VIRTUAL_HANDLE_TABLE, * PVIRTUAL_HANDLE_TABLE;
 
-//WIN10-WIN11Í¨ÓÃOBJECT_TYPE½á¹¹Ìå
+//WIN10-WIN11é€šç”¨çš„OBJECT_TYPEç»“æ„
 typedef struct _OBJECT_TYPE
 {
 	/* 0x0000 */ struct _LIST_ENTRY TypeList;
@@ -63,7 +66,7 @@ typedef struct _OBJECT_TYPE
 
 namespace Global
 {
-	/**************************** º¯ÊıÖ¸Õë ****************************/
+	/**************************** å…¨å±€å˜é‡ ****************************/
 
 	BOOL Initialize_Global();
 	VOID UnInitialize_Global();
@@ -80,34 +83,34 @@ namespace Global
 	extern POBJECT_TYPE*         ObTypeIndexTable;
 	extern FAST_MUTEX            DbgkpProcessDebugPortMutex;
 	extern POBJECT_TYPE          WeDebug_DbgkDebugObjectType;
-	//È«¾Ö±äÁ¿
+	//å…¨å±€å˜é‡
 	extern PVOID                 PspLoaderInitRoutine;
-	extern POBJECT_TYPE*         DbgkDebugObjectType;                    //µ÷ÊÔ¶ÔÏóÀàĞÍ
+	extern POBJECT_TYPE*         DbgkDebugObjectType;                    //è°ƒè¯•å¯¹è±¡ç±»å‹
 	extern PULONG                PspNotifyEnableMask;
 	extern PULONG                PerfGlobalGroupMask;
-	extern PEX_PUSH_LOCK         PspActiveProcessLock;                   //»î¶¯½ø³ÌÁĞ±íËø
-	extern PULONG_PTR            PspProcessSequenceNumber;               //½ø³ÌĞòÁĞºÅ
-	extern PLIST_ENTRY           PsActiveProcessHead;                    //»î¶¯½ø³ÌÁĞ±í
+	extern PEX_PUSH_LOCK         PspActiveProcessLock;                   //æ´»åŠ¨è¿›ç¨‹åˆ—è¡¨é”
+	extern PULONG_PTR            PspProcessSequenceNumber;               //è¿›ç¨‹åºåˆ—å·
+	extern PLIST_ENTRY           PsActiveProcessHead;                    //æ´»åŠ¨è¿›ç¨‹åˆ—è¡¨
 
 	extern FAST_MUTEX            LongFlagsMutex;
-	extern PROTECTOBJ            g_ProtectFileObjList;                   //±£»¤µÄÎÄ¼ş¶ÔÏóÁĞ±í
-	extern PROTECTOBJ            g_ProtectWndObjList;                    //±£»¤µÄ´°¿Ú¶ÔÏóÁĞ±í
-	extern DEBUG_PROCESS_TABLE   g_DebugProcessList;                     //±»µ÷ÊÔµÄ½ø³ÌÁĞ±í
-	extern BREAKPOINT_TABLE      g_BreakpointList;                       //¶ÏµãÁĞ±í
-	extern VIRTUAL_HANDLE_TABLE  g_VirtualHandleList;                    //ĞéÄâ¾ä±úÁĞ±í
-	extern DEBUGGER_TABLE        g_DebuggerList;                         //µ÷ÊÔÆ÷¶ÔÏó
+	extern PROTECTOBJ            g_ProtectFileObjList;                   //ä¿æŠ¤çš„æ–‡ä»¶å¯¹è±¡åˆ—è¡¨
+	extern PROTECTOBJ            g_ProtectWndObjList;                    //ä¿æŠ¤çš„çª—å£å¯¹è±¡åˆ—è¡¨
+	extern DEBUG_PROCESS_TABLE   g_DebugProcessList;                     //è¢«è°ƒè¯•çš„è¿›ç¨‹åˆ—è¡¨
+	extern BREAKPOINT_TABLE      g_BreakpointList;                       //æ–­ç‚¹åˆ—è¡¨
+	extern VIRTUAL_HANDLE_TABLE  g_VirtualHandleList;                    //è™šæ‹Ÿå¥æŸ„åˆ—è¡¨
+	extern DEBUGGER_TABLE        g_DebuggerList;                         //è°ƒè¯•å™¨å¯¹è±¡
 
-	extern fnObDuplicateObject ObDuplicateObject;  //¸´ÖÆ¶ÔÏó
+	extern fnObDuplicateObject ObDuplicateObject;  //å¤åˆ¶å¯¹è±¡
 	extern fnKeResumeThread KeResumeThread;
 	extern fnKeSuspendThread KeSuspendThread;
 	extern fnKeForceResumeThread KeForceResumeThread;
 	extern fnKeFreezeAllThreads KeFreezeAllThreads;
 	extern fnKeThawAllThreads KeThawAllThreads;
-	extern fnPsGetNextProcessThread PsGetNextProcessThread; //»ñÈ¡½ø³ÌµÄÏÂÒ»¸öÏß³Ì
-	extern fnPsQuitNextProcessThread PsQuitNextProcessThread; //Ïß³Ì¶ÔÏó½â³ıÒıÓÃ
-	extern fnMmGetFileNameForAddress MmGetFileNameForAddress; //Í¨¹ıµØÖ·»ñÈ¡Ãû³ÆĞÅÏ¢
-	extern fnMmGetFileNameForSection MmGetFileNameForSection; //Í¨¹ı½Ú¶ÔÏó»ñÈ¡Ãû³ÆĞÅÏ¢
-	extern fnLpcRequestWaitReplyPortEx LpcRequestWaitReplyPortEx; //ÇëÇó¶Ë¿Ú
+	extern fnPsGetNextProcessThread PsGetNextProcessThread; //è·å–è¿›ç¨‹çš„ä¸‹ä¸€ä¸ªçº¿ç¨‹
+	extern fnPsQuitNextProcessThread PsQuitNextProcessThread; //çº¿ç¨‹å¯¹è±¡è§£é™¤å¼•ç”¨
+	extern fnMmGetFileNameForAddress MmGetFileNameForAddress; //é€šè¿‡åœ°å€è·å–åç§°ä¿¡æ¯
+	extern fnMmGetFileNameForSection MmGetFileNameForSection; //é€šè¿‡èŠ‚å¯¹è±¡è·å–åç§°ä¿¡æ¯
+	extern fnLpcRequestWaitReplyPortEx LpcRequestWaitReplyPortEx; //è¯·æ±‚ç«¯å£
 	extern fnKeContextFromKframes KeContextFromKframes;
 	extern fnKeContextToKframes KeContextToKframes;
 	extern fnKiCheckForAtlThunk KiCheckForAtlThunk;
@@ -115,7 +118,7 @@ namespace Global
 	extern fnKiEspToTrapFrame KiEspToTrapFrame;
 	extern fnKiDebugRoutine KiDebugRoutine;
 	extern fnRtlDispatchException RtlDispatchException;
-	extern fnPsCallImageNotifyRoutines PsCallImageNotifyRoutines;  //µ÷ÓÃÓ³Ïñ»Øµ÷Àı³Ì
+	extern fnPsCallImageNotifyRoutines PsCallImageNotifyRoutines;  //è°ƒç”¨æ˜ åƒå›è°ƒä¾‹ç¨‹
 	extern fnObGetProcessHandleCount ObGetProcessHandleCount;
 	extern fnPsGetProcessSessionId PsGetProcessSessionId;
 	extern fnObIsLUIDDeviceMapsEnabled ObIsLUIDDeviceMapsEnabled;
@@ -211,7 +214,7 @@ namespace Global
 	extern fnKeSetProcess KeSetProcess;
 	extern fnKeTerminateThread KeTerminateThread;
 	extern fnPspExitThread PspExitThread;
-	//extern fnPspExitThread Original_PspExitThread;
+	extern fnPspExitThread Original_PspExitThread;
 	extern fnPsGetNextProcess PsGetNextProcess;
 	extern fnPsTerminateProcess PsTerminateProcess;
 	extern fnDbgkpCloseObject DbgkpCloseObject;
@@ -307,6 +310,8 @@ namespace Global
 	extern fnPspImplicitAssignProcessToJob PspImplicitAssignProcessToJob;
 	extern fnPspUnlockProcessListExclusive PspUnlockProcessListExclusive;
 	extern fnSepDeleteAccessState SepDeleteAccessState;
+	extern fnPspInheritSyscallProvider PspInheritSyscallProvider;
+	extern fnMiReferenceControlAreaFileWithTag MiReferenceControlAreaFileWithTag;
 
 }
 
@@ -329,6 +334,7 @@ namespace Offset
 		extern size_t ActiveProcessLinks;
 		extern size_t SequenceNumber;
 		extern size_t ProcessLock;
+		extern size_t Machine;
 	}
 
 	namespace KProcess

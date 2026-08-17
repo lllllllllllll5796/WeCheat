@@ -1,10 +1,10 @@
-#include "WeDebug.pch.h"
+ï»¿#include "WeDebug.pch.h"
 #include "WeDebug.Symbolic.h"
 #include "SymbolicAccess.ModuleExtenderFactory.h"
 
 //SRV* C:\Symbols* https://msdl.microsoft.com/download/symbols
 
-//Ö±½ÓÓÃÑ¸À×ÏÂÔØ
+//ç¬¦å·æœåŠ¡å™¨åœ°å€
 //14393
 //http://msdl.microsoft.com/download/symbols/ntkrnlmp.pdb/4DAC3B582A9147ECAED2644CB165222B1/ntkrnlmp.pdb
 //http://msdl.microsoft.com/download/symbols/win32kbase.pdb/DB082FF11D914CA1BA49E137CC66F5E11/win32kbase.pdb
@@ -12,13 +12,13 @@
 
 #define GET_FUNC_POINTER(Name) \
 	Global::Name = (fn##Name)moduleExtender->GetPointer<fn##Name>(#Name); \
-	if (Global::Name == NULL) {LOG_ERROR("[-] ÏµÍ³°æ±¾[%d]Ã»ÓĞ[%s]Õâ¸öº¯Êı\r\n", g_CurrentWindowsBuildNumber, #Name); }\
+	if (Global::Name == NULL) {LOG_ERROR("[-] ç³»ç»Ÿç‰ˆæœ¬[%d]å‡½æ•°[%s]åœ°å€ä¸ºç©º\r\n", g_CurrentWindowsBuildNumber, #Name); }\
 	else {  LOG_DEBUG("[+] %s:0x%p\n", #Name, Global::Name);}
 		
 
 #define CHECK_FUNC_PTR(Ptr) \
     if ((Global::Ptr) == nullptr) { \
-		LOG_ERROR("[-] º¯ÊıÃ»ÓĞ³õÊ¼»¯[%s]\r\n", #Ptr); \
+		LOG_ERROR("[-] å‡½æ•°æŒ‡é’ˆä¸ºç©º[%s]\r\n", #Ptr); \
     }
 
 BOOLEAN InitNtoskrnlSymbolsTable()
@@ -29,14 +29,14 @@ BOOLEAN InitNtoskrnlSymbolsTable()
 
 	if (!moduleExtender.has_value())
 	{
-		LOG_DEBUG("[-] ntoskrnl.exe ·ûºÅ³õÊ¼»¯Ê§°Ü..\n");
+		LOG_DEBUG("[-] ntoskrnl.exe ç¬¦å·åˆå§‹åŒ–å¤±è´¥..\n");
 
 		return FALSE;
 	}
 
-	LOG_DEBUG("[+] ¿ªÊ¼½âÎö ntoskrnl.exe µÄ·ûºÅ\n");
+	LOG_DEBUG("[+] æˆåŠŸåˆå§‹åŒ– ntoskrnl.exe ç¬¦å·è¡¨\n");
 
-	//ÄÚºËµÄÈ«¾Ö±äÁ¿
+	//å†…æ ¸çš„å…¨å±€å˜é‡
 
 	Global::PspLoaderInitRoutine = moduleExtender->GetPointer<PVOID>(oxorany("PspLoaderInitRoutine"));
 	LOG_DEBUG("[+] PspLoaderInitRoutine:0x%p\n", Global::PspLoaderInitRoutine);
@@ -60,7 +60,7 @@ BOOLEAN InitNtoskrnlSymbolsTable()
 	LOG_DEBUG("[+] PsActiveProcessHead:0x%p\n", Global::PsActiveProcessHead);
 
 	//------------------
-	//ÄÚºËº¯ÊıÖ¸Õë
+	//å†…æ ¸å‡½æ•°æŒ‡é’ˆ
 	GET_FUNC_POINTER(PsFreezeProcess);
 	GET_FUNC_POINTER(PsThawProcess);
 	GET_FUNC_POINTER(NtCreateDebugObject);
@@ -155,6 +155,26 @@ BOOLEAN InitNtoskrnlSymbolsTable()
 	GET_FUNC_POINTER(SepDeleteAccessState);
 	GET_FUNC_POINTER(PspInsertProcess);
 	GET_FUNC_POINTER(DbgkSendSystemDllMessages);
+	GET_FUNC_POINTER(DbgkOpenProcessDebugPort);
+
+	Global::PspInheritSyscallProvider = (fnPspInheritSyscallProvider)moduleExtender->GetPointer<fnPspInheritSyscallProvider>(oxorany("PspInheritSyscallProvider"));
+	if (Global::PspInheritSyscallProvider)
+	{
+		LOG_DEBUG("[+] PspInheritSyscallProvider:0x%p (Win11+)\n", Global::PspInheritSyscallProvider);
+	}
+	else
+	{
+		LOG_DEBUG("[*] PspInheritSyscallProvider æœªæ‰¾åˆ°ï¼Œå½“å‰ä¸º Win10 å°†è·³è¿‡\n");
+	}
+
+	Global::MiReferenceControlAreaFileWithTag = (fnMiReferenceControlAreaFileWithTag)moduleExtender->GetPointer<fnMiReferenceControlAreaFileWithTag>(oxorany("MiReferenceControlAreaFileWithTag"));
+	if (Global::MiReferenceControlAreaFileWithTag)
+	{
+		LOG_DEBUG("[+] MiReferenceControlAreaFileWithTag:0x%p\n", Global::MiReferenceControlAreaFileWithTag);
+	}
+
+	Global::ObTypeIndexTable = moduleExtender->GetPointer<POBJECT_TYPE>(oxorany("ObTypeIndexTable"));
+	LOG_DEBUG("[+] ObTypeIndexTable:0x%p\n", Global::ObTypeIndexTable);
 
 	//-----------------------------------------
 	Offset::EProcess::Pcb = moduleExtender->GetOffset(oxorany("_EPROCESS"), oxorany("Pcb")).value_or(0xFFFFFFFF);
@@ -201,6 +221,9 @@ BOOLEAN InitNtoskrnlSymbolsTable()
 
 	Offset::EProcess::ProcessLock = moduleExtender->GetOffset("_EPROCESS", "ProcessLock").value_or(0xFFFFFFFF);
 	LOG_DEBUG("[+] Offset::EProcess::ProcessLock:0x%X\n", Offset::EProcess::ProcessLock);
+
+	Offset::EProcess::Machine = moduleExtender->GetOffset("_EPROCESS", "Machine").value_or(0);
+	LOG_DEBUG("[+] Offset::EProcess::Machine:0x%X\n", Offset::EProcess::Machine);
 
 	Offset::KProcess::DirectoryTableBase = moduleExtender->GetOffset("_KPROCESS", "DirectoryTableBase").value_or(0xFFFFFFFF);
 	LOG_DEBUG("[+] Offset::EProcess::DirectoryTableBase:0x%X\n", Offset::KProcess::DirectoryTableBase);
@@ -293,16 +316,16 @@ BOOLEAN InitNtoskrnlSymbolsTable()
 
 BOOLEAN InitWin32kBaseSymbolsTable()
 {
-	//µ±Ç°Ïß³Ì±ØĞëÊÇguiÏß³Ì²ÅÄÜ·ÃÎÊwin32kµÄÄÚ´æ
+	//å½“å‰çº¿ç¨‹å¿…é¡»æ˜¯guiçº¿ç¨‹æ‰èƒ½è®¿é—®win32kçš„å†…å­˜
 	symbolic_access::ModuleExtenderFactory extenderFactory{};
 	const auto& moduleExtender = extenderFactory.Create(oxorany(L"win32kbase.sys"));
 	if (!moduleExtender.has_value())
 	{
-		LOG_DEBUG("[-] win32kbase.sys ·ûºÅ³õÊ¼»¯Ê§°Ü..\n");
+		LOG_DEBUG("[-] win32kbase.sys ç¬¦å·åˆå§‹åŒ–å¤±è´¥..\n");
 		return FALSE;
 	}
 
-	LOG_DEBUG("[+] ¿ªÊ¼½âÎö win32kbase.sys µÄ·ûºÅ\n");
+	LOG_DEBUG("[+] æˆåŠŸåˆå§‹åŒ– win32kbase.sys ç¬¦å·è¡¨\n");
 
 	GET_FUNC_POINTER(ValidateHwnd);
 
@@ -311,16 +334,16 @@ BOOLEAN InitWin32kBaseSymbolsTable()
 
 BOOLEAN InitWin32kFullSymbolsTable()
 {
-	//µ±Ç°Ïß³Ì±ØĞëÊÇguiÏß³Ì²ÅÄÜ·ÃÎÊwin32kµÄÄÚ´æ
+	//å½“å‰çº¿ç¨‹å¿…é¡»æ˜¯guiçº¿ç¨‹æ‰èƒ½è®¿é—®win32kçš„å†…å­˜
 	symbolic_access::ModuleExtenderFactory extenderFactory{};
 	const auto& moduleExtender = extenderFactory.Create(oxorany(L"win32kfull.sys"));
 	if (!moduleExtender.has_value())
 	{
-		LOG_DEBUG("[-] win32kfull.sys ·ûºÅ³õÊ¼»¯Ê§°Ü..\n");
+		LOG_DEBUG("[-] win32kfull.sys ç¬¦å·åˆå§‹åŒ–å¤±è´¥..\n");
 		return FALSE;
 	}
 
-	LOG_DEBUG("[+] ¿ªÊ¼½âÎö win32kfull.sys µÄ·ûºÅ\n");
+	LOG_DEBUG("[+] æˆåŠŸåˆå§‹åŒ– win32kfull.sys ç¬¦å·è¡¨\n");
 
 	GET_FUNC_POINTER(NtUserFindWindowEx);
 	GET_FUNC_POINTER(NtUserWindowFromPoint);
@@ -442,6 +465,7 @@ void CheckFunctionPointers()
 	CHECK_FUNC_PTR(SepDeleteAccessState);
 	CHECK_FUNC_PTR(PspInsertProcess);
 	CHECK_FUNC_PTR(DbgkSendSystemDllMessages);
+	CHECK_FUNC_PTR(DbgkOpenProcessDebugPort);
 
 	//win32kbase
 	CHECK_FUNC_PTR(ValidateHwnd);
@@ -449,4 +473,24 @@ void CheckFunctionPointers()
 	//win32kfull
 	CHECK_FUNC_PTR(NtUserFindWindowEx);
 	CHECK_FUNC_PTR(NtUserWindowFromPoint);
+}
+
+bool DispatchOffsetToHost()
+{
+	if (!Global::g_IsInitSymbols)
+	{
+		return false;
+	}
+
+	WINDOWS_STRUCT vmcallinfo = { 0 };
+	vmcallinfo.ethread_offset_Cid = Offset::EThread::Cid;
+	vmcallinfo.command = VT_VMCALL_INIT_OFFSET;
+	if (hvgt::vmcall(&vmcallinfo))
+	{
+		LOG_DEBUG("[+] DispatchOffsetToHost æˆåŠŸ\r\n");
+		return true;
+	}
+
+	LOG_DEBUG("[-] DispatchOffsetToHost å¤±è´¥ï¼Œæ— æ³•æŠŠ offset å‘ç»™ WeVt Host\r\n");
+	return false;
 }

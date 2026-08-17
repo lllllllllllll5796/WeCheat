@@ -19,8 +19,16 @@ namespace Control
 	NTSTATUS InitDispatchRoutine(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp);
 	NTSTATUS HandlerDispatchRoutine(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp);
 
+	USER_DATA GetUserData(PUSER_DATA userData);
+
 	NTSTATUS HANDLE_WEDEBUG_Test(IN PUSER_DATA userData, IN PIRP pIrp);
 	NTSTATUS HANDLE_WEDEBUG_GetProcessCr3(IN PUSER_DATA userData, IN PIRP pIrp);
 	NTSTATUS HANDLE_WEDEBUG_InitSymbols(IN PUSER_DATA userData, IN PIRP pIrp);
 	NTSTATUS HANDLE_WEDEBUG_DbgkInit(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_InitDebuggerData(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_SetHardwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_DelHardwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_SetSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_DelSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp);
+	NTSTATUS HANDLE_WEDEBUG_ReadSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp);
 }

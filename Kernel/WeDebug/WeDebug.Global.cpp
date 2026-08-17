@@ -1,4 +1,4 @@
-#include "WeDebug.pch.h"
+ï»¿#include "WeDebug.pch.h"
 #include "WeDebug.Global.h"
 
 
@@ -16,36 +16,36 @@ namespace Global
 
     POBJECT_TYPE*         ObTypeIndexTable;
 
-    FAST_MUTEX            DbgkpProcessDebugPortMutex;             //½ø³Ìµ÷ÊÔ¶Ë¿Ú»¥³âËø
-    POBJECT_TYPE          WeDebug_DbgkDebugObjectType;            //×Ô½¨µÄµ÷ÊÔ¶ÔÏóÀàĞÍ
-	//È«¾Ö±äÁ¿
+    FAST_MUTEX            DbgkpProcessDebugPortMutex;             //è¿›ç¨‹è°ƒè¯•ç«¯å£äº’æ–¥é”
+    POBJECT_TYPE          WeDebug_DbgkDebugObjectType;            //è‡ªå»ºçš„è°ƒè¯•å¯¹è±¡ç±»å‹
+	//å…¨å±€å˜é‡
 	PVOID                 PspLoaderInitRoutine;
-	POBJECT_TYPE*         DbgkDebugObjectType;                    //µ÷ÊÔ¶ÔÏóÀàĞÍ
+	POBJECT_TYPE*         DbgkDebugObjectType;                    //è°ƒè¯•å¯¹è±¡ç±»å‹
 	PULONG                PspNotifyEnableMask;
 	PULONG                PerfGlobalGroupMask;
-	PEX_PUSH_LOCK         PspActiveProcessLock;                   //»î¶¯½ø³ÌÁĞ±íËø
-	PULONG_PTR            PspProcessSequenceNumber;               //½ø³ÌĞòÁĞºÅ
-	PLIST_ENTRY           PsActiveProcessHead;                    //»î¶¯½ø³ÌÁĞ±í
+	PEX_PUSH_LOCK         PspActiveProcessLock;                   //æ´»åŠ¨è¿›ç¨‹åˆ—è¡¨é”
+	PULONG_PTR            PspProcessSequenceNumber;               //è¿›ç¨‹åºåˆ—å·
+	PLIST_ENTRY           PsActiveProcessHead;                    //æ´»åŠ¨è¿›ç¨‹åˆ—è¡¨
 
 	FAST_MUTEX            LongFlagsMutex;
-	PROTECTOBJ            g_ProtectFileObjList;                   //±£»¤µÄÎÄ¼ş¶ÔÏóÁĞ±í
-	PROTECTOBJ            g_ProtectWndObjList;                    //±£»¤µÄ´°¿Ú¶ÔÏóÁĞ±í
-	DEBUG_PROCESS_TABLE   g_DebugProcessList;                     //±»µ÷ÊÔµÄ½ø³ÌÁĞ±í
-	BREAKPOINT_TABLE      g_BreakpointList;                       //¶ÏµãÁĞ±í
-	VIRTUAL_HANDLE_TABLE  g_VirtualHandleList;                    //ĞéÄâ¾ä±úÁĞ±í
-    DEBUGGER_TABLE        g_DebuggerList;                         //µ÷ÊÔÆ÷¶ÔÏó
+	PROTECTOBJ            g_ProtectFileObjList;                   //ä¿æŠ¤çš„æ–‡ä»¶å¯¹è±¡åˆ—è¡¨
+	PROTECTOBJ            g_ProtectWndObjList;                    //ä¿æŠ¤çš„çª—å£å¯¹è±¡åˆ—è¡¨
+	DEBUG_PROCESS_TABLE   g_DebugProcessList;                     //è¢«è°ƒè¯•çš„è¿›ç¨‹åˆ—è¡¨
+	BREAKPOINT_TABLE      g_BreakpointList;                       //æ–­ç‚¹åˆ—è¡¨
+	VIRTUAL_HANDLE_TABLE  g_VirtualHandleList;                    //è™šæ‹Ÿå¥æŸ„åˆ—è¡¨
+    DEBUGGER_TABLE        g_DebuggerList;                         //è°ƒè¯•å™¨å¯¹è±¡
 
- 	fnObDuplicateObject ObDuplicateObject;  //¸´ÖÆ¶ÔÏó
+ 	fnObDuplicateObject ObDuplicateObject;  //å¤åˆ¶å¯¹è±¡
  	fnKeResumeThread KeResumeThread;
  	fnKeSuspendThread KeSuspendThread;
  	fnKeForceResumeThread KeForceResumeThread;
  	fnKeFreezeAllThreads KeFreezeAllThreads;
  	fnKeThawAllThreads KeThawAllThreads;
- 	fnPsGetNextProcessThread PsGetNextProcessThread; //»ñÈ¡½ø³ÌµÄÏÂÒ»¸öÏß³Ì
- 	fnPsQuitNextProcessThread PsQuitNextProcessThread; //Ïß³Ì¶ÔÏó½â³ıÒıÓÃ
- 	fnMmGetFileNameForAddress MmGetFileNameForAddress; //Í¨¹ıµØÖ·»ñÈ¡Ãû³ÆĞÅÏ¢
- 	fnMmGetFileNameForSection MmGetFileNameForSection; //Í¨¹ı½Ú¶ÔÏó»ñÈ¡Ãû³ÆĞÅÏ¢
- 	fnLpcRequestWaitReplyPortEx LpcRequestWaitReplyPortEx; //ÇëÇó¶Ë¿Ú
+ 	fnPsGetNextProcessThread PsGetNextProcessThread; //è·å–è¿›ç¨‹çš„ä¸‹ä¸€ä¸ªçº¿ç¨‹
+ 	fnPsQuitNextProcessThread PsQuitNextProcessThread; //çº¿ç¨‹å¯¹è±¡è§£é™¤å¼•ç”¨
+ 	fnMmGetFileNameForAddress MmGetFileNameForAddress; //é€šè¿‡åœ°å€è·å–åç§°ä¿¡æ¯
+ 	fnMmGetFileNameForSection MmGetFileNameForSection; //é€šè¿‡èŠ‚å¯¹è±¡è·å–åç§°ä¿¡æ¯
+ 	fnLpcRequestWaitReplyPortEx LpcRequestWaitReplyPortEx; //è¯·æ±‚ç«¯å£
  	fnKeContextFromKframes KeContextFromKframes;
  	fnKeContextToKframes KeContextToKframes;
  	fnKiCheckForAtlThunk KiCheckForAtlThunk;
@@ -53,7 +53,7 @@ namespace Global
  	fnKiEspToTrapFrame KiEspToTrapFrame;
  	fnKiDebugRoutine KiDebugRoutine;
  	fnRtlDispatchException RtlDispatchException;
- 	fnPsCallImageNotifyRoutines PsCallImageNotifyRoutines;  //µ÷ÓÃÓ³Ïñ»Øµ÷Àı³Ì
+ 	fnPsCallImageNotifyRoutines PsCallImageNotifyRoutines;  //è°ƒç”¨æ˜ åƒå›è°ƒä¾‹ç¨‹
  	fnObGetProcessHandleCount ObGetProcessHandleCount;
  	fnPsGetProcessSessionId PsGetProcessSessionId;
  	fnObIsLUIDDeviceMapsEnabled ObIsLUIDDeviceMapsEnabled;
@@ -149,7 +149,7 @@ namespace Global
  	fnKeSetProcess KeSetProcess;
  	fnKeTerminateThread KeTerminateThread;
  	fnPspExitThread PspExitThread;
- 	//fnPspExitThread Original_PspExitThread;
+ 	fnPspExitThread Original_PspExitThread;
  	fnPsGetNextProcess PsGetNextProcess;
  	fnPsTerminateProcess PsTerminateProcess;
  	fnDbgkpCloseObject DbgkpCloseObject;
@@ -245,6 +245,8 @@ namespace Global
  	fnPspImplicitAssignProcessToJob PspImplicitAssignProcessToJob;
  	fnPspUnlockProcessListExclusive PspUnlockProcessListExclusive;
  	fnSepDeleteAccessState SepDeleteAccessState;
+	fnPspInheritSyscallProvider PspInheritSyscallProvider;
+	fnMiReferenceControlAreaFileWithTag MiReferenceControlAreaFileWithTag;
 
 	BOOL Initialize_Global()
 	{
@@ -255,13 +257,13 @@ namespace Global
 		NTSTATUS Status = RtlGetVersion(&OsVersion);
 		if (!NT_SUCCESS(Status))
 		{
-			LOG_DEBUG("[-] RtlGetVersion Ê§°Ü\r\n");
+			LOG_DEBUG("[-] RtlGetVersion å¤±è´¥\r\n");
 			return FALSE;
 		}
 
 		g_CurrentWindowsBuildNumber = OsVersion.dwBuildNumber;
 
-		LOG_DEBUG("[+] µ±Ç°ÏµÍ³°æ±¾:%d\r\n", g_CurrentWindowsBuildNumber);
+		LOG_DEBUG("[+] å½“å‰ç³»ç»Ÿç‰ˆæœ¬:%d\r\n", g_CurrentWindowsBuildNumber);
 
 		ExInitializeFastMutex(&LongFlagsMutex);
 		InitializeList(&g_ProtectFileObjList.list_entry, &g_ProtectFileObjList.Mutex);
@@ -299,6 +301,7 @@ namespace Offset
 		size_t ActiveProcessLinks;
 		size_t SequenceNumber;
 		size_t ProcessLock;
+		size_t Machine;
 	}
 
 	namespace KProcess

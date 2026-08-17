@@ -1,12 +1,15 @@
-#include "WeDebug.pch.h"
+Ôªø#include "WeDebug.pch.h"
 #include "WeDebug.Control.h"
 #include "WeDebug.DbgkApi.h"
+#include "WeDebug.EptHook.h"
 
 CODE_OBF_MFLT
 EXTERN_C
 VOID DriverUnLoad(__in DRIVER_OBJECT* DriverObject)
 {
 	DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, oxorany("[+] WeDebug DriverUnLoad\r\n"));
+
+	UnEptHook();
 
 	DbgkUnInitialize();
 
@@ -46,7 +49,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 #else
 	if (RegistryPath)
 	{
-		//«˝∂ØŒﬁƒ£øÈ
+		//È©±Âä®Êó†Ê®°Âùó
 #if DRIVER_NO_MODULE
 		InitFuncAddr(reinterpret_cast<PDRIVER_OBJECT>(DriverObject));
 
@@ -54,7 +57,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		{
 			Status = MapSelf(reinterpret_cast<PDRIVER_OBJECT>(DriverObject), reinterpret_cast<PUNICODE_STRING>(RegistryPath));
 
-			//«Â≥˝“ª–©«˝∂Øº”‘ÿ–≈œ¢
+			//Ê∏ÖÈô§‰∏Ä‰∫õÈ©±Âä®Âä†ËΩΩ‰ø°ÊÅØ
 			ClearDriverInstallMark(DriverObject);
 
 			if (!NT_SUCCESS(Status))
@@ -75,7 +78,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 		LDR_DATA_TABLE_ENTRY* v_target_entry = nullptr;
 		auto v_self_entry = static_cast<LDR_DATA_TABLE_ENTRY*>(DriverObject->DriverSection);
 
-		//«˝∂Ø◊‘º∫µƒ–≈œ¢
+		//È©±Âä®Ëá™Â∑±ÁöÑ‰ø°ÊÅØ
 		Global::g_DriverObject = DriverObject;
 		Global::g_DriverBase = (ULONG64)v_self_entry->DllBase;
 		Global::g_DriverSize = v_self_entry->SizeOfImage;
@@ -96,13 +99,13 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 			}
 		} while (v_self_entry->InLoadOrderLinks.Blink != reinterpret_cast<PLIST_ENTRY>(v_fist_entry));
 
-		//’‚ÕÊ“‚ «œµÕ≥ƒ⁄∫Àµƒµÿ÷∑∫Õ¥Û–°
+		//ËøôÁé©ÊÑèÊòØÁ≥ªÁªüÂÜÖÊ†∏ÁöÑÂú∞ÂùÄÂíåÂ§ßÂ∞è
 		Global::g_KernelBase = (ULONG64)v_target_entry->DllBase;
 		Global::g_KernelSize = (ULONG32)v_target_entry->SizeOfImage;
 
 		//DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL, "[+] KernelBase:0x%llX KernelSize:0x%X\r\n", Global::g_KernelBase, Global::g_KernelSize);
 #endif
-		//≥ı ºªØµº»Î∫Ø ˝
+		//ÂàùÂßãÂåñÂØºÂÖ•ÂáΩÊï∞
 		//InitializeHideImport(Global::g_KernelBase);
 
 		Status = LogInitialize(LogLevel, L"\\??\\C:\\WeDebug_Log.log");
@@ -114,7 +117,7 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 		LOG_INFO("[+] ********************************************************\r\n");
 		LOG_INFO("[+] *                www.woaidaima.com                     *\r\n");
-		LOG_INFO("[+] *                  Œ“∞Æ¥˙¬Î¬€Ã≥                        *\r\n");
+		LOG_INFO("[+] *                  ÊàëÁà±‰ª£Á†ÅËÆ∫Âùõ                        *\r\n");
 		LOG_INFO("[+] *                    WeDebug                           *\r\n");
 		LOG_INFO("[+] ********************************************************\r\n");
 
@@ -130,19 +133,19 @@ DriverEntry(__in DRIVER_OBJECT* DriverObject, __in UNICODE_STRING* RegistryPath)
 
 		if (!NT_SUCCESS(Status))
 		{
-			LOG_ERROR("[-] [1] WdkInitSystem ≥ı ºªØ ß∞‹\r\n");
+			LOG_ERROR("[-] [1] WdkInitSystem ÂàùÂßãÂåñÂ§±Ë¥•\r\n");
 			return Status;
 		}
 
 		if (!Global::Initialize_Global())
 		{
-			LOG_ERROR("[-] [2] »´æ÷≥ı ºªØ ß∞‹\r\n");
+			LOG_ERROR("[-] [2] ÂÖ®Â±ÄÂàùÂßãÂåñÂ§±Ë¥•\r\n");
 			return STATUS_UNSUCCESSFUL;
 		}
 
 		if (!Control::InitDeviceIoControl())
 		{
-			LOG_DEBUG("[-] [3] InitDeviceIoControl  ß∞‹\r\n");
+			LOG_DEBUG("[-] [3] InitDeviceIoControl Â§±Ë¥•\r\n");
 			return STATUS_UNSUCCESSFUL;
 		}
 	}

@@ -150,9 +150,9 @@ copy "$(SolutionDir)Bin\x64\Release\WeDebug\WeDebug.sys" "$(SolutionDir)Bin\x64\
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeaderFile>WeDebug.pch.h</PrecompiledHeaderFile>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      <AdditionalOptions>/Zc:wchar_t-</AdditionalOptions>
       <SDLCheck>false</SDLCheck>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Inf />
     <MASM />
@@ -176,6 +176,11 @@ copy "$(SolutionDir)Bin\x64\Release\WeDebug\WeDebug.sys" "$(SolutionDir)Bin\x64\
   <ItemGroup>
     <ClCompile Include="WeDebug.Control.cpp" />
     <ClCompile Include="WeDebug.DbgkApi.cpp" />
+    <ClCompile Include="WeDebug.AsmVmcall.cpp" />
+    <ClCompile Include="WeDebug.Hypervisor.cpp" />
+    <ClCompile Include="WeDebug.EptHook.cpp" />
+    <ClCompile Include="WeDebug.DebugBreak.cpp" />
+    <ClCompile Include="WeDebug.Process.cpp" />
     <ClCompile Include="WeDebug.Global.cpp" />
     <ClCompile Include="WeDebug.List.cpp" />
     <ClCompile Include="WeDebug.Main.cpp">
@@ -194,6 +199,13 @@ copy "$(SolutionDir)Bin\x64\Release\WeDebug\WeDebug.sys" "$(SolutionDir)Bin\x64\
     <ClInclude Include="WeDebug.Config.h" />
     <ClInclude Include="WeDebug.Control.h" />
     <ClInclude Include="WeDebug.DbgkApi.h" />
+    <ClInclude Include="WeDebug.DbgkCompat.h" />
+    <ClInclude Include="WeDebug.EptHook.h" />
+    <ClInclude Include="WeDebug.DebugBreak.h" />
+    <ClInclude Include="WeDebug.Process.h" />
+    <ClInclude Include="WeDebug.Hypervisor.h" />
+    <ClInclude Include="WeDebug.AsmVmcall.h" />
+    <ClInclude Include="WeDebug.vmcall_reason.h" />
     <ClInclude Include="WeDebug.Global.h" />
     <ClInclude Include="WeDebug.List.h" />
     <ClInclude Include="WeDebug.pch.h" />

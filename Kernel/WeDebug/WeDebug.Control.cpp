@@ -1,7 +1,9 @@
-#include "WeDebug.pch.h"
+ï»¿#include "WeDebug.pch.h"
 #include "WeDebug.Control.h"
 #include "WeDebug.Symbolic.h"
 #include "WeDebug.DbgkApi.h"
+#include "WeDebug.EptHook.h"
+#include "WeDebug.DebugBreak.h"
 
 namespace Control
 {
@@ -13,11 +15,11 @@ namespace Control
 
 		if (!NT_SUCCESS(ntStatus))
 		{
-			LOG_DEBUG("[-] ´´½¨Éè±¸¶ÔÏóÊ§°Ü\n");
+			LOG_DEBUG("[-] åˆ›å»ºè®¾å¤‡å¤±è´¥\n");
 			return FALSE;
 		}
 
-		LOG_DEBUG("[+] ´´½¨Éè±¸¶ÔÏó³É¹¦\n");
+		LOG_DEBUG("[+] åˆ›å»ºè®¾å¤‡æˆåŠŸ\n");
 
 		Global::g_DriverObject->MajorFunction[IRP_MJ_CREATE] = InitDispatchRoutine;
 		Global::g_DriverObject->MajorFunction[IRP_MJ_CLOSE] = InitDispatchRoutine;
@@ -31,18 +33,18 @@ namespace Control
 		RemoveDevice(Global::g_DriverObject);
 	}
 
-	//´´½¨Éè±¸ ·ûºÅÁ´½ÓµÈ
+	//åˆ›å»ºè®¾å¤‡ ç¬¦å·é“¾æ¥ç­‰
 	NTSTATUS CreateDevice(IN PDRIVER_OBJECT pDriver_Object)
 	{
 		NTSTATUS ntStatus;
 		PDEVICE_OBJECT pDevObj;
 		PDEVICE_EXTENSION pDevExt;
 
-		//´´½¨Éè±¸Ãû³Æ
+		//åˆ›å»ºè®¾å¤‡åç§°
 		UNICODE_STRING devName;
 		RtlInitUnicodeString(&devName, (L"\\Device\\WeDebug"));
 
-		//´´½¨Éè±¸
+		//åˆ›å»ºè®¾å¤‡
 		ntStatus = IoCreateDevice(pDriver_Object,
 			sizeof(DEVICE_EXTENSION),
 			&devName,
@@ -56,26 +58,26 @@ namespace Control
 			return ntStatus;
 		}
 
-		//´´½¨Ö±½Ó¶ÁĞ´Éè±¸
+		//åˆ›å»ºç›´æ¥è¯»å†™è®¾å¤‡
 		pDevObj->Flags |= DO_BUFFERED_IO;
 		pDevExt = (PDEVICE_EXTENSION)pDevObj->DeviceExtension;
 		pDevExt->pDevice = pDevObj;
 		pDevExt->ustrDeviceName = devName;
 
-		//´´½¨·ûºÅÁ´½Ó
+		//åˆ›å»ºç¬¦å·é“¾æ¥
 		UNICODE_STRING symLinkName;
 		RtlInitUnicodeString(&symLinkName, (L"\\??\\WeDebug"));
 		pDevExt->ustrSymLinkName = symLinkName;
 		ntStatus = IoCreateSymbolicLink(&symLinkName, &devName);
 		if (!NT_SUCCESS(ntStatus))
 		{
-			IoDeleteDevice(pDevObj);  //´´½¨Ê§°ÜÉ¾³ıÉè±¸
+			IoDeleteDevice(pDevObj);  //åˆ›å»ºå¤±è´¥åˆ é™¤è®¾å¤‡
 			return ntStatus;
 		}
 		return STATUS_SUCCESS;
 	}
 
-	//É¾³ıÉè±¸
+	//åˆ é™¤è®¾å¤‡
 	VOID RemoveDevice(IN PDRIVER_OBJECT pDriver_Object)
 	{
 	    PDEVICE_OBJECT	pNextObj;
@@ -84,7 +86,7 @@ namespace Control
 	    {
 	        PDEVICE_EXTENSION pDevExt = (PDEVICE_EXTENSION)pNextObj->DeviceExtension;
 	
-	        //É¾³ı·ûºÅÁ´½Ó
+	        //åˆ é™¤ç¬¦å·é“¾æ¥
 	        UNICODE_STRING pLinkName = pDevExt->ustrSymLinkName;
 			LOG_DEBUG("[+] RemoveDevice:%wZ\n", pLinkName);
 
@@ -97,13 +99,13 @@ namespace Control
 	NTSTATUS InitDispatchRoutine(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)
 	{
 		NTSTATUS ntStatus = STATUS_SUCCESS;
-		//µÃµ½µ±Ç°¶ÑÕ»
+		//å¾—åˆ°å½“å‰å †æ ˆ
 		PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(pIrp);
-		//µÃµ½ÊäÈë»º³åÇø´óĞ¡
+		//å¾—åˆ°è¾“å…¥ç¼“å†²åŒºå¤§å°
 		ULONG cbin = stack->Parameters.DeviceIoControl.InputBufferLength;
-		//µÃµ½Êä³ö»º³åÇø´óĞ¡
+		//å¾—åˆ°è¾“å‡ºç¼“å†²åŒºå¤§å°
 		ULONG cbout = stack->Parameters.DeviceIoControl.OutputBufferLength;
-		//µÃµ½IOCTLÂë
+		//å¾—åˆ°IOCTLç 
 		ULONG code = stack->Parameters.DeviceIoControl.IoControlCode;
 
 		pIrp->IoStatus.Status = ntStatus;
@@ -115,13 +117,13 @@ namespace Control
 	NTSTATUS HandlerDispatchRoutine(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)
 	{
 		NTSTATUS ntStatus = STATUS_SUCCESS;
-		//µÃµ½µ±Ç°¶ÑÕ»
+		//å¾—åˆ°å½“å‰å †æ ˆ
 		PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(pIrp);
-		//µÃµ½ÊäÈë»º³åÇø´óĞ¡
+		//å¾—åˆ°è¾“å…¥ç¼“å†²åŒºå¤§å°
 		ULONG cbin = stack->Parameters.DeviceIoControl.InputBufferLength;
-		//µÃµ½Êä³ö»º³åÇø´óĞ¡
+		//å¾—åˆ°è¾“å‡ºç¼“å†²åŒºå¤§å°
 		ULONG cbout = stack->Parameters.DeviceIoControl.OutputBufferLength;
-		//µÃµ½IOCTLÂë
+		//å¾—åˆ°IOCTLç 
 		ULONG code = stack->Parameters.DeviceIoControl.IoControlCode;
 
 		switch (code)
@@ -129,7 +131,7 @@ namespace Control
 			case IOCTL_WEDEBUG_Test:
 			{
 				LOG_DEBUG("[+] IOCTL_WEDEBUG_Test\n");
-				//µ÷ÓÃÏß³ÌÀ´×ÔguiÏß³Ì
+				//è°ƒç”¨çº¿ç¨‹æ¥è‡ªguiçº¿ç¨‹
  				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
  				HANDLE_WEDEBUG_Test(userData, pIrp);
 				break;
@@ -153,6 +155,43 @@ namespace Control
 				LOG_DEBUG("[+] IOCTL_WEDEBUG_DbgkInit\n");
 				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
 				HANDLE_WEDEBUG_DbgkInit(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_InitDebuggerData:
+			{
+				LOG_DEBUG("[+] IOCTL_WEDEBUG_InitDebuggerData\n");
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_InitDebuggerData(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_SetHardwareBreakpoint:
+			{
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_SetHardwareBreakpoint(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_DelHardwareBreakpoint:
+			{
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_DelHardwareBreakpoint(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_SetSoftwareBreakpoint:
+			{
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_SetSoftwareBreakpoint(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_DelSoftwareBreakpoint:
+			{
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_DelSoftwareBreakpoint(userData, pIrp);
+				break;
+			}
+			case IOCTL_WEDEBUG_ReadSoftwareBreakpoint:
+			{
+				PUSER_DATA userData = (PUSER_DATA)pIrp->AssociatedIrp.SystemBuffer;
+				HANDLE_WEDEBUG_ReadSoftwareBreakpoint(userData, pIrp);
 				break;
 			}
 			default:
@@ -186,14 +225,14 @@ namespace Control
 
 		USER_DATA user = GetUserData(userData);
 
-		//·ÖÅäÃ÷ÎÄ»º´æÇø
+		//åˆ†é…æ˜æ–‡ç¼“å­˜åŒº
 		BYTE* aucPlainText = allocate_pool<BYTE*>(user.uSize);
 		DecryptData((PVOID)user.pUserData, aucPlainText);
 
-		// ¼ÆËãÃ÷ÎÄ»º³åÇøÖĞµÄ½á¹¹ÌåÊıÁ¿
+		// è®¡ç®—æ˜æ–‡ç¼“å†²åŒºä¸­çš„ç»“æ„ä½“æ•°é‡
 		size_t numElements = user.uSize / sizeof(REQUEST_Test);
 
-		// ±éÀúÃ÷ÎÄ»º³åÇøÖĞµÄ½á¹¹Ìå
+		// éå†æ˜æ–‡ç¼“å†²åŒºä¸­çš„ç»“æ„ä½“
 		for (size_t i = 0; i < numElements; i++)
 		{
 			REQUEST_Test* pTest = reinterpret_cast<REQUEST_Test*>(aucPlainText + i * sizeof(REQUEST_Test));
@@ -201,7 +240,7 @@ namespace Control
 			LOG_DEBUG("[+] InValue:0x%p\r\n", pTest->InValue);
 		}
 
-		REQUEST_Test* output = (REQUEST_Test*)pIrp->AssociatedIrp.SystemBuffer;  //ÄÚºËµÄ»º³åÇø£¬ÊäÈëÊä³ö¶¼ÓÃµÄÕâ¸ö
+		REQUEST_Test* output = (REQUEST_Test*)pIrp->AssociatedIrp.SystemBuffer;  //å†…æ ¸çš„ç¼“å†²åŒºï¼Œè¾“å…¥è¾“å‡ºéƒ½ç”¨çš„è¿™ä¸ª
 		RtlZeroMemory(output, sizeof(REQUEST_Test));
 		
 		output->OutValue = 0x666;
@@ -233,6 +272,26 @@ namespace Control
 			CheckFunctionPointers();
 
 			Global::g_IsInitSymbols = TRUE;
+
+			if (DispatchOffsetToHost())
+			{
+				if (Global::g_DbgkInitialized == FALSE)
+				{
+					if (NT_SUCCESS(DbgkInitialize()))
+					{
+						Global::g_DbgkInitialized = TRUE;
+					}
+				}
+
+				if (Global::g_DbgkInitialized)
+				{
+					SetupEptHook();
+				}
+			}
+			else
+			{
+				LOG_DEBUG("[-] ç¬¦å·å·²å°±ç»ªï¼Œä½†æœªèƒ½æŠŠ offset å‘ç»™ WeVt Host\r\n");
+			}
 		}
 
 		return STATUS_SUCCESS;
@@ -244,15 +303,16 @@ namespace Control
 
 		if (Global::g_DbgkInitialized == FALSE)
 		{
-			NTSTATUS ntStatus = STATUS_SUCCESS;
-
-			ntStatus = DbgkInitialize();
-
+			NTSTATUS ntStatus = DbgkInitialize();
 			if (NT_SUCCESS(ntStatus))
 			{
 				Global::g_DbgkInitialized = TRUE;
-
 			}
+		}
+
+		if (Global::g_DbgkInitialized && Global::g_IsInitSymbols)
+		{
+			SetupEptHook();
 		}
 
 		return STATUS_SUCCESS;
@@ -262,50 +322,99 @@ namespace Control
 	{
 		LOG_DEBUG("[+] HANDLE_WEDEBUG_GetProcessCr3\r\n");
 
-// 		USER_DATA user = GetUserData(userData);
-// 
-// 		//·ÖÅäÃ÷ÎÄ»º´æÇø
-// 		BYTE* aucPlainText = allocate_pool<BYTE*>(user.uSize);
-// 		DecryptData((PVOID)user.pUserData, aucPlainText);
-// 
-// 		// ¼ÆËãÃ÷ÎÄ»º³åÇøÖĞµÄ½á¹¹ÌåÊıÁ¿
-// 		size_t numElements = user.uSize / sizeof(RING3_PROCESS_CR3);
-// 
-// 		// ±éÀúÃ÷ÎÄ»º³åÇøÖĞµÄ½á¹¹Ìå
-// 		for (size_t i = 0; i < numElements; i++)
-// 		{
-// 			RING3_PROCESS_CR3* pInfo = reinterpret_cast<RING3_PROCESS_CR3*>(aucPlainText + i * sizeof(RING3_PROCESS_CR3));
-// 
-// 			if (pInfo->ProcessHandle)
-// 			{
-// 				PEPROCESS Process;
-// 
-// 				NTSTATUS Status = ObReferenceObjectByHandle((HANDLE)pInfo->ProcessHandle,
-// 					PROCESS_ALL_ACCESS,
-// 					*PsProcessType,
-// 					KernelMode,
-// 					(PVOID*)&Process,
-// 					NULL);
-// 
-// 				if (!NT_SUCCESS(Status)) 
-// 				{
-// 					break;
-// 				}
-// 
-// 				size_t ptr_DirectoryTableBase = (size_t)Process + kprocess_offset::DirectoryTableBase;
-// 				if (ptr_DirectoryTableBase)
-// 				{
-// 					output->cr3 = *(size_t*)ptr_DirectoryTableBase;
-// 				}
-// 
-// 				ObDereferenceObject(Process);
-// 			}
-// 		}
-// 
-// 		free_pool(aucPlainText);
+		USER_DATA user = GetUserData(userData);
 
+		PRING3_PROCESS_INFO output = (PRING3_PROCESS_INFO)pIrp->AssociatedIrp.SystemBuffer;
+		RtlZeroMemory(output, sizeof(RING3_PROCESS_INFO));
+
+		BYTE* aucPlainText = allocate_pool<BYTE*>(user.uSize);
+		DecryptData((PVOID)user.pUserData, aucPlainText);
+
+		size_t numElements = user.uSize / sizeof(RING3_PROCESS_INFO);
+		for (size_t i = 0; i < numElements; i++)
+		{
+			PRING3_PROCESS_INFO pInfo = reinterpret_cast<PRING3_PROCESS_INFO>(aucPlainText + i * sizeof(RING3_PROCESS_INFO));
+			if (pInfo->ProcessHandle)
+			{
+				PEPROCESS Process = NULL;
+				NTSTATUS Status = ObReferenceObjectByHandle((HANDLE)pInfo->ProcessHandle,
+					PROCESS_ALL_ACCESS,
+					*PsProcessType,
+					KernelMode,
+					(PVOID*)&Process,
+					NULL);
+				if (!NT_SUCCESS(Status))
+				{
+					break;
+				}
+
+				size_t ptr_DirectoryTableBase = (size_t)Process + Offset::KProcess::DirectoryTableBase;
+				output->cr3 = *(size_t*)ptr_DirectoryTableBase;
+				ObDereferenceObject(Process);
+			}
+		}
+
+		free_pool(aucPlainText);
 		return STATUS_SUCCESS;
 	}
 
+	NTSTATUS HANDLE_WEDEBUG_InitDebuggerData(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		UNREFERENCED_PARAMETER(pIrp);
+		LOG_DEBUG("[+] HANDLE_WEDEBUG_InitDebuggerData\r\n");
+
+		BYTE* aucPlainText = allocate_pool<BYTE*>(userData->uSize);
+		DecryptData((PVOID)userData->pUserData, aucPlainText);
+
+		size_t numElements = userData->uSize / sizeof(RING3_DEBUGGER_TABLE_ENTRY);
+		for (size_t i = 0; i < numElements; i++)
+		{
+			PRING3_DEBUGGER_TABLE_ENTRY pInfo = reinterpret_cast<PRING3_DEBUGGER_TABLE_ENTRY>(aucPlainText + i * sizeof(RING3_DEBUGGER_TABLE_ENTRY));
+			if (pInfo->dwPid > 0)
+			{
+				PDEBUGGER_TABLE_ENTRY debugger = allocate_pool<DEBUGGER_TABLE_ENTRY>();
+				if (debugger)
+				{
+					debugger->dwPid = pInfo->dwPid;
+					debugger->fileData = pInfo->fileData;
+					debugger->fileData2 = pInfo->fileData2;
+					InsertDebuggerList(debugger);
+				}
+			}
+		}
+
+		free_pool(aucPlainText);
+		return STATUS_SUCCESS;
+	}
+
+	NTSTATUS HANDLE_WEDEBUG_SetHardwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		SetHardwareBreakpoint(userData, pIrp);
+		return STATUS_SUCCESS;
+	}
+
+	NTSTATUS HANDLE_WEDEBUG_DelHardwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		RemoveHardwareBreakpoint(userData, pIrp);
+		return STATUS_SUCCESS;
+	}
+
+	NTSTATUS HANDLE_WEDEBUG_SetSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		SetSoftwareBreakpoint(userData, pIrp);
+		return STATUS_SUCCESS;
+	}
+
+	NTSTATUS HANDLE_WEDEBUG_DelSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		RemoveSoftwareBreakpoint(userData, pIrp);
+		return STATUS_SUCCESS;
+	}
+
+	NTSTATUS HANDLE_WEDEBUG_ReadSoftwareBreakpoint(IN PUSER_DATA userData, IN PIRP pIrp)
+	{
+		ReadSoftwareBreakpoint(userData, pIrp);
+		return STATUS_SUCCESS;
+	}
 
 }

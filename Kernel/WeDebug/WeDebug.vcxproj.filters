@@ -28,6 +28,21 @@
     <ClCompile Include="WeDebug.DbgkApi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WeDebug.AsmVmcall.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.Hypervisor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.EptHook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.DebugBreak.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WeDebug.Process.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="WeDebug.List.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -49,6 +64,27 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WeDebug.DbgkApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.DbgkCompat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.EptHook.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.DebugBreak.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Process.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.Hypervisor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.AsmVmcall.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WeDebug.vmcall_reason.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WeDebug.List.h">
